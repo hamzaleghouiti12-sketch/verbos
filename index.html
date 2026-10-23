@@ -237,12 +237,36 @@ for (const v of Motor.VERBOS) {
 const PESOS = [['A', 35], ['B', 25], ['C', 15], ['D', 25]];
 function grupoAlAzar() { let r = rnd(100); for (const [g, p] of PESOS) { if (r < p) return g; r -= p; } return 'D'; }
 
+// ───────── Reparto adaptativo: más preguntas de los tiempos que más fallas ─────────
+// Se mira el porcentaje de error de las últimas respuestas de cada tiempo (suavizado para no
+// exagerar con pocos datos); cada tiempo activo conserva al menos 3 preguntas.
+function erroresPorTiempo() {
+  const m = {};
+  for (const r of LS.get('ultimas', [])) { (m[r.t] = m[r.t] || { n: 0, mal: 0 }); m[r.t].n++; if (!r.ok) m[r.t].mal++; }
+  return m;
+}
+function cuposPorTiempo(activos) {
+  const e = erroresPorTiempo(), minimo = Math.min(3, Math.floor(TOTAL / activos.length));
+  const tasa = t => { const x = e[t] || { n: 0, mal: 0 }; return (x.mal + 1) / (x.n + 4); }; // 25 % sin datos
+  const peso = Object.fromEntries(activos.map(t => [t, 1 + 3 * tasa(t)]));
+  const total = activos.reduce((s, t) => s + peso[t], 0), libre = TOTAL - minimo * activos.length;
+  const cupos = Object.fromEntries(activos.map(t => [t, minimo + Math.floor(libre * peso[t] / total)]));
+  // lo que sobra por el redondeo va a los tiempos con más peso
+  let resto = TOTAL - activos.reduce((s, t) => s + cupos[t], 0);
+  for (const t of [...activos].sort((a, b) => peso[b] - peso[a])) { if (resto <= 0) break; cupos[t]++; resto--; }
+  return cupos;
+}
+function tiemposDebiles(n = 2) {
+  const e = erroresPorTiempo();
+  return Object.entries(e).filter(([t, x]) => x.n >= 4 && x.mal / x.n >= 0.3 && ajustes.tiempos.includes(t))
+    .sort((a, b) => b[1].mal / b[1].n - a[1].mal / a[1].n).slice(0, n).map(([t]) => t);
+}
+
 // ───────── Generar examen de 100 sin repetir ─────────
 function generarExamen() {
   const activos = ajustes.tiempos.length ? ajustes.tiempos : Motor.TIEMPOS.map(t => t.id);
-  let seq = [];
-  while (seq.length < TOTAL) seq.push(...barajar(activos.slice()));
-  seq = barajar(seq.slice(0, TOTAL));
+  const cupos = cuposPorTiempo(activos);
+  let seq = barajar(activos.flatMap(t => Array(cupos[t]).fill(t)));
   // nunca el mismo tiempo dos veces seguidas
   for (let i = 1; i < seq.length; i++) if (seq[i] === seq[i - 1] && activos.length > 1) {
     const libre = k => seq[k] !== seq[i] && seq[k - 1] !== seq[i] && (k + 1 >= seq.length || seq[k + 1] !== seq[i]);
@@ -499,7 +523,7 @@ function pintarInicio() {
   $('#startTxt').textContent = enCurso ? 'Continuar examen' : 'Empezar examen';
   $('#hiHint').innerHTML = enCurso
     ? `Tanda ${Math.floor(estado.i / TANDA) + 1} · pregunta ${estado.i % TANDA + 1} de 25 · <button class="link" id="nuevoBtn">Empezar de cero</button>`
-    : 'Escribe el modo y el tiempo de cada forma';
+    : (d => d.length ? `El próximo examen insiste en ${d.map(t => nombreT(t).replace('Indicativo · ', '').replace('Subjuntivo · ', 'subj. ').toLowerCase()).join(' y ')}` : 'Escribe el modo y el tiempo de cada forma')(tiemposDebiles());
   if (enCurso) $('#nuevoBtn').onclick = nuevoExamen;
 
   const notas = hist.map(h => h.nota);
@@ -663,6 +687,8 @@ $('#ansForm').onsubmit = e => {
   const fallos = LS.get('fallos', []).filter(f => !(f.v === it.v && f.tid === it.tid));
   if (!ok) fallos.unshift({ v: it.v, tid: it.tid, p: it.p });
   LS.set('fallos', fallos.slice(0, 80));
+  // historial reciente por tiempo: alimenta el reparto adaptativo del próximo examen
+  LS.set('ultimas', [...LS.get('ultimas', []), { t: it.tid, ok }].slice(-600));
   estado.i++; guardar();
   if (!ajustes.inmediata) return siguiente();
   // la forma grande enseña qué parte delata el tiempo (también al acertar, para fijarlo)
