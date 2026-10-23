@@ -328,6 +328,20 @@ function tamanoExamen() {
 }
 
 // ───────── Generar examen sin repetir palabras ─────────
+// ───────── Aprendizaje adaptativo: más palabras del tipo de formación que más fallas ─────────
+function erroresPorFormacion() {
+  const m = {};
+  for (const r of LS.get('ultimas', [])) { (m[r.f] = m[r.f] || { n: 0, mal: 0 }); m[r.f].n++; if (!r.ok) m[r.f].mal++; }
+  return m;
+}
+// barajado ponderado (Efraimidis–Spirakis): las palabras con más peso tienden a salir antes
+function barajarPonderado(lista, peso) {
+  return lista.map(x => ({ x, k: Math.log(1 - rnd(1e6) / 1e6) / peso(x) })).sort((a, b) => b.k - a.k).map(o => o.x);
+}
+function formacionesDebiles() {
+  return Object.entries(erroresPorFormacion()).filter(([, x]) => x.n >= 4 && x.mal / x.n >= 0.3)
+    .sort((a, b) => b[1].mal / b[1].n - a[1].mal / a[1].n).slice(0, 2).map(([f]) => f);
+}
 function generarExamen() {
   const { tanda, tandas } = tamanoExamen(), N = tanda * tandas;
   const g = pools();
@@ -337,7 +351,8 @@ function generarExamen() {
   const fallos = new Set(barajar(LS.get('fallos', []).filter(p => POR_PALABRA.has(p))).slice(0, 12));
   const colas = {};
   for (const [k, lista] of Object.entries(g)) {
-    const b = barajar(lista.slice());
+    const e = erroresPorFormacion(), tasa = f => { const x = e[f] || { n: 0, mal: 0 }; return (x.mal + 1) / (x.n + 4); };
+    const b = barajarPonderado(lista, it => 1 + 6 * tasa(it.form));
     colas[k] = [...b.filter(it => fallos.has(it.palabra)), ...b.filter(it => !fallos.has(it.palabra) && !vistos.has(it.palabra)), ...b.filter(it => !fallos.has(it.palabra) && vistos.has(it.palabra))];
   }
   // reparto por categoría a partes iguales; dentro de los verbos, mitad infinitivos derivados y mitad conjugados
@@ -465,7 +480,7 @@ function pintarInicio() {
   $('#startTxt').textContent = enCurso ? 'Continuar examen' : 'Empezar examen';
   $('#hiHint').innerHTML = enCurso
     ? `Tanda ${Math.floor(estado.i / estado.tanda) + 1} · pregunta ${estado.i % estado.tanda + 1} de ${estado.tanda} · <button class="link" id="nuevoBtn">Empezar de cero</button>`
-    : 'Separa cada palabra en lexema, afijos y morfemas flexivos';
+    : (d => d.length ? `El próximo examen insiste en palabras ${d.map(f => f === 'parasintética' ? 'parasintéticas' : f + 's').join(' y ')}` : 'Separa cada palabra en lexema, afijos y morfemas flexivos')(formacionesDebiles());
   if (enCurso) $('#nuevoBtn').onclick = nuevoExamen;
   const notas = hist.map(h => h.nota), vistos = LS.get('vistos', []).length;
   $('#tiles').innerHTML =
@@ -670,6 +685,8 @@ function terminar(it, autoMs) {
   const fallos = LS.get('fallos', []).filter(p => p !== it.palabra);
   if (puntos < 1) fallos.unshift(it.palabra);
   LS.set('fallos', fallos.slice(0, 80));
+  // historial reciente por tipo de formación: alimenta el reparto del próximo examen
+  LS.set('ultimas', [...LS.get('ultimas', []), { f: it.form, ok: puntos === 1 }].slice(-600));
   estado.i++; guardar(); paso = 0;
   pintarTanda();
   if (autoMs) { avanceTimer = setTimeout(() => { avanceTimer = 0; siguiente(); }, autoMs); return; }
