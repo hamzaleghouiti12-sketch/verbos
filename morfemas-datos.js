@@ -174,7 +174,6 @@ lunar|adj|derivada|lun/L ar/S
 solar|adj|derivada|sol/L ar/S
 escolar|adj|derivada|escol/L ar/S
 familiar|adj|derivada|famili/L ar/S
-grandote|adj|derivada|grand/L ot/A e/V
 pequeñito|adj|derivada|pequeñ/L it/A o/G
 viejecito|adj|derivada|viej/L ec/I it/A o/G
 guapísimo|adj|derivada|guap/L ísim/A o/G|||‑ísimo es el sufijo del grado superlativo; algunos manuales lo tratan como morfema flexivo de grado.
@@ -408,7 +407,138 @@ abotonar|ver|parasintética|a/P boton/L a/V r/R
     return out.join('-');
   };
 
-  const API = { ITEMS, TIPOS, CATS, TIEMPOS_V, PERS, aceptadas, fronteras, formatear, sinTilde };
+  // ───────── Explicaciones de la corrección ─────────
+  const PREF = {
+    des: 'negación o inversión de lo que indica la base', in: 'negación', im: 'negación', ir: 'negación (in‑ se escribe ir‑ ante r)',
+    re: 'repetición', pre: 'anterioridad', sub: 'posición inferior («debajo de»)', ante: 'anterioridad o posición delantera',
+    sobre: 'posición superior («por encima de»)', contra: 'oposición', super: 'superioridad', mini: 'tamaño pequeño',
+    bis: '«dos veces»: un grado más de parentesco', pos: 'posterioridad', ex: '«que ha dejado de ser»', a: 'negación'
+  };
+  const APREC = { it: 'diminutivo', ill: 'diminutivo', uch: 'despectivo', az: 'aumentativo', ot: 'aumentativo', 'ón': 'aumentativo', 'ísim': 'superlativo' };
+  // valor de cada sufijo derivativo según la categoría de la palabra
+  function valorSufijo(it, i) {
+    const s = it.segs[i][0], sig = it.segs[i + 1] && it.segs[i + 1][0], ant = it.segs[i - 1] && it.segs[i - 1][0];
+    const nombre = it.cat === 'sus', verbo = it.cat === 'ver';
+    switch (s) {
+      case 'er': return sig === 'ía' ? 'junto con ‑ía forma el sufijo ‑ería' : it.palabra === 'quinceañero' ? 'persona caracterizada por lo que indica la base: «que tiene quince años»' : 'oficio, objeto o lugar relacionado con el lexema';
+      case 'ía': return ant === 'er' ? 'lugar o establecimiento' : 'cualidad';
+      case 'dor': return 'agente, lugar o instrumento de la acción del verbo';
+      case 'nte': return 'agente: quien realiza la acción del verbo';
+      case 'der': return 'lugar donde se realiza la acción';
+      case 'ción': case 'nz': case 'ur': return 'acción o efecto del verbo';
+      case 'ez': case 'dad': return 'cualidad';
+      case 'az': return 'golpe dado con lo que indica el lexema';
+      case 'al': case 'ar': return nombre ? 'lugar donde abunda la planta que indica el lexema' : 'relación o pertenencia';
+      case 'ed': return 'conjunto o lugar donde abunda lo que indica el lexema';
+      case 'ist': return 'oficio o actividad';
+      case 'iz': return verbo || (it.segs[i + 1] && it.segs[i + 1][1] === 'V') ? 'verbalizador: «hacer o convertir en»' : 'semejanza o tendencia de color';
+      case 'ific': return 'verbalizador: «hacer o convertir en»';
+      case 'ent': case 'áce': return 'semejanza o tendencia';
+      case 'os': return 'abundancia o cualidad';
+      case 'ud': return 'abundancia o tamaño grande';
+      case 'ad': return 'que tiene o se parece a lo que indica el lexema';
+      case 'in': return ant === 'ec' ? 'semejanza: «que tira a»' : 'relación o pertenencia';
+      case 'áne': case 'ieg': case 'il': return 'relación o pertenencia';
+      case 'ble': return 'posibilidad o merecimiento';
+      case 'tiv': return 'tendencia o capacidad';
+      case 'ec': return 'verbalizador que, junto con el prefijo, forma la parasíntesis';
+      case 'e': return 'verbalizador: forma verbos en ‑ear a partir de nombres o adjetivos';
+      case 'it': return 'valor atenuativo o frecuentativo («dormir a ratos»)';
+      case 'mente': return 'forma adverbios de modo a partir de adjetivos';
+      default: return '';
+    }
+  }
+  const PERS_X = ['1.ª persona del singular', '2.ª persona del singular', '3.ª persona del singular', '1.ª persona del plural', '2.ª persona del plural', '3.ª persona del plural'];
+  const conjDe = it => { const v = it.verbo || it.palabra; return { ar: '1.ª conjugación (‑ar)', er: '2.ª conjugación (‑er)', ir: '3.ª conjugación (‑ir)' }[v.slice(-2)]; };
+
+  // familias léxicas: palabras analizadas a mano (e infinitivos generados) con el mismo lexema
+  const HOMONIMOS = new Set(['mes', 'libr', 'mal']); // mesa/mes, libro/libre, malo/mal: mismo segmento, distinto lexema
+  const FAMILIA = {};
+  for (const it of ITEMS) {
+    if (it.tiempo && it.tiempo !== 'inf') continue;
+    for (const [s, t] of it.segs) if (t === 'L' && !HOMONIMOS.has(s)) (FAMILIA[s] = FAMILIA[s] || []).push(it);
+  }
+  const familia = (it, s) => [...new Set((FAMILIA[s] || []).filter(o => o.palabra !== it.palabra && !(it.verbo && o.verbo === it.verbo)).map(o => o.segs.map(x => x[0]).join('-')))].slice(0, 3);
+
+  function explicarMorfema(it, i) {
+    const [s0, t] = it.segs[i];
+    const s = s0, g = (i > 0 ? '‑' : '') + s0 + (i < it.segs.length - 1 ? '‑' : ''); // «‑ble» al final, «‑ble‑» en medio
+    const ant = it.segs[i - 1], sig = it.segs[i + 1];
+    const compuesta = it.segs.filter(x => x[1] === 'L').length > 1;
+    switch (t) {
+      case 'L': {
+        const f = familia(it, s);
+        return `«${s}» es el lexema: aporta el significado léxico${f.length ? ` y se repite en su familia (${f.join(', ')})` : ''}.`;
+      }
+      case 'P':
+        if (it.form === 'parasintética') return `«${s}‑» es un prefijo que se añade a la vez que el sufijo o la terminación verbal (parasíntesis).`;
+        return `«${s}‑» es un prefijo: va delante del lexema y aporta ${PREF[s] || 'un matiz de significado'}.`;
+      case 'S': {
+        const v = valorSufijo(it, i);
+        if (s === 'mente') return '«‑mente» es un sufijo: forma adverbios de modo a partir de adjetivos.';
+        return `«${g}» es un sufijo derivativo${v ? ` (${v})` : ''}: forma una palabra nueva a partir de la base.`;
+      }
+      case 'A':
+        return `«${g}» es un sufijo apreciativo (${APREC[s] || 'valor afectivo'}): matiza el significado sin cambiar la categoría.`;
+      case 'I':
+        return compuesta && ant && ant[1] === 'L' && sig && sig[1] === 'L'
+          ? `«${g}» es un interfijo: une los dos lexemas del compuesto y no tiene significado.`
+          : `«${g}» es un interfijo: une el lexema con el sufijo y no tiene significado propio, por eso no es un sufijo.`;
+      case 'G':
+        if (sig && sig[0] === 'mente') return `«${g}» es el morfema de género femenino: los adverbios en ‑mente se forman sobre el femenino del adjetivo.`;
+        return `«${g}» es el morfema de género: alterna con «‑${s === 'a' ? 'o' : 'a'}» para marcar ${s === 'a' ? 'femenino' : 'masculino'}.`;
+      case 'N':
+        return `«${g}» es el morfema de número: marca el plural${s === 'es' ? ' (‑es tras consonante)' : ''}.`;
+      case 'V':
+        if (it.cat === 'ver') {
+          const c = (it.verbo || it.palabra).slice(-2), v = sinTilde(s);
+          if (c === 'ar') return `«${g}» es la vocal temática de la 1.ª conjugación (‑ar).`;
+          if (it.tiempo === 'impf' || v === 'ie') return `«${g}» es la vocal temática; en este tiempo es común a la 2.ª y la 3.ª conjugación.`;
+          if (c === 'ir' && v === 'e') return `«${g}» es la vocal temática; en este tiempo la 3.ª conjugación (‑ir) comparte la ‑e‑ con la 2.ª.`;
+          return `«${g}» es la vocal temática de la ${conjDe(it)}.`;
+        }
+        if (sig && ['D', 'E', 'R'].includes(sig[1])) return `«${g}» es la vocal temática del verbo, que se mantiene en el participio.`;
+        if (sig && sig[1] === 'S' && sig[0] !== 'mente') return `«${g}» es la vocal temática del verbo del que procede la palabra; se mantiene ante el sufijo.`;
+        if (sig && sig[1] === 'L') return `«${g}» es la vocal temática del primer elemento del compuesto; no marca género.`;
+        if (sig && sig[0] === 'mente') return `«${g}» es la vocal temática del adjetivo, que no tiene variación de género.`;
+        return `«${g}» es vocal temática: no marca género, porque no alterna con otra vocal para formar el masculino o el femenino de la misma palabra.`;
+      case 'T':
+        if (it.tiempo === 'spres') return `«${g}» es el morfema de tiempo, aspecto y modo del presente de subjuntivo; en este tiempo no hay vocal temática.`;
+        return `«${g}» es el morfema de tiempo, aspecto y modo: indica ${TIEMPOS_V[it.tiempo] || 'el tiempo verbal'}.`;
+      case 'X':
+        if (it.tiempo === 'pres' && it.persona === 0) return '«‑o» es la desinencia de 1.ª persona del singular del presente de indicativo: amalgama número, persona, tiempo y modo, y no lleva vocal temática.';
+        return `«${g}» es el morfema de número y persona: ${PERS_X[it.persona] || 'persona y número'}.`;
+      case 'R': return '«‑r» es el morfema de infinitivo.';
+      case 'E': return '«‑ndo» es el morfema de gerundio.';
+      case 'D': return '«‑d‑» es el morfema de participio.';
+    }
+    return '';
+  }
+  const FORMACION = {
+    simple: 'Es una palabra simple: un solo lexema y únicamente morfemas flexivos.',
+    derivada: 'Es una palabra derivada: un lexema con afijos derivativos (prefijos, sufijos o interfijos).',
+    compuesta: 'Es una palabra compuesta: tiene más de un lexema.',
+    'parasintética': 'Es parasintética: el prefijo y el sufijo (o la composición y la derivación) se añaden a la vez; no existe la palabra solo con uno de ellos.'
+  };
+  // Explicación de un fallo: por qué hay que separar cada frontera que faltó y por qué no se parte un morfema
+  function explicar(it, faltan, sobran) {
+    const morfIdx = pos => { let a = 0; for (let i = 0; i < it.segs.length; i++) { const L = sinTilde(it.segs[i][0]).length; if (pos < a + L) return i; a += L; } return it.segs.length - 1; };
+    const out = [], usados = new Set();
+    const add = i => { if (!usados.has(i)) { usados.add(i); out.push(explicarMorfema(it, i)); } };
+    for (const p of faltan) { const i = morfIdx(p); add(i - 1); add(i); }
+    for (const p of sobran) {
+      const i = morfIdx(p), [s, t] = it.segs[i];
+      out.push(`«${s}» es un solo morfema (${TIPOS[t]}): no se puede partir, porque sus trozos no tienen significado ni función por separado.`);
+      add(i);
+    }
+    if (it.tiempo && !['inf', 'ger', 'par'].includes(it.tiempo) && !it.segs.some(x => x[1] === 'X'))
+      out.push('En esta persona el morfema de número y persona es cero: no tiene forma visible.');
+    if (it.tiempo) out.push(`Es una forma flexiva del verbo «${it.verbo}»: no tiene afijos derivativos, solo lexema y morfemas flexivos.`);
+    else out.push(FORMACION[it.form]);
+    return out.filter(Boolean);
+  }
+
+  const API = { ITEMS, TIPOS, CATS, TIEMPOS_V, PERS, aceptadas, fronteras, formatear, sinTilde, explicar, explicarMorfema };
   if (typeof module !== 'undefined' && module.exports) module.exports = API;
   else global.Morfemas = API;
 })(typeof window !== 'undefined' ? window : globalThis);

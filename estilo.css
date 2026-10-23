@@ -230,3 +230,11 @@ kbd{font:inherit;font-size:12px;padding:1px 6px;border-radius:5px;background:var
 .games .seg a{position:relative;z-index:1;flex:1;border-radius:7px;font-size:13px;font-weight:600;display:grid;place-items:center;text-decoration:none;color:var(--label)}
 .games .seg a[aria-current="false"]{color:var(--label2)}
 @media (max-width:600px){.games{padding-left:16px;padding-right:16px}}
+
+/* Justificación de un fallo */
+.porque{margin-top:14px;text-align:left;background:var(--fill);border-radius:14px;padding:12px 14px 13px}
+.porque h4{font-size:12px;font-weight:700;color:var(--label2);text-transform:uppercase;letter-spacing:.03em}
+.porque ul{margin:6px 0 0;padding-left:18px}
+.porque li{font-size:14px;line-height:1.42;margin-top:5px}
+.porque li::marker{color:var(--label3)}
+.porque b{font-weight:600}

@@ -81,6 +81,7 @@
         <button class="wide" id="ansBtn" type="submit"><span id="ansTxt">Comprobar</span> <kbd>Enter</kbd></button>
       </form>
       <div class="fb" id="fb" hidden><span class="app-icon" id="fbIcon"></span><div><div class="fb-title" id="fbTitle"></div><div class="fb-sub" id="fbSub"></div></div></div>
+      <div class="porque" id="porque" hidden></div>
     </div>
     <p class="keys">Ej.: <kbd>ind pres</kbd> <kbd>sub impf</kbd> <kbd>imp</kbd> · <kbd>Enter</kbd> comprueba y pasa</p>
     <div class="section-head"><h2>Esta tanda</h2></div>
@@ -180,7 +181,9 @@ const $ = s => document.querySelector(s);
 const TANDA = 25, TANDAS = 4, TOTAL = TANDA * TANDAS;
 const PERSONAS = ['yo', 'tú', 'él / ella / usted', 'nosotros / as', 'vosotros / as', 'ellos / ellas / ustedes'];
 const T = Object.fromEntries(Motor.TIEMPOS.map(t => [t.id, t]));
-const nombreT = id => T[id] ? (T[id].modo === 'Imperativo' ? 'Imperativo afirmativo' : `${T[id].modo} · ${T[id].nombre}`) : id;
+const PARTE_T = { pres: 'presente', impf: 'pretérito imperfecto', indef: 'pretérito perfecto simple', fut: 'futuro simple', cond: 'condicional simple', pps: 'pretérito perfecto compuesto', pp: 'pretérito perfecto', plusc: 'pretérito pluscuamperfecto', ant: 'pretérito anterior', futc: 'futuro compuesto', condc: 'condicional compuesto' };
+const nombreT = id => T[id] ? (T[id].modo === 'Imperativo' ? 'Imperativo afirmativo' : `${T[id].modo} · ${T[id].nombre}`)
+  : `${id.startsWith('sub') ? 'Subjuntivo' : 'Indicativo'} · ${PARTE_T[id.split('_')[1]] || id} (no existe)`;
 
 // ───────── Iconos (mismo trazo que Metas) ─────────
 const ICONS = {
@@ -525,12 +528,58 @@ function pregunta() {
   $('#qInf').textContent = ajustes.infinitivo ? `de ${it.v}` : '';
   const a = $('#ans'); a.value = ''; a.disabled = false;
   $('#searchBox').className = 'search';
-  $('#fb').hidden = true;
+  $('#fb').hidden = true; $('#porque').hidden = true;
   $('#ansTxt').textContent = 'Comprobar';
   pintarTanda();
   esperando = false; t0 = performance.now();
   a.focus();
 }
+// ───────── Justificación de un fallo ─────────
+// Rasgo que identifica cada tiempo; en los compuestos se nombra el auxiliar real de la forma.
+const RASGO = {
+  ind_pres: 'lleva las desinencias del presente (‑o, ‑as/‑es, ‑a/‑e, ‑amos/‑emos/‑imos, ‑áis/‑éis/‑ís, ‑an/‑en) sin morfema de tiempo propio; algunos verbos tienen irregular la 1.ª persona (soy, voy, doy, sé, quepo, tengo).',
+  ind_impf: 'lleva ‑ba‑ en la 1.ª conjugación (cantaba) y ‑ía‑ en la 2.ª y 3.ª (comía, vivía); solo ser, ir y ver son irregulares (era, iba, veía).',
+  ind_indef: 'lleva las desinencias del pretérito perfecto simple: ‑é, ‑aste, ‑ó, ‑amos, ‑asteis, ‑aron en la 1.ª conjugación y ‑í, ‑iste, ‑ió, ‑imos, ‑isteis, ‑ieron en la 2.ª y 3.ª; los de raíz irregular (tuv‑, hic‑, dij‑) llevan ‑e y ‑o sin tilde (tuve, tuvo).',
+  ind_fut: 'se forma con el infinitivo + ‑é, ‑ás, ‑á, ‑emos, ‑éis, ‑án; algunos verbos usan una raíz irregular (tendr‑, sabr‑, dir‑, har‑).',
+  ind_cond: 'se forma con el infinitivo + ‑ía, ‑ías, ‑ía, ‑íamos, ‑íais, ‑ían (los irregulares usan la misma raíz que en el futuro: tendría, diría); a diferencia del imperfecto (comía), conserva la ‑r‑ del infinitivo (comería).',
+  sub_pres: 'cambia la vocal de la conjugación: ‑e‑ en los verbos en ‑ar (cante) y ‑a‑ en los verbos en ‑er/‑ir (coma, viva); muchos irregulares toman la raíz de la 1.ª persona del presente (tengo → tenga).',
+  sub_impf: 'termina en ‑ra o ‑se (cantara / cantase) y se forma sobre la raíz de la 3.ª persona del plural del pretérito perfecto simple (tuvieron → tuviera).',
+  sub_fut: 'termina en ‑re (cantare, tuviere) y se forma sobre la misma raíz que el imperfecto de subjuntivo; hoy solo se usa en textos jurídicos y frases hechas.'
+};
+const AUX = {
+  ind_pps: 'presente de indicativo', ind_plusc: 'pretérito imperfecto de indicativo', ind_ant: 'pretérito perfecto simple',
+  ind_futc: 'futuro simple', ind_condc: 'condicional simple', sub_pp: 'presente de subjuntivo',
+  sub_plusc: 'pretérito imperfecto de subjuntivo', sub_futc: 'futuro simple de subjuntivo'
+};
+function rasgo(tid, forma, p) {
+  if (AUX[tid]) {
+    const aux = forma.split(' ')[0], part = forma.split(' ').slice(1).join(' ');
+    return `es un tiempo compuesto: auxiliar haber en ${AUX[tid]} («${aux}») + participio («${part}»).`;
+  }
+  if (tid === 'imp') {
+    if (p === 1) return 'en «tú» el imperativo coincide con la 3.ª persona del presente de indicativo (canta), salvo irregulares como ten, pon, haz, di, sal, sé, ve o ven.';
+    if (p === 4) return 'en «vosotros» el imperativo se forma con el infinitivo cambiando la ‑r final por ‑d (cantad).';
+    return 'en «usted», «nosotros» y «ustedes» el imperativo toma las formas del presente de subjuntivo (cante, cantemos, canten).';
+  }
+  return RASGO[tid];
+}
+function explicarVerbo(it, respId) {
+  const out = [], [tid] = [it.tid];
+  out.push(`«<b>${esc(it.forma)}</b>» es ${esc(nombreT(tid))}: ${esc(rasgo(tid, it.forma, it.p))}`);
+  const otros = it.validas.filter(x => x !== tid);
+  if (otros.length) out.push(`Con «${esc(PERSONAS[it.p])}» esta forma coincide con ${esc(otros.map(nombreT).join(' y '))}, que también se aceptaba.`);
+  if (!T[respId]) {
+    out.push(`El subjuntivo no tiene ese tiempo: sus tiempos son presente, pretérito imperfecto, futuro simple, pretérito perfecto, pluscuamperfecto y futuro compuesto.`);
+  } else {
+    const f = Motor.formas(it.v, respId, it.p);
+    if (f.length) out.push(`En ${esc(nombreT(respId))}, con «${esc(PERSONAS[it.p])}», sería «<b>${f.map(esc).join('</b>» o «<b>')}</b>».`);
+    else if (respId === 'imp' && it.p === 0) out.push('El imperativo no tiene 1.ª persona del singular («yo»).');
+    else if (respId === 'imp') out.push(`«${esc(it.v)}» no se suele usar en imperativo.`);
+  }
+  return out;
+}
+const textoPlano = h => h.replace(/<[^>]+>/g, '');
+
 function feedback(cls, icon, color, title, sub) {
   const fb = $('#fb'); fb.className = 'fb ' + cls; fb.hidden = false;
   $('#fbIcon').style.setProperty('--c', color); $('#fbIcon').innerHTML = svg(icon, 17, 3);
@@ -556,6 +605,8 @@ $('#ansForm').onsubmit = e => {
     avanceTimer = setTimeout(() => { avanceTimer = 0; siguiente(); }, otros.length ? 1100 : 450);
   } else {
     feedback('ko', 'x', 'var(--red)', `Era ${it.validas.map(nombreT).join(' o ')}`, `Pusiste ${esc(nombreT(r.id))}`);
+    $('#porque').innerHTML = `<h4>Por qué</h4><ul>${explicarVerbo(it, r.id).map(l => `<li>${l}</li>`).join('')}</ul>`;
+    $('#porque').hidden = false;
     esperando = true;
     $('#ansTxt').textContent = 'Siguiente';
   }
@@ -667,8 +718,8 @@ function generarInforme(nota, notas) {
     notas.map((x, t) => { const s = filas.filter(f => f.tanda === t + 1); const o = s.filter(f => f.ok).length; return [t + 1, o, s.length - o, fmt(x)]; })) + '\n';
   md += errs.length ? tabla('Confusiones (lo que era → lo que pusiste)', ['Confusión', 'Veces'],
     Object.entries(conf).sort((a, b) => b[1] - a[1]).map(([k, v]) => [k, v])) + '\n' : '';
-  md += errs.length ? tabla(`Detalle de los ${errs.length} errores`, ['#', 'Tanda', 'Persona', 'Forma', 'Verbo', 'Tipo', 'Correcto', 'Lo que escribiste', 'Entendido como', 'Seg.'],
-    errs.map(f => [f.n, f.tanda, PERSONAS[f.p], `**${f.forma}**`, f.v, f.tipo, f.validas.map(nombreT).join(' / '), `«${f.raw.replace(/\|/g, '/')}»`, nombreT(f.id), fmt(f.seg)])) + '\n' : '## Sin errores\n\n';
+  md += errs.length ? tabla(`Detalle de los ${errs.length} errores`, ['#', 'Tanda', 'Persona', 'Forma', 'Verbo', 'Tipo', 'Correcto', 'Lo que escribiste', 'Entendido como', 'Seg.', 'Por qué'],
+    errs.map(f => [f.n, f.tanda, PERSONAS[f.p], `**${f.forma}**`, f.v, f.tipo, f.validas.map(nombreT).join(' / '), `«${f.raw.replace(/\|/g, '/')}»`, nombreT(f.id), fmt(f.seg), textoPlano(explicarVerbo(f, f.id).join(' ')).replace(/\|/g, '/')])) + '\n' : '## Sin errores\n\n';
   md += tabla('Todas las respuestas', ['#', 'Forma', 'Persona', 'Verbo', 'Correcto', 'Respuesta', '✓/✗'],
     filas.map(f => [f.n, f.forma, PERSONAS[f.p], f.v, f.validas.map(nombreT).join(' / '), nombreT(f.id), f.ok ? '✓' : '✗'])) + '\n';
   md += '## Datos en bruto\n\n```json\n' + JSON.stringify(filas.map(f => ({ n: f.n, tanda: f.tanda, verbo: f.v, tipo: f.tipo, persona: f.p, forma: f.forma, correcto: f.validas, respuesta: f.id, escrito: f.raw, ok: f.ok, seg: f.seg }))) + '\n```\n';

@@ -99,6 +99,7 @@
       </form>
       <div class="fb" id="fb" hidden><span class="app-icon" id="fbIcon"></span><div><div class="fb-title" id="fbTitle"></div><div class="fb-sub" id="fbSub"></div></div></div>
       <div class="analisis" id="analisis" hidden></div>
+      <div class="porque" id="porque" hidden></div>
     </div>
     <p class="keys">Separa con <kbd>-</kbd> · las tildes dan igual · <kbd>Enter</kbd> comprueba y pasa</p>
     <div class="section-head"><h2>Esta tanda</h2></div>
@@ -189,7 +190,7 @@
 <script>
 'use strict';
 const $ = s => document.querySelector(s);
-const { ITEMS, TIPOS, CATS, aceptadas, fronteras, formatear, sinTilde } = Morfemas;
+const { ITEMS, TIPOS, CATS, aceptadas, fronteras, formatear, sinTilde, explicar } = Morfemas;
 const TANDA_MAX = 25, TANDAS_MAX = 4;
 
 // ───────── Iconos (mismo trazo que Metas) ─────────
@@ -434,7 +435,7 @@ function pregunta() {
   const w = $('#qWord'); w.textContent = it.palabra; w.classList.remove('bump'); void w.offsetWidth; w.classList.add('bump');
   const a = $('#ans'); a.value = ''; a.disabled = false;
   $('#searchBox').className = 'search';
-  $('#fb').hidden = true; $('#analisis').hidden = true;
+  $('#fb').hidden = true; $('#analisis').hidden = true; $('#porque').hidden = true;
   $('#ansTxt').textContent = 'Comprobar';
   pintarTanda();
   esperando = false; t0 = performance.now();
@@ -459,7 +460,7 @@ $('#ansForm').onsubmit = e => {
   if (c.error) { $('#analisis').hidden = true; return feedback('warn', 'help', 'var(--orange)', 'Revisa la palabra', esc(c.error)); }
   const tuya = formatear(it.palabra, c.fr);
   estado.resp[estado.i] = { raw: tuya, ok: c.ok, seg: Math.round((performance.now() - t0) / 100) / 10,
-    faltan: c.faltan.map(p => nombreFrontera(it, p)), sobran: c.sobran.map(p => nombreCorte(it, p)) };
+    faltan: c.faltan.map(p => nombreFrontera(it, p)), sobran: c.sobran.map(p => nombreCorte(it, p)), porque: explicar(it, c.faltan, c.sobran) };
   estado.i++; guardar();
   if (!ajustes.inmediata) return siguiente();
   $('#searchBox').classList.add(c.ok ? 'ok' : 'ko'); $('#ans').disabled = true;
@@ -474,6 +475,8 @@ $('#ansForm').onsubmit = e => {
     const motivo = [...r.faltan.map(f => `te faltó separar ${f}`), ...r.sobran.map(s => `partiste el ${s}`)];
     feedback('ko', 'x', 'var(--red)', `Pusiste ${tuya}`, esc(cap(motivo.join(' · '))));
     $('#analisis').innerHTML = analisisHTML(it);
+    $('#porque').innerHTML = `<h4>Por qué</h4><ul>${r.porque.map(l => `<li>${esc(l)}</li>`).join('')}</ul>`;
+    $('#porque').hidden = false;
     esperando = true; $('#ansTxt').textContent = 'Siguiente';
   }
   $('#ansBtn').focus();
@@ -574,9 +577,9 @@ function generarInforme(nota, notas) {
   md += sobran.length ? tabla('Morfemas que partiste por la mitad', ['Morfema partido', 'Veces'], sobran) + '\n' : '';
   md += tabla('Evolución por tanda', ['Tanda', 'Aciertos', 'Fallos', 'Nota'],
     notas.map((x, t) => { const s = filas.filter(f => f.tanda === t + 1); const o = s.filter(f => f.ok).length; return [t + 1, o, s.length - o, fmt(x)]; })) + '\n';
-  md += errs.length ? tabla(`Detalle de los ${errs.length} errores`, ['#', 'Tanda', 'Palabra', 'Categoría', 'Formación', 'Correcto', 'Tipos', 'Lo que pusiste', 'Faltó separar', 'Partiste', 'Seg.'],
+  md += errs.length ? tabla(`Detalle de los ${errs.length} errores`, ['#', 'Tanda', 'Palabra', 'Categoría', 'Formación', 'Correcto', 'Tipos', 'Lo que pusiste', 'Faltó separar', 'Partiste', 'Seg.', 'Por qué'],
     errs.map(f => [f.n, f.tanda, f.it.palabra, f.it.tiempo ? 'verbo · ' + Morfemas.TIEMPOS_V[f.it.tiempo] : CATS[f.it.cat], f.it.form, `**${correcta(f.it)}**`,
-      f.it.segs.map(s => s[1]).join(' '), f.raw, f.faltan.join('; ') || '—', f.sobran.join('; ') || '—', fmt(f.seg)])) + '\n' : '## Sin errores\n\n';
+      f.it.segs.map(s => s[1]).join(' '), f.raw, f.faltan.join('; ') || '—', f.sobran.join('; ') || '—', fmt(f.seg), (f.porque || []).join(' ').replace(/\|/g, '/')])) + '\n' : '## Sin errores\n\n';
   md += `Claves de tipos: ${Object.entries(TIPOS).map(([k, v]) => `${k} = ${v}`).join(' · ')}\n\n`;
   md += tabla('Todas las respuestas', ['#', 'Palabra', 'Correcto', 'Lo que pusiste', '✓/✗'],
     filas.map(f => [f.n, f.it.palabra, correcta(f.it), f.raw, f.ok ? '✓' : '✗'])) + '\n';
