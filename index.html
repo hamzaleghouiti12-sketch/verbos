@@ -72,7 +72,7 @@
     <div class="progress" id="prog"></div>
     <div style="height:22px"></div>
     <div class="card q">
-      <div class="q-top"><span class="q-person" id="qPerson"></span></div>
+      <div class="q-top"><span class="q-person" id="qPerson"></span><span class="pill" id="qRepaso" hidden title="La fallaste en un examen anterior">Repaso</span></div>
       <div class="q-form" id="qForm"></div>
       <div class="q-inf" id="qInf"></div>
       <form class="answer" id="ansForm" autocomplete="off">
@@ -254,9 +254,23 @@ function generarExamen() {
   const recientes = new Set(LS.get('recientes', []));
   const usados = new Set(), formasUsadas = new Set();
   const items = [];
+  // repaso: hasta 12 fallos de exámenes anteriores vuelven con el mismo verbo y tiempo, en otra persona
+  const repaso = {};
+  barajar(LS.get('fallos', []).filter(f => activos.includes(f.tid))).slice(0, 12).forEach(f => (repaso[f.tid] = repaso[f.tid] || []).push(f));
   let pPrev = -1;
   for (const tid of seq) {
     let item = null;
+    while (!item && repaso[tid] && repaso[tid].length) {
+      const f = repaso[tid].shift();
+      if (usados.has(f.v)) continue;
+      const personas = (tid === 'imp' ? [1, 2, 3, 4, 5] : [0, 1, 2, 3, 4, 5]).filter(p => p !== pPrev);
+      const p = barajar(personas.filter(p => p !== f.p))[0] ?? f.p;
+      const vars = Motor.formas(f.v, tid, p);
+      if (!vars.length) continue;
+      const vi = rnd(vars.length), forma = vars[vi];
+      if (formasUsadas.has(forma)) continue;
+      item = { v: f.v, tid, p, forma, clave: `${f.v}|${tid}|${p}|${vi}`, validas: Motor.tiemposDe(f.v, forma, p), tipo: Motor.tipo(f.v), repaso: true };
+    }
     for (let intento = 0; intento < 300 && !item; intento++) {
       const pool = GRUPOS[grupoAlAzar()];
       const v = pool[rnd(pool.length)];
@@ -316,6 +330,7 @@ function interpretar(txt) {
 // ───────── Utilidades de vista ─────────
 const vistas = ['vInicio', 'vPregunta', 'vResultado'];
 function ver(id, titulo) {
+  const antes = vistas.find(v => !$('#' + v).hidden);
   vistas.forEach(v => $('#' + v).hidden = v !== id);
   $('#backBtn').hidden = id === 'vInicio';
   $('#setBtn').hidden = id !== 'vInicio';
@@ -323,7 +338,17 @@ function ver(id, titulo) {
   $('#topTitle').textContent = titulo || 'Verbos';
   window.scrollTo(0, 0);
   $('#topbar').classList.remove('scrolled');
+  if (antes && antes !== id) {
+    // transición tipo iOS: hacia delante al entrar en el examen, hacia atrás al volver al inicio
+    const el = $('#' + id); el.classList.remove('entra', 'vuelve'); void el.offsetWidth;
+    el.classList.add(id === 'vInicio' ? 'vuelve' : 'entra');
+    // una entrada en el historial: el gesto o el botón «atrás» del navegador vuelve al inicio
+    if (antes === 'vInicio' && !(history.state && history.state.juego)) history.pushState({ juego: 1 }, '');
+  }
 }
+function volverAlInicio() { if (history.state && history.state.juego) history.back(); else pintarInicio(); }
+addEventListener('popstate', () => { if ($('#vInicio').hidden) pintarInicio(); });
+if (history.state && history.state.juego) history.replaceState(null, '');
 addEventListener('scroll', () => $('#topbar').classList.toggle('scrolled', scrollY > 40), { passive: true });
 
 function anillo(el, frac, color) {
@@ -501,7 +526,7 @@ function nuevoExamen() {
   guardar(); pregunta();
 }
 $('#startBtn').onclick = () => (estado && estado.i < TOTAL) ? pregunta() : nuevoExamen();
-$('#backBtn').onclick = () => pintarInicio();
+$('#backBtn').onclick = volverAlInicio;
 
 // ───────── Pregunta ─────────
 let esperando = false, t0 = 0, avanceTimer = 0;
@@ -524,6 +549,7 @@ function pregunta() {
   $('#qMeta').textContent = `Tanda ${tanda + 1} de ${TANDAS} · ${i}/${TOTAL} respondidas`;
   $('#counter').textContent = `${i % TANDA + 1}/${TANDA}`;
   $('#qPerson').textContent = PERSONAS[it.p];
+  $('#qRepaso').hidden = !it.repaso;
   const f = $('#qForm'); f.textContent = it.forma; f.classList.remove('bump'); void f.offsetWidth; f.classList.add('bump');
   $('#qInf').textContent = ajustes.infinitivo ? `de ${it.v}` : '';
   const a = $('#ans'); a.value = ''; a.disabled = false;
@@ -595,6 +621,10 @@ $('#ansForm').onsubmit = e => {
   const it = estado.items[estado.i];
   const ok = it.validas.includes(r.id);
   estado.resp[estado.i] = { raw, id: r.id, ok, seg: Math.round((performance.now() - t0) / 100) / 10 };
+  // lo fallado vuelve en exámenes futuros; al acertarlo en un repaso, sale de la lista
+  const fallos = LS.get('fallos', []).filter(f => !(f.v === it.v && f.tid === it.tid));
+  if (!ok) fallos.unshift({ v: it.v, tid: it.tid, p: it.p });
+  LS.set('fallos', fallos.slice(0, 80));
   estado.i++; guardar();
   if (!ajustes.inmediata) return siguiente();
   $('#searchBox').classList.add(ok ? 'ok' : 'ko'); $('#ans').disabled = true;
@@ -668,7 +698,7 @@ function resultado() {
   }
 }
 $('#nextBtn').onclick = () => {
-  if (estado.i >= TOTAL) { estado = null; LS.set('estado', null); pintarInicio(); }
+  if (estado.i >= TOTAL) { estado = null; LS.set('estado', null); volverAlInicio(); }
   else pregunta();
 };
 $('#dlBtn').onclick = () => descargar(estado.informe, estado.inicio);

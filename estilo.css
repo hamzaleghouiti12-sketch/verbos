@@ -239,3 +239,12 @@ kbd{font:inherit;font-size:12px;padding:1px 6px;border-radius:5px;background:var
 .porque li::marker{color:var(--label3)}
 .porque b{font-weight:600}
 .progress span.mid{background:var(--orange)}
+
+/* Transiciones entre pantallas, como al navegar en iOS */
+@keyframes entra{from{opacity:0;transform:translateX(28px)}to{opacity:1;transform:none}}
+@keyframes vuelve{from{opacity:0;transform:translateX(-28px)}to{opacity:1;transform:none}}
+.entra{animation:entra .34s var(--ease)}
+.vuelve{animation:vuelve .34s var(--ease)}
+/* En pantallas táctiles, menos de 16px hace que el iPhone amplíe la página al enfocar */
+@media (pointer:coarse){.tsel,select{font-size:16px}}
+#qRepaso{background:color-mix(in srgb,var(--orange) 18%,transparent);color:var(--orange-ink)}

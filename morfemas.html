@@ -114,7 +114,7 @@
     <div class="progress" id="prog"></div>
     <div style="height:22px"></div>
     <div class="card q">
-      <div class="q-top"><span class="q-person" id="qCat"></span><span class="pill num" id="qPasos"></span></div>
+      <div class="q-top"><span class="q-person" id="qCat"></span><span class="pill" id="qRepaso" hidden title="No te salió perfecta en un examen anterior">Repaso</span><span class="pill num" id="qPasos"></span></div>
       <div class="q-word" id="qWord"></div>
       <div class="q-hint" id="qHint"></div>
 
@@ -323,10 +323,12 @@ function generarExamen() {
   const g = pools();
   const vistos = new Set(LS.get('vistos', []));
   // cada grupo, barajado y con las palabras no vistas delante
+  // repaso: las palabras que no te salieron perfectas vuelven primero (hasta 12 por examen)
+  const fallos = new Set(barajar(LS.get('fallos', []).filter(p => POR_PALABRA.has(p))).slice(0, 12));
   const colas = {};
   for (const [k, lista] of Object.entries(g)) {
     const b = barajar(lista.slice());
-    colas[k] = [...b.filter(it => !vistos.has(it.palabra)), ...b.filter(it => vistos.has(it.palabra))];
+    colas[k] = [...b.filter(it => fallos.has(it.palabra)), ...b.filter(it => !fallos.has(it.palabra) && !vistos.has(it.palabra)), ...b.filter(it => !fallos.has(it.palabra) && vistos.has(it.palabra))];
   }
   // reparto por categoría a partes iguales; dentro de los verbos, mitad infinitivos derivados y mitad conjugados
   const peso = k => (k === 'ver' || k === 'conj') && colas.ver && colas.conj ? 0.5 : 1;
@@ -340,10 +342,12 @@ function generarExamen() {
     let r = rnd(1000) / 1000 * tot, k = cand[0];
     for (const c of cand) { if (r < peso(c)) { k = c; break; } r -= peso(c); }
     const it = colas[k].shift();
-    items.push({ palabra: it.palabra, cat: it.cat });
+    items.push({ palabra: it.palabra, cat: it.cat, ...(fallos.has(it.palabra) ? { repaso: true } : {}) });
     ultimo = rnd(3) ? k : null; // evita rachas sin volverlas imposibles
   }
-  return { items: items.slice(0, N), tanda, tandas };
+  const final = items.slice(0, N), rep = final.filter(x => x.repaso), resto = final.filter(x => !x.repaso);
+  for (const x of rep) resto.splice(rnd(resto.length + 1), 0, x);
+  return { items: resto, tanda, tandas };
 }
 
 // ───────── Corrección ─────────
@@ -372,6 +376,7 @@ const nombreCorte = (it, pos) => TIPOS[it.segs[morfemaEn(it, pos)][1]];
 // ───────── Vistas ─────────
 const vistas = ['vInicio', 'vPregunta', 'vResultado'];
 function ver(id, titulo) {
+  const antes = vistas.find(v => !$('#' + v).hidden);
   vistas.forEach(v => $('#' + v).hidden = v !== id);
   $('#backBtn').hidden = id === 'vInicio';
   $('#setBtn').hidden = id !== 'vInicio';
@@ -379,7 +384,17 @@ function ver(id, titulo) {
   $('#topTitle').textContent = titulo || 'Morfemas';
   window.scrollTo(0, 0);
   $('#topbar').classList.remove('scrolled');
+  if (antes && antes !== id) {
+    // transición tipo iOS: hacia delante al entrar en el examen, hacia atrás al volver al inicio
+    const el = $('#' + id); el.classList.remove('entra', 'vuelve'); void el.offsetWidth;
+    el.classList.add(id === 'vInicio' ? 'vuelve' : 'entra');
+    // una entrada en el historial: el gesto o el botón «atrás» del navegador vuelve al inicio
+    if (antes === 'vInicio' && !(history.state && history.state.juego)) history.pushState({ juego: 1 }, '');
+  }
 }
+function volverAlInicio() { if (history.state && history.state.juego) history.back(); else pintarInicio(); }
+addEventListener('popstate', () => { if ($('#vInicio').hidden) pintarInicio(); });
+if (history.state && history.state.juego) history.replaceState(null, '');
 addEventListener('scroll', () => $('#topbar').classList.toggle('scrolled', scrollY > 40), { passive: true });
 function anillo(el, frac, color) {
   const L = 2 * Math.PI * 100;
@@ -479,7 +494,7 @@ function nuevoExamen() {
   guardar(); pregunta();
 }
 $('#startBtn').onclick = () => (estado && estado.i < estado.items.length) ? pregunta() : nuevoExamen();
-$('#backBtn').onclick = () => pintarInicio();
+$('#backBtn').onclick = volverAlInicio;
 
 // ───────── Pregunta: 1 separar · 2 identificar · 3 redactar ─────────
 let paso = 0, actual = null, t0 = 0, avanceTimer = 0;
@@ -510,6 +525,7 @@ function pregunta() {
   $('#qMeta').textContent = `Tanda ${tanda + 1} de ${estado.tandas} · ${i}/${estado.items.length} respondidas`;
   $('#counter').textContent = `${i % T + 1}/${T}`;
   $('#qCat').textContent = etiquetaCat(it);
+  $('#qRepaso').hidden = !x.repaso;
   $('#qPasos').textContent = `${pasosActivos()} paso${pasosActivos() > 1 ? 's' : ''}`;
   $('#qHint').textContent = pasosActivos() === 1 ? 'Sepárala en morfemas con guiones' : ['Separa', ajustes.identificar && 'identifica', ajustes.redactar && 'redacta'].filter(Boolean).join(', ').replace(/, ([^,]*)$/, ' y $1');
   const w = $('#qWord'); w.textContent = it.palabra; w.classList.remove('bump'); void w.offsetWidth; w.classList.add('bump');
@@ -637,6 +653,10 @@ function terminar(it, autoMs) {
   estado.resp[estado.i] = { ...actual.sep, sepOk: actual.sep.ok, id: actual.id || null, red: actual.red || null, puntos, ok: puntos === 1,
     seg: Math.round((performance.now() - actual.t0) / 100) / 10 };
   delete estado.resp[estado.i].t0;
+  // lo que no sale perfecto vuelve en exámenes futuros; al hacerlo perfecto, sale de la lista
+  const fallos = LS.get('fallos', []).filter(p => p !== it.palabra);
+  if (puntos < 1) fallos.unshift(it.palabra);
+  LS.set('fallos', fallos.slice(0, 80));
   estado.i++; guardar(); paso = 0;
   pintarTanda();
   if (autoMs) { avanceTimer = setTimeout(() => { avanceTimer = 0; siguiente(); }, autoMs); return; }
@@ -705,7 +725,7 @@ function resultado() {
     }
   }
 }
-$('#nextBtn').onclick = () => { if (estado.i >= estado.items.length) { estado = null; LS.set('estado', null); pintarInicio(); } else pregunta(); };
+$('#nextBtn').onclick = () => { if (estado.i >= estado.items.length) { estado = null; LS.set('estado', null); volverAlInicio(); } else pregunta(); };
 $('#dlBtn').onclick = () => descargar(estado.informe, estado.inicio);
 function descargar(texto, fecha) {
   const d = new Date(fecha), p = x => String(x).padStart(2, '0');
