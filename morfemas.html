@@ -601,7 +601,11 @@ $('#ansForm').onsubmit = e => {
   const tuya = formatear(it.palabra, c.fr);
   actual.sep = { raw: tuya, ok: c.ok, faltan: c.faltan.map(p => nombreFrontera(it, p)), sobran: c.sobran.map(p => nombreCorte(it, p)), porque: c.ok ? [] : explicar(it, c.faltan, c.sobran) };
   $('#searchBox').classList.add(c.ok ? 'ok' : 'ko'); $('#ans').readOnly = true; $('#tit1').classList.add('hecho');
-  const motivo = [...actual.sep.faltan.map(f => `te faltó separar ${f}`), ...actual.sep.sobran.map(s => `partiste el ${s}`)];
+  // con el paso 2 por delante, no se nombran los tipos de morfema: sería darle la respuesta
+  const nF = c.faltan.length, nS = c.sobran.length;
+  const motivo = ajustes.identificar
+    ? [nF && `te falta${nF > 1 ? 'n' : ''} ${nF} corte${nF > 1 ? 's' : ''}`, nS && `${nS} corte${nS > 1 ? 's' : ''} parte${nS > 1 ? 'n' : ''} un morfema por la mitad`].filter(Boolean)
+    : [...actual.sep.faltan.map(f => `te faltó separar ${f}`), ...actual.sep.sobran.map(s => `partiste el ${s}`)];
   feedback(c.ok ? 'ok' : 'ko', c.ok ? 'check' : 'x', c.ok ? 'var(--green)' : 'var(--red)', c.ok ? 'Bien separada' : `Pusiste ${tuya}`, c.ok ? esc(tuya) : esc(cap(motivo.join(' · '))));
   // si quedan pasos, se muestran los cortes correctos pero sin decir qué es cada morfema
   const sigue = ajustes.identificar || ajustes.redactar;
