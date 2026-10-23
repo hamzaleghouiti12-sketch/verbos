@@ -253,3 +253,14 @@ details.fallo .det .morfos{justify-content:flex-start;margin-top:4px}
 @media (max-width:520px){details.fallo .det{padding-left:16px}}
 .porque .ver-mas{font-size:14px;font-weight:600;margin-top:10px}
 .tt.destaca{background:color-mix(in srgb,var(--orange) 16%,transparent);transition:background .4s}
+
+/* ───────── Pantallas táctiles (iPhone, iPad) ───────── */
+/* sin el retardo de iOS por el doble toque para ampliar */
+button,a,summary,select,label,.switch{touch-action:manipulation}
+@media (pointer:coarse){
+  /* las pistas de teclado de ordenador no sirven en el móvil */
+  kbd,.keys,.id-keys{display:none!important}
+  /* enlaces de texto con zona de toque de 44 px, como pide Apple, sin mover el texto */
+  .hint .link,.porque .ver-mas,#cpBtn{position:relative}
+  .hint .link::after,.porque .ver-mas::after,#cpBtn::after{content:"";position:absolute;inset:-12px -8px}
+}
