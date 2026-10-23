@@ -1,0 +1,817 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#F2F2F7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+<title>Verbos</title>
+<style>
+:root{
+  --bg:#F2F2F7; --card:#FFFFFF;
+  --fill:rgba(118,118,128,.12); --fill-strong:rgba(118,118,128,.2);
+  --label:#000; --label2:rgba(60,60,67,.6); --label3:rgba(60,60,67,.3);
+  --sep:rgba(60,60,67,.14);
+  --thumb:#FFFFFF; --thumb-shadow:0 3px 8px rgba(0,0,0,.12),0 3px 1px rgba(0,0,0,.04);
+  --shadow:0 1px 1px rgba(0,0,0,.02),0 6px 22px rgba(0,0,0,.045);
+  --bar:rgba(242,242,247,.8);
+  --backdrop:rgba(0,0,0,.28);
+  --track:.17;
+  --blue:#007AFF; --green:#34C759; --orange:#FF9500; --red:#FF3B30; --pink:#FF2D55;
+  --purple:#AF52DE; --teal:#30B0C7; --indigo:#5856D6; --gray:#8E8E93;
+  --green-ink:#248A3D; --red-ink:#D70015; --orange-ink:#C93400;
+  --ease:cubic-bezier(.32,.72,0,1);
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#000; --card:#1C1C1E;
+    --fill:rgba(118,118,128,.24); --fill-strong:rgba(118,118,128,.34);
+    --label:#FFF; --label2:rgba(235,235,245,.6); --label3:rgba(235,235,245,.3);
+    --sep:rgba(84,84,88,.5);
+    --thumb:#636366; --thumb-shadow:0 3px 8px rgba(0,0,0,.35);
+    --shadow:none;
+    --bar:rgba(0,0,0,.72);
+    --backdrop:rgba(0,0,0,.55);
+    --track:.24;
+    --blue:#0A84FF; --green:#30D158; --orange:#FF9F0A; --red:#FF453A; --pink:#FF375F;
+    --purple:#BF5AF2; --teal:#40C8E0; --indigo:#5E5CE6; --gray:#98989D;
+    --green-ink:#30D158; --red-ink:#FF453A; --orange-ink:#FF9F0A;
+  }
+}
+*{box-sizing:border-box;margin:0;padding:0}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Inter","Segoe UI Variable Text","Segoe UI",system-ui,sans-serif;
+  font-optical-sizing:auto;
+  background:var(--bg); color:var(--label);
+  font-size:17px; line-height:1.3; letter-spacing:-.011em;
+  -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+  min-height:100vh;
+}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;-webkit-tap-highlight-color:transparent;letter-spacing:inherit}
+button:disabled{cursor:default}
+:focus-visible{outline:3px solid color-mix(in srgb,var(--blue) 55%,transparent);outline-offset:2px;border-radius:12px}
+.num{font-variant-numeric:tabular-nums}
+.link{color:var(--blue);font-size:17px;transition:opacity .15s;display:inline-flex;align-items:center;gap:2px}
+.link:active{opacity:.5}
+kbd{font:inherit;font-size:12px;padding:1px 6px;border-radius:5px;background:var(--fill);color:var(--label2)}
+
+/* Barra superior */
+.topbar{position:sticky;top:0;z-index:20;height:calc(52px + env(safe-area-inset-top));padding-top:env(safe-area-inset-top);transition:background .25s,box-shadow .25s}
+.topbar.scrolled{background:var(--bar);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);box-shadow:0 1px 0 var(--sep)}
+.topbar-inner{max-width:720px;height:52px;margin:0 auto;padding:0 20px;display:flex;align-items:center;justify-content:space-between;position:relative}
+.topbar-title{position:absolute;left:50%;transform:translateX(-50%);font-size:17px;font-weight:600;opacity:0;transition:opacity .2s;white-space:nowrap}
+.topbar.scrolled .topbar-title{opacity:1}
+.circle-btn{width:36px;height:36px;border-radius:50%;background:var(--fill);color:var(--blue);display:grid;place-items:center;transition:transform .15s var(--ease)}
+.circle-btn:active{transform:scale(.9)}
+.counter{font-size:15px;font-weight:600;color:var(--label2);background:var(--fill);padding:6px 12px;border-radius:99px}
+
+.large{max-width:720px;margin:0 auto;padding:0 20px 4px}
+.large .date{font-size:13px;font-weight:600;color:var(--label2);text-transform:uppercase;letter-spacing:.02em}
+.large h1{font-size:34px;font-weight:700;letter-spacing:-.03em;line-height:1.15;margin-top:2px}
+.layout{max-width:720px;margin:0 auto;padding:0 20px}
+.section-head{display:flex;align-items:baseline;justify-content:space-between;margin:30px 4px 10px}
+.section-head h2{font-size:22px;font-weight:700;letter-spacing:-.025em}
+.card{background:var(--card);border-radius:22px;box-shadow:var(--shadow)}
+
+/* Tarjeta principal con anillo */
+.hero{padding:20px 20px 22px;--goal:var(--blue)}
+.hero-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.hero-id{min-width:0}
+.hero-name{font-size:22px;font-weight:700;letter-spacing:-.025em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hero-sub{font-size:13px;color:var(--label2);margin-top:3px}
+.pill{flex:none;font-size:13px;font-weight:600;padding:5px 11px;border-radius:99px;background:var(--fill);color:var(--label2);transition:background .3s,color .3s}
+.pill.good{background:color-mix(in srgb,var(--green) 18%,transparent);color:var(--green-ink)}
+.pill.mid{background:color-mix(in srgb,var(--orange) 18%,transparent);color:var(--orange-ink)}
+.pill.bad{background:color-mix(in srgb,var(--red) 16%,transparent);color:var(--red-ink)}
+.ring-wrap{position:relative;width:min(236px,66vw);aspect-ratio:1;margin:20px auto 22px}
+.ring-wrap.pop{animation:pop .7s var(--ease)}
+.ring{width:100%;height:100%;transform:rotate(-90deg);overflow:visible}
+.ring circle{fill:none;stroke-width:22}
+.ring .t{stroke:var(--goal);stroke-opacity:var(--track);transition:stroke .3s}
+.ring .p{stroke-linecap:round;transition:stroke-dashoffset .9s var(--ease),stroke-opacity .2s}
+.ring .s1{stop-color:color-mix(in srgb,var(--goal) 82%,#000)}
+.ring .s2{stop-color:color-mix(in srgb,var(--goal) 78%,#fff)}
+.ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.ring-num{font-size:58px;font-weight:700;letter-spacing:-.045em;line-height:1}
+.ring-sub{font-size:15px;color:var(--label2);margin-top:6px}
+.hint{text-align:center;font-size:13px;color:var(--label2);margin-top:16px;min-height:17px}
+.hint .link{font-size:15px;font-weight:600}
+.wide{margin-top:4px;width:100%;height:50px;border-radius:14px;background:var(--blue);color:#fff;font-size:17px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity .2s,transform .14s var(--ease),background .25s,color .25s}
+.wide:active:not(:disabled){transform:scale(.98)}
+.wide.soft{background:var(--fill);color:var(--blue);margin-top:10px}
+.wide kbd{background:rgba(255,255,255,.22);color:#fff}
+.wide.soft kbd{background:var(--fill);color:var(--blue)}
+
+/* Segmented control */
+.seg{position:relative;display:flex;height:34px;padding:2px;border-radius:9px;background:var(--fill);margin-bottom:16px}
+.seg-thumb{position:absolute;top:2px;bottom:2px;left:2px;width:calc((100% - 4px) / var(--n,3));border-radius:7px;background:var(--thumb);box-shadow:var(--thumb-shadow);transform:translateX(calc(var(--i,0) * 100%));transition:transform .35s var(--ease)}
+.seg button{position:relative;z-index:1;flex:1;border-radius:7px;font-size:13px;font-weight:600;font-variant-numeric:tabular-nums}
+.seg button[aria-checked="false"]{color:var(--label2)}
+
+/* Listas agrupadas */
+.list{background:var(--card);border-radius:16px;box-shadow:var(--shadow);overflow:hidden}
+.row{display:flex;align-items:center;gap:14px;padding-left:16px;min-height:52px;position:relative;width:100%;text-align:left}
+.row.tap{cursor:pointer;transition:background .15s}
+.row.tap:hover{background:color-mix(in srgb,var(--fill) 45%,transparent)}
+.row.tap:active{background:var(--fill)}
+.row-main{flex:1;min-width:0;align-self:stretch;display:flex;align-items:center;gap:10px;padding:10px 16px 10px 0;border-top:1px solid var(--sep)}
+.row:first-child .row-main{border-top:0}
+.row-text{flex:1;min-width:0}
+.row-title{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row-sub{font-size:13px;color:var(--label2);margin-top:2px;line-height:1.35}
+.row-trail{display:flex;align-items:center;gap:6px;font-size:15px;color:var(--label2);font-variant-numeric:tabular-nums;white-space:nowrap}
+.row-trail svg{color:var(--label3)}
+.app-icon{flex:none;width:30px;height:30px;border-radius:8px;background:var(--c,var(--blue));color:#fff;display:grid;place-items:center}
+.mini .t{fill:none;stroke:var(--goal);stroke-opacity:var(--track)}
+.mini .p{fill:none;stroke:var(--goal);stroke-linecap:round}
+.placeholder{padding:30px 20px 26px;text-align:center;color:var(--label2);font-size:15px;display:flex;flex-direction:column;align-items:center;gap:8px}
+.placeholder svg{color:var(--label3)}
+.switch{flex:none;width:51px;height:31px;border-radius:99px;background:var(--fill-strong);position:relative;transition:background .25s}
+.switch::after{content:"";position:absolute;top:2px;left:2px;width:27px;height:27px;border-radius:50%;background:#fff;box-shadow:0 3px 8px rgba(0,0,0,.15),0 3px 1px rgba(0,0,0,.06);transition:transform .3s var(--ease)}
+.switch[aria-checked="true"]{background:var(--green)}
+.switch[aria-checked="true"]::after{transform:translateX(20px)}
+
+/* Resumen */
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.tile{background:var(--card);border-radius:16px;box-shadow:var(--shadow);padding:14px 16px 15px;min-width:0}
+.tile-head{display:flex;align-items:center;gap:6px;font-size:15px;font-weight:600;color:var(--label2)}
+.tile-head svg{color:var(--c)}
+.tile-val{font-size:28px;font-weight:700;letter-spacing:-.035em;margin-top:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tile-val small{font-size:15px;font-weight:600;color:var(--label2);letter-spacing:-.01em;margin:0 2px 0 3px}
+.tile-sub{font-size:13px;color:var(--label2);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tiles.four{grid-template-columns:repeat(4,1fr)}
+@media (max-width:560px){.tiles.four{grid-template-columns:1fr 1fr}}
+
+/* Pregunta */
+.progress{display:flex;gap:3px;margin:10px 4px 0}
+.progress span{flex:1;height:4px;border-radius:99px;background:var(--fill-strong);transition:background .25s}
+.progress span.ok{background:var(--green)}
+.progress span.ko{background:var(--red)}
+.progress span.now{background:var(--blue)}
+.q{padding:22px 20px 20px;text-align:center}
+.q-top{display:flex;justify-content:space-between;align-items:center;gap:12px;text-align:left}
+.q-person{font-size:13px;font-weight:600;padding:5px 11px;border-radius:99px;background:color-mix(in srgb,var(--blue) 14%,transparent);color:var(--blue)}
+.q-form{font-size:clamp(34px,9vw,50px);font-weight:700;letter-spacing:-.04em;line-height:1.08;margin:34px 0 8px;word-break:break-word}
+.q-form.bump{animation:bump .3s var(--ease)}
+.q-inf{font-size:15px;color:var(--label2);min-height:20px;margin-bottom:30px}
+.search{display:flex;align-items:center;gap:8px;height:44px;padding:0 12px;border-radius:12px;background:var(--fill);transition:box-shadow .2s}
+.search svg{flex:none;color:var(--label2)}
+.search input{flex:1;min-width:0;border:0;outline:0;background:none;font:inherit;font-size:17px;color:var(--label);letter-spacing:inherit}
+.search input::placeholder{color:var(--label3)}
+.search:focus-within{box-shadow:0 0 0 3px color-mix(in srgb,var(--blue) 35%,transparent)}
+.search.ok{box-shadow:0 0 0 3px color-mix(in srgb,var(--green) 55%,transparent)}
+.search.ko{box-shadow:0 0 0 3px color-mix(in srgb,var(--red) 50%,transparent);animation:shake .35s}
+.answer .wide{margin-top:12px}
+.fb{display:flex;align-items:center;gap:12px;text-align:left;margin-top:16px;padding-top:14px;border-top:1px solid var(--sep);min-height:58px}
+.fb[hidden]{display:none}
+.fb .app-icon{border-radius:50%}
+.fb-title{font-size:15px;font-weight:600}
+.fb-sub{font-size:13px;color:var(--label2);margin-top:2px;line-height:1.35}
+.fb.ok .fb-title{color:var(--green-ink)}
+.fb.ko .fb-title{color:var(--red-ink)}
+.fb.warn .fb-title{color:var(--orange-ink)}
+.keys{text-align:center;font-size:13px;color:var(--label3);margin-top:14px}
+
+/* Hoja modal */
+.backdrop{position:fixed;inset:0;z-index:50;background:var(--backdrop);display:flex;align-items:flex-end;justify-content:center;opacity:0;visibility:hidden;transition:opacity .3s,visibility .3s}
+.backdrop.open{opacity:1;visibility:visible}
+.sheet{width:100%;max-width:480px;max-height:92vh;overflow:auto;background:var(--bg);border-radius:14px 14px 0 0;padding:8px 0 calc(30px + env(safe-area-inset-bottom));transform:translateY(100%);transition:transform .5s var(--ease)}
+.open .sheet{transform:none}
+.grabber{width:36px;height:5px;border-radius:3px;background:var(--label3);margin:0 auto 4px}
+@media (min-width:600px){
+  .backdrop{align-items:center}
+  .sheet{border-radius:16px;padding:10px 0 28px;transform:translateY(30px) scale(.97);opacity:0;transition:transform .45s var(--ease),opacity .25s}
+  .open .sheet{transform:none;opacity:1}
+  .grabber{display:none}
+}
+.sheet-nav{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:6px 16px 10px}
+.sheet-nav h3{font-size:17px;font-weight:600}
+.sheet-nav .link:last-child{justify-self:end;font-weight:600}
+.group{background:var(--card);border-radius:12px;margin:0 16px;overflow:hidden}
+.group .row{min-height:44px}
+.group .row-main{padding:8px 16px 8px 0}
+.group-label{font-size:13px;color:var(--label2);text-transform:uppercase;letter-spacing:.01em;padding:22px 32px 7px}
+.group-foot{font-size:13px;color:var(--label2);padding:7px 32px 0;line-height:1.35}
+.chips{display:flex;flex-wrap:wrap;gap:8px;padding:6px 16px 0}
+.chip{font-size:13px;font-weight:600;padding:6px 12px;border-radius:99px;background:var(--fill);transition:background .2s,color .2s}
+.chip[aria-pressed="true"]{background:var(--blue);color:#fff}
+.help p{font-size:15px;padding:11px 16px;line-height:1.4;position:relative}
+.help p + p::before{content:"";position:absolute;top:0;left:16px;right:0;height:1px;background:var(--sep)}
+.help b{font-weight:600;color:var(--blue)}
+
+/* Aviso tipo Dynamic Island */
+.toast{position:fixed;top:10px;left:50%;z-index:70;display:flex;align-items:center;gap:10px;max-width:calc(100vw - 32px);padding:9px 18px 9px 10px;border-radius:99px;background:#000;color:#fff;font-size:15px;font-weight:600;box-shadow:0 12px 32px rgba(0,0,0,.22);transform:translate(-50%,-160%) scale(.9);visibility:hidden;transition:transform .55s var(--ease),visibility 0s .55s}
+.toast.show{transform:translate(-50%,0) scale(1);visibility:visible;transition:transform .55s var(--ease)}
+.toast .ic{flex:none;width:26px;height:26px;border-radius:50%;background:#30D158;display:grid;place-items:center}
+.toast .ic.warn{background:#FF9F0A}
+.toast .tx{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+.foot{max-width:720px;margin:40px auto 0;padding:0 20px calc(40px + env(safe-area-inset-bottom));text-align:center;font-size:13px;color:var(--label3);line-height:1.45}
+
+@keyframes bump{0%{transform:scale(1)}40%{transform:scale(1.06)}100%{transform:scale(1)}}
+@keyframes pop{0%{transform:scale(1)}35%{transform:scale(1.06)}100%{transform:scale(1)}}
+@keyframes shake{20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+@media (max-width:600px){.topbar-inner,.large,.layout,.foot{padding-left:16px;padding-right:16px}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<div class="topbar" id="topbar">
+  <div class="topbar-inner">
+    <span><button class="link" id="backBtn" hidden><i data-i="left" data-s="22" data-w="2.4"></i>Inicio</button></span>
+    <span class="topbar-title" id="topTitle">Verbos</span>
+    <button class="circle-btn" id="setBtn" aria-label="Tiempos y ajustes" title="Tiempos y ajustes"><i data-i="sliders" data-s="19" data-w="2.2"></i></button>
+    <span class="counter num" id="counter" hidden></span>
+  </div>
+</div>
+
+<!-- ───────── Inicio ───────── -->
+<div id="vInicio">
+  <header class="large"><p class="date" id="today"></p><h1>Verbos</h1></header>
+  <main class="layout">
+    <div class="section-head"><h2>Examen</h2></div>
+    <div class="card hero" id="heroInicio">
+      <div class="hero-head">
+        <div class="hero-id"><div class="hero-name" id="hiName">Modos y tiempos</div><div class="hero-sub" id="hiSub"></div></div>
+        <span class="pill num" id="hiPill"></span>
+      </div>
+      <div class="ring-wrap" id="hiWrap">
+        <svg class="ring" viewBox="0 0 240 240" aria-hidden="true">
+          <defs><linearGradient id="rg1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" class="s1"/><stop offset="1" class="s2"/></linearGradient></defs>
+          <circle class="t" cx="120" cy="120" r="100"/>
+          <circle class="p" id="hiRing" cx="120" cy="120" r="100" stroke="url(#rg1)"/>
+        </svg>
+        <div class="ring-center"><div class="ring-num num" id="hiNum">0</div><div class="ring-sub" id="hiRingSub"></div></div>
+      </div>
+      <button class="wide" id="startBtn"><span id="startTxt">Empezar examen</span> <kbd>Enter</kbd></button>
+      <p class="hint" id="hiHint"></p>
+    </div>
+
+    <div class="section-head"><h2>Resumen</h2></div>
+    <div class="tiles" id="tiles"></div>
+
+    <div class="section-head"><h2>Historial</h2></div>
+    <div class="list" id="hist"></div>
+
+    <div class="section-head"><h2>Práctica</h2></div>
+    <div class="list">
+      <button class="row tap" data-open="tiempos"><span class="app-icon" style="--c:var(--indigo)"><i data-i="list" data-s="18" data-w="2.4"></i></span>
+        <span class="row-main"><span class="row-text"><span class="row-title" style="display:block">Tiempos del examen</span></span><span class="row-trail"><span id="nTiempos"></span><i data-i="right" data-s="14" data-w="2.6"></i></span></span></button>
+      <div class="row"><span class="app-icon" style="--c:var(--green)"><i data-i="check" data-s="18" data-w="2.8"></i></span>
+        <div class="row-main"><div class="row-text"><div class="row-title">Corregir al momento</div></div><button class="switch" role="switch" data-ajuste="inmediata" aria-label="Corregir al momento"></button></div></div>
+      <div class="row"><span class="app-icon" style="--c:var(--orange)"><i data-i="text" data-s="18" data-w="2.4"></i></span>
+        <div class="row-main"><div class="row-text"><div class="row-title">Mostrar el infinitivo</div></div><button class="switch" role="switch" data-ajuste="infinitivo" aria-label="Mostrar el infinitivo"></button></div></div>
+      <button class="row tap" data-open="ayuda"><span class="app-icon" style="--c:var(--gray)"><i data-i="help" data-s="18" data-w="2.4"></i></span>
+        <span class="row-main"><span class="row-text"><span class="row-title" style="display:block">Cómo responder</span></span><span class="row-trail"><i data-i="right" data-s="14" data-w="2.6"></i></span></span></button>
+    </div>
+  </main>
+  <p class="foot" id="baseInfo"></p>
+</div>
+
+<!-- ───────── Pregunta ───────── -->
+<div id="vPregunta" hidden>
+  <header class="large"><p class="date num" id="qMeta"></p><h1 id="qTitle">Tanda 1</h1></header>
+  <main class="layout">
+    <div class="progress" id="prog"></div>
+    <div style="height:22px"></div>
+    <div class="card q">
+      <div class="q-top"><span class="q-person" id="qPerson"></span></div>
+      <div class="q-form" id="qForm"></div>
+      <div class="q-inf" id="qInf"></div>
+      <form class="answer" id="ansForm" autocomplete="off">
+        <label class="search" id="searchBox"><i data-i="pencil" data-s="18" data-w="2.2"></i>
+          <input id="ans" placeholder="Modo y tiempo" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Modo y tiempo"></label>
+        <button class="wide" id="ansBtn" type="submit"><span id="ansTxt">Comprobar</span> <kbd>Enter</kbd></button>
+      </form>
+      <div class="fb" id="fb" hidden><span class="app-icon" id="fbIcon"></span><div><div class="fb-title" id="fbTitle"></div><div class="fb-sub" id="fbSub"></div></div></div>
+    </div>
+    <p class="keys">Ej.: <kbd>ind pres</kbd> <kbd>sub impf</kbd> <kbd>imp</kbd> · <kbd>Enter</kbd> comprueba y pasa</p>
+    <div class="section-head"><h2>Esta tanda</h2></div>
+    <div class="tiles" id="qTiles"></div>
+  </main>
+</div>
+
+<!-- ───────── Resultado ───────── -->
+<div id="vResultado" hidden>
+  <header class="large"><p class="date" id="rMeta"></p><h1 id="rTitle"></h1></header>
+  <main class="layout">
+    <div class="section-head"><h2>Nota</h2></div>
+    <div class="card hero" id="rHero">
+      <div class="hero-head">
+        <div class="hero-id"><div class="hero-name" id="rName"></div><div class="hero-sub" id="rSub"></div></div>
+        <span class="pill num" id="rPill"></span>
+      </div>
+      <div class="ring-wrap" id="rWrap">
+        <svg class="ring" viewBox="0 0 240 240" aria-hidden="true">
+          <defs><linearGradient id="rg2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" class="s1"/><stop offset="1" class="s2"/></linearGradient></defs>
+          <circle class="t" cx="120" cy="120" r="100"/>
+          <circle class="p" id="rRing" cx="120" cy="120" r="100" stroke="url(#rg2)"/>
+        </svg>
+        <div class="ring-center"><div class="ring-num num" id="rNum"></div><div class="ring-sub">sobre 10</div></div>
+      </div>
+      <button class="wide" id="nextBtn"></button>
+      <button class="wide soft" id="dlBtn" hidden><i data-i="down" data-s="18" data-w="2.4"></i>Descargar informe de errores</button>
+      <p class="hint" id="rHint"></p>
+    </div>
+    <div id="rTilesWrap" hidden>
+      <div class="section-head"><h2>Por tanda</h2></div>
+      <div class="tiles four" id="rTiles"></div>
+    </div>
+    <div class="section-head"><h2 id="rErrHead">Fallos</h2></div>
+    <div class="list" id="rErr"></div>
+  </main>
+  <p class="foot"></p>
+</div>
+
+<!-- ───────── Hoja: tiempos ───────── -->
+<div class="backdrop" id="bdTiempos">
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="tTitle">
+    <div class="grabber"></div>
+    <div class="sheet-nav"><span></span><h3 id="tTitle">Tiempos</h3><button class="link" data-close>OK</button></div>
+    <div class="chips" id="presets">
+      <button class="chip" data-preset="todos">Todos</button>
+      <button class="chip" data-preset="ind">Solo indicativo</button>
+      <button class="chip" data-preset="sub">Solo subjuntivo</button>
+      <button class="chip" data-preset="simples">Simples</button>
+      <button class="chip" data-preset="compuestos">Compuestos</button>
+    </div>
+    <div id="tGroups"></div>
+    <p class="group-foot">Las 100 preguntas se reparten a partes iguales entre los tiempos activos.</p>
+  </div>
+</div>
+
+<!-- ───────── Hoja: ayuda ───────── -->
+<div class="backdrop" id="bdAyuda">
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="aTitle">
+    <div class="grabber"></div>
+    <div class="sheet-nav"><span></span><h3 id="aTitle">Cómo responder</h3><button class="link" data-close>OK</button></div>
+    <div class="group-label">Formato</div>
+    <div class="group help">
+      <p>Escribe <b>modo + tiempo</b>: indicativo presente, subjuntivo pluscuamperfecto, imperativo.</p>
+      <p>Abreviaturas: <b>ind</b>, <b>sub</b>, <b>imp</b>, <b>pres</b>, <b>impf</b>. Las tildes y mayúsculas dan igual.</p>
+      <p>También vale la nomenclatura de Bello: copretérito, antepresente, pospretérito…</p>
+    </div>
+    <div class="group-label">Indicativo</div>
+    <div class="group help"><p>Presente · pretérito imperfecto · pretérito perfecto simple (indefinido) · futuro simple · condicional simple · pretérito perfecto compuesto · pluscuamperfecto · pretérito anterior · futuro compuesto · condicional compuesto.</p></div>
+    <div class="group-label">Subjuntivo e imperativo</div>
+    <div class="group help"><p>Presente · pretérito imperfecto (‑ra / ‑se) · futuro simple · pretérito perfecto · pluscuamperfecto · futuro compuesto · imperativo afirmativo.</p></div>
+    <p class="group-foot">Si una forma vale para dos tiempos —(nosotros) cantamos: presente o indefinido— cualquiera cuenta como acierto.</p>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status"><span class="ic"></span><span class="tx"></span></div>
+
+<script src="motor.js"></script>
+<script>
+'use strict';
+const $ = s => document.querySelector(s);
+const TANDA = 25, TANDAS = 4, TOTAL = TANDA * TANDAS;
+const PERSONAS = ['yo', 'tú', 'él / ella / usted', 'nosotros / as', 'vosotros / as', 'ellos / ellas / ustedes'];
+const T = Object.fromEntries(Motor.TIEMPOS.map(t => [t.id, t]));
+const nombreT = id => T[id] ? (T[id].modo === 'Imperativo' ? 'Imperativo afirmativo' : `${T[id].modo} · ${T[id].nombre}`) : id;
+
+// ───────── Iconos (mismo trazo que Metas) ─────────
+const ICONS = {
+  left: '<path d="M15 5l-7 7 7 7"/>',
+  right: '<path d="M9 5l7 7-7 7"/>',
+  check: '<path d="M5 12.5l4.5 4.5L19 7"/>',
+  x: '<path d="M6 6l12 12M18 6L6 18"/>',
+  minus: '<path d="M5 12h14"/>',
+  down: '<path d="M12 4v12M6 11l6 6 6-6M5 20h14"/>',
+  sliders: '<path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2.2"/><circle cx="10" cy="17" r="2.2"/>',
+  list: '<path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1"/><circle cx="4.5" cy="12" r="1"/><circle cx="4.5" cy="18" r="1"/>',
+  text: '<path d="M5 6h14M12 6v13M9 19h6"/>',
+  help: '<circle cx="12" cy="12" r="9"/><path d="M9.6 9.3a2.5 2.5 0 0 1 4.8 1c0 1.7-2.4 2.2-2.4 3.7M12 17.2v.3"/>',
+  pencil: '<path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/>',
+  target: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.2"/>',
+  star: '<path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/>',
+  up: '<path d="M12 19V5M6 11l6-6 6 6"/>',
+  clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.2 2"/>',
+  book: '<path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5A2.5 2.5 0 0 0 6.5 23H20v-5"/>',
+  flame: '<path d="M12 3c.6 3.4 5 5.2 5 10.2a5 5 0 0 1-10 0c0-2.4 1.1-4 2.4-5.2.2 1.7 1 2.8 2.1 3.2C11.2 8.6 11.6 5.8 12 3z"/>'
+};
+const svg = (n, s = 20, w = 2) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[n]}</svg>`;
+const pintarIconos = (root = document) => root.querySelectorAll('i[data-i]').forEach(i => { i.outerHTML = svg(i.dataset.i, +i.dataset.s || 20, +i.dataset.w || 2); });
+function miniRing(p, color, size = 30, sw = 4.5) {
+  const r = (size - sw) / 2, c = 2 * Math.PI * r, h = size / 2;
+  return `<svg class="mini" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" style="--goal:${color};flex:none" aria-hidden="true">
+    <circle class="t" cx="${h}" cy="${h}" r="${r}" stroke-width="${sw}"/>
+    <circle class="p" cx="${h}" cy="${h}" r="${r}" stroke-width="${sw}" stroke-dasharray="${c.toFixed(2)}" stroke-dashoffset="${(c * (1 - p)).toFixed(2)}" transform="rotate(-90 ${h} ${h})" ${p <= 0 ? 'stroke-opacity="0"' : ''}/></svg>`;
+}
+
+// ───────── Almacenamiento ─────────
+const LS = {
+  get(k, d) { try { const v = localStorage.getItem('verbos.' + k); return v ? JSON.parse(v) : d; } catch { return d; } },
+  set(k, v) { try { localStorage.setItem('verbos.' + k, JSON.stringify(v)); } catch {} }
+};
+const ajustes = Object.assign({ inmediata: true, infinitivo: true, tiempos: Motor.TIEMPOS.map(t => t.id) }, LS.get('ajustes', {}));
+let estado = LS.get('estado', null);
+const guardar = () => LS.set('estado', estado);
+
+// ───────── Azar (criptográfico, sin semilla repetible) ─────────
+const rnd = n => { const a = new Uint32Array(1); crypto.getRandomValues(a); return a[0] % n; };
+const barajar = a => { for (let i = a.length - 1; i > 0; i--) { const j = rnd(i + 1); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+
+// ───────── Grupos de verbos (para que no salgan solo regulares) ─────────
+const GRUPOS = { A: [], B: [], C: [], D: [] };
+for (const v of Motor.VERBOS) {
+  const t = Motor.tipo(v);
+  GRUPOS[t.startsWith('irregular') ? 'A' : t === 'cambio de raíz' ? 'B' : t === 'regular' ? 'D' : 'C'].push(v);
+}
+const PESOS = [['A', 35], ['B', 25], ['C', 15], ['D', 25]];
+function grupoAlAzar() { let r = rnd(100); for (const [g, p] of PESOS) { if (r < p) return g; r -= p; } return 'D'; }
+
+// ───────── Generar examen de 100 sin repetir ─────────
+function generarExamen() {
+  const activos = ajustes.tiempos.length ? ajustes.tiempos : Motor.TIEMPOS.map(t => t.id);
+  let seq = [];
+  while (seq.length < TOTAL) seq.push(...barajar(activos.slice()));
+  seq = barajar(seq.slice(0, TOTAL));
+  // nunca el mismo tiempo dos veces seguidas
+  for (let i = 1; i < seq.length; i++) if (seq[i] === seq[i - 1] && activos.length > 1) {
+    const libre = k => seq[k] !== seq[i] && seq[k - 1] !== seq[i] && (k + 1 >= seq.length || seq[k + 1] !== seq[i]);
+    let k = seq.findIndex((_, k) => k > i && libre(k));
+    if (k < 0) k = seq.findIndex((_, k) => k > 0 && k < i - 1 && libre(k));
+    if (k >= 0) [seq[i], seq[k]] = [seq[k], seq[i]];
+  }
+  const vistos = new Set(LS.get('vistos', []));
+  const recientes = new Set(LS.get('recientes', []));
+  const usados = new Set(), formasUsadas = new Set();
+  const items = [];
+  let pPrev = -1;
+  for (const tid of seq) {
+    let item = null;
+    for (let intento = 0; intento < 300 && !item; intento++) {
+      const pool = GRUPOS[grupoAlAzar()];
+      const v = pool[rnd(pool.length)];
+      if (usados.has(v)) continue;
+      if (intento < 120 && recientes.has(v)) continue;
+      if (tid === 'imp' && Motor.sinImperativo(v)) continue;
+      let p = tid === 'imp' ? 1 + rnd(5) : rnd(6);
+      if (p === pPrev) p = tid === 'imp' ? 1 + (p % 5) : (p + 1 + rnd(5)) % 6;
+      const vars = Motor.formas(v, tid, p);
+      if (!vars.length) continue;
+      const vi = rnd(vars.length), forma = vars[vi];
+      const clave = `${v}|${tid}|${p}|${vi}`;
+      if (intento < 160 && vistos.has(clave)) continue;
+      if (formasUsadas.has(forma)) continue;
+      item = { v, tid, p, forma, clave, validas: Motor.tiemposDe(v, forma, p), tipo: Motor.tipo(v) };
+    }
+    usados.add(item.v); formasUsadas.add(item.forma); pPrev = item.p;
+    items.push(item);
+  }
+  return items;
+}
+
+// ───────── Entender lo que escribe ─────────
+function interpretar(txt) {
+  const s = ' ' + txt.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z ]/g, ' ').replace(/\s+/g, ' ').trim() + ' ';
+  if (s.trim() === '') return { error: 'Escribe el modo y el tiempo.' };
+  const has = r => r.test(s);
+  let modo = null;
+  if (has(/ imp(e|er|era|erat|erativ\w*)? /) || has(/ imperat/)) modo = 'imp';
+  else if (has(/ (sub|subj|subjun\w*|subjuntiv\w*) /) || has(/ subju/)) modo = 'sub';
+  else if (has(/ (ind|indic\w*) /) || has(/ indica/)) modo = 'ind';
+  if (modo === 'imp') return { id: 'imp' };
+  let t = null;
+  const perf = has(/ perfect/) || has(/ compuest/);
+  if (has(/plusc|antecopret/)) t = 'plusc';
+  else if (has(/antepospret/)) t = 'condc';
+  else if (has(/condic|pospret|potencial/)) t = perf ? 'condc' : 'cond';
+  else if (has(/antefut/)) t = 'futc';
+  else if (has(/futur/)) t = perf ? 'futc' : 'fut';
+  else if (has(/anterior/)) t = 'ant';
+  else if (has(/antepret/)) t = modo === 'sub' ? 'plusc' : 'ant';
+  else if (has(/antepres/)) t = 'pp';
+  else if (has(/indefin/) || has(/ perfecto simple/) || has(/ (preterito|pret) simple/)) t = 'indef';
+  else if (has(/imperf|copret/)) t = 'impf';
+  else if (has(/ perfect/)) t = 'pp';
+  else if (has(/ (preterito|pret) /)) t = modo === 'sub' ? 'impf' : 'indef';
+  else if (has(/present|pres /)) t = 'pres';
+  if (!t) return { error: 'No reconozco el tiempo. Ej.: «indicativo futuro simple».' };
+  if (!modo) {
+    if (['indef', 'ant', 'cond', 'condc'].includes(t)) modo = 'ind';
+    else return { error: '¿Indicativo o subjuntivo? Escribe también el modo.' };
+  }
+  if (modo === 'ind' && t === 'pp') t = 'pps';
+  return { id: `${modo}_${t}` };
+}
+
+// ───────── Utilidades de vista ─────────
+const vistas = ['vInicio', 'vPregunta', 'vResultado'];
+function ver(id, titulo) {
+  vistas.forEach(v => $('#' + v).hidden = v !== id);
+  $('#backBtn').hidden = id === 'vInicio';
+  $('#setBtn').hidden = id !== 'vInicio';
+  $('#counter').hidden = id !== 'vPregunta';
+  $('#topTitle').textContent = titulo || 'Verbos';
+  window.scrollTo(0, 0);
+  $('#topbar').classList.remove('scrolled');
+}
+addEventListener('scroll', () => $('#topbar').classList.toggle('scrolled', scrollY > 40), { passive: true });
+
+function anillo(el, frac, color) {
+  const L = 2 * Math.PI * 100;
+  el.closest('.hero').style.setProperty('--goal', color);
+  el.style.strokeDasharray = L;
+  el.style.transition = 'none';
+  el.style.strokeDashoffset = L;
+  el.style.strokeOpacity = frac > 0 ? 1 : 0;
+  void el.getBoundingClientRect();
+  el.style.transition = '';
+  requestAnimationFrame(() => el.style.strokeDashoffset = L * (1 - frac));
+}
+const colorNota = n => n >= 7 ? 'var(--green)' : n >= 5 ? 'var(--orange)' : 'var(--red)';
+const clasePill = n => n >= 7 ? 'good' : n >= 5 ? 'mid' : 'bad';
+const calif = n => n >= 9 ? 'Sobresaliente' : n >= 7 ? 'Notable' : n >= 6 ? 'Bien' : n >= 5 ? 'Aprobado' : 'Suspenso';
+const fmt = n => n.toFixed(1).replace('.', ',');
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
+const tile = (icon, c, head, val, sub = '') => `<div class="tile" style="--c:${c}"><div class="tile-head">${svg(icon, 17, 2.4)}${head}</div><div class="tile-val num">${val}</div>${sub ? `<div class="tile-sub">${sub}</div>` : ''}</div>`;
+
+let toastTimer;
+function toast(text, warn = false) {
+  const t = $('#toast'), ic = t.querySelector('.ic');
+  ic.classList.toggle('warn', warn);
+  ic.innerHTML = svg(warn ? 'minus' : 'check', 15, 3.2);
+  t.querySelector('.tx').textContent = text;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2400);
+}
+
+// ───────── Hojas ─────────
+function abrirHoja(n) { if (n === 'tiempos') pintarTiempos(); $(n === 'tiempos' ? '#bdTiempos' : '#bdAyuda').classList.add('open'); }
+function cerrarHojas() { document.querySelectorAll('.backdrop.open').forEach(b => b.classList.remove('open')); if (!$('#vInicio').hidden) pintarInicio(); }
+document.querySelectorAll('.backdrop').forEach(b => b.addEventListener('click', e => { if (e.target === b || e.target.closest('[data-close]')) cerrarHojas(); }));
+
+const PRESETS = {
+  todos: () => Motor.TIEMPOS.map(t => t.id),
+  ind: () => Motor.TIEMPOS.filter(t => t.modo === 'Indicativo').map(t => t.id),
+  sub: () => Motor.TIEMPOS.filter(t => t.modo === 'Subjuntivo').map(t => t.id),
+  simples: () => ['ind_pres', 'ind_impf', 'ind_indef', 'ind_fut', 'ind_cond', 'sub_pres', 'sub_impf', 'sub_fut', 'imp'],
+  compuestos: () => ['ind_pps', 'ind_plusc', 'ind_ant', 'ind_futc', 'ind_condc', 'sub_pp', 'sub_plusc', 'sub_futc']
+};
+const mismoSet = (a, b) => a.length === b.length && a.every(x => b.includes(x));
+function pintarTiempos() {
+  const grupos = { Indicativo: [], Subjuntivo: [], Imperativo: [] };
+  Motor.TIEMPOS.forEach(t => grupos[t.modo].push(t));
+  $('#tGroups').innerHTML = Object.entries(grupos).map(([m, ts]) => `<div class="group-label">${m}</div><div class="group">${ts.map(t => `
+    <div class="row"><div class="row-main"><div class="row-text"><div class="row-title">${t.nombre}</div></div>
+    <button class="switch" role="switch" data-t="${t.id}" aria-label="${m} ${t.nombre}" aria-checked="${ajustes.tiempos.includes(t.id)}"></button></div></div>`).join('')}</div>`).join('');
+  document.querySelectorAll('[data-preset]').forEach(c => c.setAttribute('aria-pressed', mismoSet(PRESETS[c.dataset.preset](), ajustes.tiempos)));
+}
+
+// ───────── Inicio ─────────
+function pintarInicio() {
+  ver('vInicio');
+  $('#today').textContent = new Date().toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
+  const hist = LS.get('historial', []);
+  const ult = hist[0];
+  $('#hiSub').textContent = `4 tandas de 25 · ${ajustes.tiempos.length} tiempos activos`;
+  if (ult) {
+    $('#hiNum').textContent = fmt(ult.nota);
+    $('#hiRingSub').textContent = 'última nota';
+    $('#hiPill').className = 'pill num ' + clasePill(ult.nota);
+    $('#hiPill').textContent = calif(ult.nota);
+    anillo($('#hiRing'), ult.nota / 10, colorNota(ult.nota));
+  } else {
+    $('#hiNum').textContent = '0'; $('#hiRingSub').textContent = 'sin examen todavía';
+    $('#hiPill').className = 'pill num'; $('#hiPill').textContent = 'Nuevo';
+    anillo($('#hiRing'), 0, 'var(--blue)');
+  }
+  const enCurso = estado && estado.i < TOTAL;
+  $('#startTxt').textContent = enCurso ? 'Continuar examen' : 'Empezar examen';
+  $('#hiHint').innerHTML = enCurso
+    ? `Tanda ${Math.floor(estado.i / TANDA) + 1} · pregunta ${estado.i % TANDA + 1} de 25 · <button class="link" id="nuevoBtn">Empezar de cero</button>`
+    : 'Escribe el modo y el tiempo de cada forma';
+  if (enCurso) $('#nuevoBtn').onclick = nuevoExamen;
+
+  const notas = hist.map(h => h.nota);
+  const vistos = LS.get('vistos', []).length;
+  $('#tiles').innerHTML =
+    tile('target', 'var(--blue)', 'Exámenes', hist.length, hist.length ? `${hist.length * TOTAL} formas respondidas` : 'Aún ninguno') +
+    tile('star', 'var(--orange)', 'Mejor nota', notas.length ? fmt(Math.max(...notas)) : '–', notas.length ? 'sobre 10' : 'Haz tu primer examen') +
+    tile('up', 'var(--green)', 'Media', notas.length ? fmt(notas.reduce((a, b) => a + b, 0) / notas.length) : '–', notas.length > 1 ? `antes ${fmt(notas[1])} → ahora ${fmt(notas[0])}` : 'de todos los exámenes') +
+    tile('book', 'var(--purple)', 'Verbos', Motor.VERBOS.length, `${vistos} preguntas ya vistas`);
+
+  $('#hist').innerHTML = hist.length ? hist.slice(0, 15).map((h, k) => `
+    <button class="row tap" data-h="${k}">${miniRing(h.nota / 10, colorNota(h.nota))}
+      <span class="row-main"><span class="row-text"><span class="row-title" style="display:block">${cap(new Date(h.fecha).toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'short' }))}</span>
+      <span class="row-sub" style="display:block">${h.aciertos}/${TOTAL} · tandas ${h.tandas.map(fmt).join(' · ')}</span></span>
+      <span class="row-trail"><b style="color:var(--label);font-weight:600">${fmt(h.nota)}</b>${svg('down', 16, 2.4)}</span></span></button>`).join('')
+    : `<div class="placeholder">${svg('clock', 34, 1.8)}Aquí aparecerán tus exámenes terminados.</div>`;
+
+  $('#nTiempos').textContent = `${ajustes.tiempos.length} de ${Motor.TIEMPOS.length}`;
+  document.querySelectorAll('[data-ajuste]').forEach(b => b.setAttribute('aria-checked', !!ajustes[b.dataset.ajuste]));
+  $('#baseInfo').innerHTML = `Base de ${Motor.VERBOS.length} verbos: ${GRUPOS.A.length} irregulares, ${GRUPOS.B.length} con cambio de raíz, ${GRUPOS.C.length} ortográficos o acentuales y ${GRUPOS.D.length} regulares.<br>Las preguntas que ya te han salido no se repiten en exámenes futuros.`;
+}
+
+document.addEventListener('click', e => {
+  const sw = e.target.closest('.switch');
+  if (sw && sw.dataset.t) {
+    const id = sw.dataset.t, on = ajustes.tiempos.includes(id);
+    if (on && ajustes.tiempos.length === 1) return toast('Deja al menos un tiempo', true);
+    ajustes.tiempos = on ? ajustes.tiempos.filter(x => x !== id) : [...ajustes.tiempos, id];
+    LS.set('ajustes', ajustes); pintarTiempos();
+  } else if (sw && sw.dataset.ajuste) {
+    const k = sw.dataset.ajuste; ajustes[k] = !ajustes[k]; sw.setAttribute('aria-checked', ajustes[k]); LS.set('ajustes', ajustes);
+  }
+  const pr = e.target.closest('[data-preset]');
+  if (pr) { ajustes.tiempos = PRESETS[pr.dataset.preset](); LS.set('ajustes', ajustes); pintarTiempos(); }
+  const op = e.target.closest('[data-open]');
+  if (op) abrirHoja(op.dataset.open);
+  const h = e.target.closest('[data-h]');
+  if (h) { const x = LS.get('historial', [])[+h.dataset.h]; if (x) descargar(x.informe, x.fecha); }
+});
+$('#setBtn').onclick = () => abrirHoja('tiempos');
+function nuevoExamen() {
+  estado = { inicio: Date.now(), items: generarExamen(), i: 0, resp: [] };
+  guardar(); pregunta();
+}
+$('#startBtn').onclick = () => (estado && estado.i < TOTAL) ? pregunta() : nuevoExamen();
+$('#backBtn').onclick = () => pintarInicio();
+
+// ───────── Pregunta ─────────
+let esperando = false, t0 = 0, avanceTimer = 0;
+function pintarTanda() {
+  const i = estado.i, tanda = Math.floor(Math.min(i, TOTAL - 1) / TANDA), base = tanda * TANDA;
+  const rs = estado.resp.slice(base, base + TANDA).filter(Boolean);
+  const ok = rs.filter(r => r.ok).length;
+  $('#prog').innerHTML = Array.from({ length: TANDA }, (_, k) => {
+    const r = estado.resp[base + k];
+    return `<span class="${r ? (r.ok ? 'ok' : 'ko') : base + k === i ? 'now' : ''}"></span>`;
+  }).join('');
+  $('#qTiles').innerHTML =
+    tile('check', 'var(--green)', 'Aciertos', ok, `de ${rs.length} respondidas`) +
+    tile('x', 'var(--red)', 'Fallos', rs.length - ok, rs.length ? `${Math.round((rs.length - ok) / rs.length * 100)} % de error` : 'ninguno aún');
+}
+function pregunta() {
+  const i = estado.i, it = estado.items[i], tanda = Math.floor(i / TANDA);
+  ver('vPregunta', `Tanda ${tanda + 1} de ${TANDAS}`);
+  $('#qTitle').textContent = `Tanda ${tanda + 1}`;
+  $('#qMeta').textContent = `Tanda ${tanda + 1} de ${TANDAS} · ${i}/${TOTAL} respondidas`;
+  $('#counter').textContent = `${i % TANDA + 1}/${TANDA}`;
+  $('#qPerson').textContent = PERSONAS[it.p];
+  const f = $('#qForm'); f.textContent = it.forma; f.classList.remove('bump'); void f.offsetWidth; f.classList.add('bump');
+  $('#qInf').textContent = ajustes.infinitivo ? `de ${it.v}` : '';
+  const a = $('#ans'); a.value = ''; a.disabled = false;
+  $('#searchBox').className = 'search';
+  $('#fb').hidden = true;
+  $('#ansTxt').textContent = 'Comprobar';
+  pintarTanda();
+  esperando = false; t0 = performance.now();
+  a.focus();
+}
+function feedback(cls, icon, color, title, sub) {
+  const fb = $('#fb'); fb.className = 'fb ' + cls; fb.hidden = false;
+  $('#fbIcon').style.setProperty('--c', color); $('#fbIcon').innerHTML = svg(icon, 17, 3);
+  $('#fbTitle').textContent = title; $('#fbSub').innerHTML = sub;
+}
+$('#ansForm').onsubmit = e => {
+  e.preventDefault();
+  if (avanceTimer) { clearTimeout(avanceTimer); avanceTimer = 0; return siguiente(); }
+  if (esperando) { esperando = false; return siguiente(); }
+  const raw = $('#ans').value.trim();
+  const r = interpretar(raw);
+  if (r.error) return feedback('warn', 'help', 'var(--orange)', 'No te he entendido', esc(r.error));
+  const it = estado.items[estado.i];
+  const ok = it.validas.includes(r.id);
+  estado.resp[estado.i] = { raw, id: r.id, ok, seg: Math.round((performance.now() - t0) / 100) / 10 };
+  estado.i++; guardar();
+  if (!ajustes.inmediata) return siguiente();
+  $('#searchBox').classList.add(ok ? 'ok' : 'ko'); $('#ans').disabled = true;
+  pintarTanda();
+  if (ok) {
+    const otros = it.validas.filter(x => x !== r.id);
+    feedback('ok', 'check', 'var(--green)', 'Correcto', otros.length ? `También valía: ${otros.map(nombreT).join(', ')}` : esc(nombreT(r.id)));
+    avanceTimer = setTimeout(() => { avanceTimer = 0; siguiente(); }, otros.length ? 1100 : 450);
+  } else {
+    feedback('ko', 'x', 'var(--red)', `Era ${it.validas.map(nombreT).join(' o ')}`, `Pusiste ${esc(nombreT(r.id))}`);
+    esperando = true;
+    $('#ansTxt').textContent = 'Siguiente';
+  }
+  $('#ansBtn').focus();
+};
+function siguiente() { if (estado.i % TANDA === 0) resultado(); else pregunta(); }
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && document.querySelector('.backdrop.open')) return cerrarHojas();
+  if (e.key !== 'Enter' || document.querySelector('.backdrop.open')) return;
+  const libre = document.activeElement === document.body || !document.activeElement;
+  if (!$('#vInicio').hidden && libre) { e.preventDefault(); $('#startBtn').click(); }
+  else if (!$('#vResultado').hidden && libre) { e.preventDefault(); $('#nextBtn').click(); }
+});
+
+// ───────── Resultado ─────────
+function resultado() {
+  const fin = estado.i >= TOTAL;
+  const tanda = Math.floor((estado.i - 1) / TANDA);
+  const desde = fin ? 0 : tanda * TANDA, hasta = estado.i;
+  const resp = estado.resp.slice(desde, hasta), items = estado.items.slice(desde, hasta);
+  const aciertos = resp.filter(r => r.ok).length, n = resp.length;
+  const nota = aciertos / n * 10;
+  ver('vResultado', fin ? 'Resultado final' : `Tanda ${tanda + 1}`);
+  $('#rMeta').textContent = fin ? 'Examen completo · 100 formas' : `Tanda ${tanda + 1} de ${TANDAS} terminada`;
+  $('#rTitle').textContent = fin ? 'Resultado final' : `Tanda ${tanda + 1}`;
+  $('#rName').textContent = `${aciertos} aciertos · ${n - aciertos} fallos`;
+  $('#rSub').textContent = fin ? 'Nota global de las 4 tandas' : `Quedan ${TANDAS - tanda - 1} tanda${TANDAS - tanda - 1 === 1 ? '' : 's'}`;
+  $('#rPill').className = 'pill num ' + clasePill(nota);
+  $('#rPill').textContent = calif(nota);
+  $('#rNum').textContent = fmt(nota);
+  anillo($('#rRing'), nota / 10, colorNota(nota));
+  $('#rWrap').classList.remove('pop'); void $('#rWrap').offsetWidth; $('#rWrap').classList.add('pop');
+  $('#nextBtn').innerHTML = fin ? 'Volver al inicio <kbd>Enter</kbd>' : `Empezar tanda ${tanda + 2} <kbd>Enter</kbd>`;
+  $('#dlBtn').hidden = !fin;
+  $('#rHint').innerHTML = fin ? 'Pásale el informe a Claude para que analice tus errores · <button class="link" id="cpBtn">Copiar</button>' : '';
+  if (fin) $('#cpBtn').onclick = () => navigator.clipboard.writeText(estado.informe).then(() => toast('Informe copiado'), () => toast('No se pudo copiar', true));
+  $('#rTilesWrap').hidden = !fin;
+  const fallos = items.map((it, k) => ({ it, r: resp[k] })).filter(x => !x.r.ok);
+  $('#rErrHead').textContent = fallos.length ? `Fallos (${fallos.length})` : 'Sin fallos';
+  $('#rErr').innerHTML = fallos.length ? fallos.map(({ it, r }) => `
+    <div class="row"><span class="app-icon" style="--c:var(--red);border-radius:50%">${svg('x', 15, 3)}</span><div class="row-main"><div class="row-text">
+      <div class="row-title"><span style="color:var(--label2)">${esc(PERSONAS[it.p])}</span> <b style="font-weight:600">${esc(it.forma)}</b> <span style="color:var(--label2)">· ${esc(it.v)}</span></div>
+      <div class="row-sub">Era <span style="color:var(--green-ink);font-weight:600">${it.validas.map(nombreT).join(' / ')}</span> · pusiste <span style="color:var(--red-ink)">${esc(nombreT(r.id))}</span></div>
+    </div></div></div>`).join('') : `<div class="placeholder">${svg('star', 34, 1.8)}Ni un fallo. Perfecto.</div>`;
+
+  if (fin) {
+    const notas = [0, 1, 2, 3].map(t => estado.resp.slice(t * TANDA, (t + 1) * TANDA).filter(r => r.ok).length / TANDA * 10);
+    $('#rTiles').innerHTML = notas.map((x, t) => `<div class="tile" style="--c:${colorNota(x)}"><div class="tile-head">${miniRing(x / 10, colorNota(x), 18, 3.5)}Tanda ${t + 1}</div><div class="tile-val num">${fmt(x)}</div></div>`).join('');
+    if (!estado.cerrado) {
+      const informe = generarInforme(nota, notas);
+      const hist = LS.get('historial', []);
+      hist.unshift({ fecha: Date.now(), nota, aciertos, tandas: notas, informe });
+      LS.set('historial', hist.slice(0, 50));
+      // marcar como vistas para que no se repitan en exámenes futuros
+      const vistos = LS.get('vistos', []); vistos.push(...estado.items.map(i => i.clave)); LS.set('vistos', vistos.slice(-30000));
+      const rec = LS.get('recientes', []); rec.push(...estado.items.map(i => i.v)); LS.set('recientes', rec.slice(-500));
+      estado.cerrado = true; estado.informe = informe; guardar();
+    }
+  }
+}
+$('#nextBtn').onclick = () => {
+  if (estado.i >= TOTAL) { estado = null; LS.set('estado', null); pintarInicio(); }
+  else pregunta();
+};
+$('#dlBtn').onclick = () => descargar(estado.informe, estado.inicio);
+
+function descargar(texto, fecha) {
+  const d = new Date(fecha), p = x => String(x).padStart(2, '0');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([texto], { type: 'text/markdown;charset=utf-8' }));
+  a.download = `informe-verbos-${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}-${p(d.getHours())}${p(d.getMinutes())}.md`;
+  document.body.appendChild(a); a.click(); a.remove();
+  toast('Informe descargado');
+}
+
+// ───────── Informe para el análisis ─────────
+function generarInforme(nota, notas) {
+  const filas = estado.items.map((it, k) => ({ ...it, ...estado.resp[k], n: k + 1, tanda: Math.floor(k / TANDA) + 1 }));
+  const errs = filas.filter(f => !f.ok);
+  const pct = (a, b) => b ? Math.round(a / b * 100) + ' %' : '–';
+  const media = a => a.length ? fmt(a.reduce((s, x) => s + x, 0) / a.length) : '–';
+  const agrupa = (clave) => {
+    const m = {};
+    for (const f of filas) { const k = clave(f); (m[k] = m[k] || { t: 0, ok: 0, seg: [] }); m[k].t++; if (f.ok) m[k].ok++; m[k].seg.push(f.seg); }
+    return Object.entries(m).sort((a, b) => a[1].ok / a[1].t - b[1].ok / b[1].t);
+  };
+  const tabla = (titulo, cab, rows) => `## ${titulo}\n\n| ${cab.join(' | ')} |\n|${cab.map(() => '---').join('|')}|\n${rows.map(r => '| ' + r.join(' | ') + ' |').join('\n')}\n`;
+  const principal = f => f.tid; // el tiempo con el que se generó la pregunta
+  const conf = {};
+  for (const f of errs) { const k = nombreT(principal(f)) + ' → ' + nombreT(f.id); conf[k] = (conf[k] || 0) + 1; }
+  const d = new Date(estado.inicio);
+  let md = `# Informe de errores · Juego de verbos\n\n`;
+  md += `> Pásale este archivo a Claude y pídele: «analiza en qué fallo más y por qué».\n\n`;
+  md += `- Fecha: ${d.toLocaleString('es-ES')}\n- Nota global: **${fmt(nota)} / 10** (${filas.length - errs.length} aciertos de ${filas.length})\n`;
+  md += `- Notas por tanda: ${notas.map((x, t) => `T${t + 1} ${fmt(x)}`).join(' · ')}\n`;
+  md += `- Tiempo medio de respuesta: ${media(filas.map(f => f.seg))} s (aciertos ${media(filas.filter(f => f.ok).map(f => f.seg))} s · fallos ${media(errs.map(f => f.seg))} s)\n`;
+  md += `- Tiempos incluidos: ${ajustes.tiempos.length} de ${Motor.TIEMPOS.length}\n\n`;
+  md += tabla('Rendimiento por tiempo verbal (peor primero)', ['Tiempo', 'Preguntas', 'Aciertos', 'Fallos', '% acierto', 'Seg. medios'],
+    agrupa(f => nombreT(principal(f))).map(([k, v]) => [k, v.t, v.ok, v.t - v.ok, pct(v.ok, v.t), media(v.seg)])) + '\n';
+  md += tabla('Rendimiento por modo', ['Modo', 'Preguntas', 'Aciertos', '% acierto'],
+    agrupa(f => T[principal(f)].modo).map(([k, v]) => [k, v.t, v.ok, pct(v.ok, v.t)])) + '\n';
+  md += tabla('Simples frente a compuestos', ['Forma', 'Preguntas', 'Aciertos', '% acierto'],
+    agrupa(f => f.forma.includes(' ') ? 'Compuesta (haber + participio)' : 'Simple').map(([k, v]) => [k, v.t, v.ok, pct(v.ok, v.t)])) + '\n';
+  md += tabla('Rendimiento por tipo de verbo', ['Tipo', 'Preguntas', 'Aciertos', '% acierto'],
+    agrupa(f => f.tipo).map(([k, v]) => [k, v.t, v.ok, pct(v.ok, v.t)])) + '\n';
+  md += tabla('Rendimiento por persona', ['Persona', 'Preguntas', 'Aciertos', '% acierto'],
+    agrupa(f => PERSONAS[f.p]).map(([k, v]) => [k, v.t, v.ok, pct(v.ok, v.t)])) + '\n';
+  md += tabla('Evolución por tanda', ['Tanda', 'Aciertos', 'Fallos', 'Nota'],
+    notas.map((x, t) => { const s = filas.filter(f => f.tanda === t + 1); const o = s.filter(f => f.ok).length; return [t + 1, o, s.length - o, fmt(x)]; })) + '\n';
+  md += errs.length ? tabla('Confusiones (lo que era → lo que pusiste)', ['Confusión', 'Veces'],
+    Object.entries(conf).sort((a, b) => b[1] - a[1]).map(([k, v]) => [k, v])) + '\n' : '';
+  md += errs.length ? tabla(`Detalle de los ${errs.length} errores`, ['#', 'Tanda', 'Persona', 'Forma', 'Verbo', 'Tipo', 'Correcto', 'Lo que escribiste', 'Entendido como', 'Seg.'],
+    errs.map(f => [f.n, f.tanda, PERSONAS[f.p], `**${f.forma}**`, f.v, f.tipo, f.validas.map(nombreT).join(' / '), `«${f.raw.replace(/\|/g, '/')}»`, nombreT(f.id), fmt(f.seg)])) + '\n' : '## Sin errores\n\n';
+  md += tabla('Todas las respuestas', ['#', 'Forma', 'Persona', 'Verbo', 'Correcto', 'Respuesta', '✓/✗'],
+    filas.map(f => [f.n, f.forma, PERSONAS[f.p], f.v, f.validas.map(nombreT).join(' / '), nombreT(f.id), f.ok ? '✓' : '✗'])) + '\n';
+  md += '## Datos en bruto\n\n```json\n' + JSON.stringify(filas.map(f => ({ n: f.n, tanda: f.tanda, verbo: f.v, tipo: f.tipo, persona: f.p, forma: f.forma, correcto: f.validas, respuesta: f.id, escrito: f.raw, ok: f.ok, seg: f.seg }))) + '\n```\n';
+  return md;
+}
+
+pintarIconos();
+pintarInicio();
+</script>
+</body>
+</html>
