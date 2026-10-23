@@ -1,0 +1,592 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#F2F2F7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+<title>Morfemas</title>
+<link rel="stylesheet" href="estilo.css">
+<style>
+.q-word{font-size:clamp(34px,9vw,50px);font-weight:700;letter-spacing:-.04em;line-height:1.08;margin:34px 0 8px;word-break:break-word}
+.q-word.bump{animation:bump .3s var(--ease)}
+.q-hint{font-size:15px;color:var(--label2);min-height:20px;margin-bottom:30px}
+.morfos{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin:14px 0 2px}
+.m{--c:var(--blue);display:flex;flex-direction:column;align-items:center;gap:2px;padding:7px 10px 6px;border-radius:12px;background:color-mix(in srgb,var(--c) 13%,transparent);min-width:44px}
+.m b{font-size:19px;font-weight:700;letter-spacing:-.02em;color:var(--c)}
+.m small{font-size:11px;font-weight:600;color:var(--label2);text-align:center;line-height:1.15;max-width:92px}
+.t-L{--c:var(--blue)}.t-P{--c:var(--purple)}.t-S{--c:var(--orange)}.t-A{--c:var(--pink)}.t-I{--c:var(--teal)}
+.t-G{--c:var(--green)}.t-N{--c:var(--indigo)}.t-V{--c:var(--gray)}.t-T,.t-X,.t-R,.t-E,.t-D{--c:var(--red)}
+.analisis{margin-top:4px;text-align:left}
+.analisis .meta{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:10px}
+.analisis .meta span{font-size:12px;font-weight:600;color:var(--label2);background:var(--fill);padding:4px 9px;border-radius:99px}
+.analisis p{font-size:13px;color:var(--label2);line-height:1.4;margin-top:10px;text-align:center}
+.analisis p b{color:var(--label);font-weight:600}
+.leyenda{display:flex;flex-wrap:wrap;gap:6px;padding:12px 16px}
+.leyenda .m{flex-direction:row;gap:7px;padding:5px 10px}
+.leyenda .m b{font-size:15px}
+.leyenda .m small{font-size:12px;max-width:none}
+.err-cut{font-family:inherit;font-weight:600;letter-spacing:.01em}
+</style>
+</head>
+<body>
+
+<div class="topbar" id="topbar">
+  <div class="topbar-inner">
+    <span><button class="link" id="backBtn" hidden><i data-i="left" data-s="22" data-w="2.4"></i>Inicio</button></span>
+    <span class="topbar-title" id="topTitle">Morfemas</span>
+    <button class="circle-btn" id="setBtn" aria-label="Categorías" title="Categorías"><i data-i="sliders" data-s="19" data-w="2.2"></i></button>
+    <span class="counter num" id="counter" hidden></span>
+  </div>
+</div>
+
+<!-- ───────── Inicio ───────── -->
+<div id="vInicio">
+  <header class="large"><p class="date" id="today"></p><h1>Morfemas</h1></header>
+  <nav class="games" aria-label="Juego"><div class="seg" style="--i:1"><span class="seg-thumb"></span><a href="index.html" aria-current="false">Verbos</a><a href="morfemas.html" aria-current="page">Morfemas</a></div></nav>
+  <main class="layout">
+    <div class="section-head"><h2>Examen</h2></div>
+    <div class="card hero" id="heroInicio">
+      <div class="hero-head">
+        <div class="hero-id"><div class="hero-name">Separar en morfemas</div><div class="hero-sub" id="hiSub"></div></div>
+        <span class="pill num" id="hiPill"></span>
+      </div>
+      <div class="ring-wrap">
+        <svg class="ring" viewBox="0 0 240 240" aria-hidden="true">
+          <defs><linearGradient id="rg1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" class="s1"/><stop offset="1" class="s2"/></linearGradient></defs>
+          <circle class="t" cx="120" cy="120" r="100"/>
+          <circle class="p" id="hiRing" cx="120" cy="120" r="100" stroke="url(#rg1)"/>
+        </svg>
+        <div class="ring-center"><div class="ring-num num" id="hiNum">0</div><div class="ring-sub" id="hiRingSub"></div></div>
+      </div>
+      <button class="wide" id="startBtn"><span id="startTxt">Empezar examen</span> <kbd>Enter</kbd></button>
+      <p class="hint" id="hiHint"></p>
+    </div>
+
+    <div class="section-head"><h2>Resumen</h2></div>
+    <div class="tiles" id="tiles"></div>
+
+    <div class="section-head"><h2>Historial</h2></div>
+    <div class="list" id="hist"></div>
+
+    <div class="section-head"><h2>Práctica</h2></div>
+    <div class="list">
+      <button class="row tap" data-open="cats"><span class="app-icon" style="--c:var(--indigo)"><i data-i="list" data-s="18" data-w="2.4"></i></span>
+        <span class="row-main"><span class="row-text"><span class="row-title" style="display:block">Categorías gramaticales</span><span class="row-sub" style="display:block" id="catsSub"></span></span><span class="row-trail"><i data-i="right" data-s="14" data-w="2.6"></i></span></span></button>
+      <div class="row"><span class="app-icon" style="--c:var(--green)"><i data-i="check" data-s="18" data-w="2.8"></i></span>
+        <div class="row-main"><div class="row-text"><div class="row-title">Corregir al momento</div></div><button class="switch" role="switch" data-ajuste="inmediata" aria-label="Corregir al momento"></button></div></div>
+      <button class="row tap" data-open="ayuda"><span class="app-icon" style="--c:var(--teal)"><i data-i="table" data-s="18" data-w="2.2"></i></span>
+        <span class="row-main"><span class="row-text"><span class="row-title" style="display:block">Tipos de morfema y criterios</span><span class="row-sub" style="display:block">Qué se separa y qué variantes se aceptan</span></span><span class="row-trail"><i data-i="right" data-s="14" data-w="2.6"></i></span></span></button>
+    </div>
+  </main>
+  <p class="foot" id="baseInfo"></p>
+</div>
+
+<!-- ───────── Pregunta ───────── -->
+<div id="vPregunta" hidden>
+  <header class="large"><p class="date num" id="qMeta"></p><h1 id="qTitle">Tanda 1</h1></header>
+  <main class="layout">
+    <div class="progress" id="prog"></div>
+    <div style="height:22px"></div>
+    <div class="card q">
+      <div class="q-top"><span class="q-person" id="qCat"></span></div>
+      <div class="q-word" id="qWord"></div>
+      <div class="q-hint">Sepárala en morfemas con guiones</div>
+      <form class="answer" id="ansForm" autocomplete="off">
+        <label class="search" id="searchBox"><i data-i="pencil" data-s="18" data-w="2.2"></i>
+          <input id="ans" placeholder="ej.: des-orden-a-r" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Palabra separada en morfemas"></label>
+        <button class="wide" id="ansBtn" type="submit"><span id="ansTxt">Comprobar</span> <kbd>Enter</kbd></button>
+      </form>
+      <div class="fb" id="fb" hidden><span class="app-icon" id="fbIcon"></span><div><div class="fb-title" id="fbTitle"></div><div class="fb-sub" id="fbSub"></div></div></div>
+      <div class="analisis" id="analisis" hidden></div>
+    </div>
+    <p class="keys">Separa con <kbd>-</kbd> · las tildes dan igual · <kbd>Enter</kbd> comprueba y pasa</p>
+    <div class="section-head"><h2>Esta tanda</h2></div>
+    <div class="tiles" id="qTiles"></div>
+  </main>
+</div>
+
+<!-- ───────── Resultado ───────── -->
+<div id="vResultado" hidden>
+  <header class="large"><p class="date" id="rMeta"></p><h1 id="rTitle"></h1></header>
+  <main class="layout">
+    <div class="section-head"><h2>Nota</h2></div>
+    <div class="card hero">
+      <div class="hero-head">
+        <div class="hero-id"><div class="hero-name" id="rName"></div><div class="hero-sub" id="rSub"></div></div>
+        <span class="pill num" id="rPill"></span>
+      </div>
+      <div class="ring-wrap" id="rWrap">
+        <svg class="ring" viewBox="0 0 240 240" aria-hidden="true">
+          <defs><linearGradient id="rg2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" class="s1"/><stop offset="1" class="s2"/></linearGradient></defs>
+          <circle class="t" cx="120" cy="120" r="100"/>
+          <circle class="p" id="rRing" cx="120" cy="120" r="100" stroke="url(#rg2)"/>
+        </svg>
+        <div class="ring-center"><div class="ring-num num" id="rNum"></div><div class="ring-sub">sobre 10</div></div>
+      </div>
+      <button class="wide" id="nextBtn"></button>
+      <button class="wide soft" id="dlBtn" hidden><i data-i="down" data-s="18" data-w="2.4"></i>Descargar informe de errores</button>
+      <p class="hint" id="rHint"></p>
+    </div>
+    <div id="rTilesWrap" hidden>
+      <div class="section-head"><h2>Por tanda</h2></div>
+      <div class="tiles four" id="rTiles"></div>
+    </div>
+    <div class="section-head"><h2 id="rErrHead">Fallos</h2></div>
+    <div class="list" id="rErr"></div>
+  </main>
+  <p class="foot"></p>
+</div>
+
+<!-- ───────── Hoja: categorías ───────── -->
+<div class="backdrop" id="bdCats">
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="cTitle">
+    <div class="grabber"></div>
+    <div class="sheet-nav"><span></span><h3 id="cTitle">Categorías</h3><button class="link" data-close>OK</button></div>
+    <div class="group-label">Incluir en el examen</div>
+    <div class="group" id="catGroup"></div>
+    <div class="group-label">Verbos</div>
+    <div class="group">
+      <div class="row"><div class="row-main"><div class="row-text"><div class="row-title">Formas conjugadas</div><div class="row-sub">cant‑á‑ba‑mos, com‑ie‑ra… además de los infinitivos derivados</div></div>
+        <button class="switch" role="switch" data-ajuste="conjugadas" aria-label="Formas conjugadas"></button></div></div>
+    </div>
+    <p class="group-foot">Las preguntas se reparten a partes iguales entre las categorías activas.</p>
+  </div>
+</div>
+
+<!-- ───────── Hoja: criterios ───────── -->
+<div class="backdrop" id="bdAyuda">
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="aTitle">
+    <div class="grabber"></div>
+    <div class="sheet-nav"><span></span><h3 id="aTitle">Tipos de morfema</h3><button class="link" data-close>OK</button></div>
+    <div class="group-label">Colores de la corrección</div>
+    <div class="group leyenda" id="leyenda"></div>
+    <div class="group-label">Cómo responder</div>
+    <div class="group help">
+      <p>Escribe la palabra entera separando cada morfema con un guion: <b>des-orden-a-r</b>, <b>niñ-a-s</b>, <b>cant-á-ba-mos</b>.</p>
+      <p>Las tildes y las mayúsculas dan igual, pero no cambies letras: <b>pec-ec-ill-o</b>, no «pez-ecillo».</p>
+    </div>
+    <div class="group-label">Criterios que sigue la corrección</div>
+    <div class="group help">
+      <p><b>Lexema</b>: la raíz con su alomorfo si cambia (pec‑ de pez, luc‑ de luz, blanqu‑ de blanco).</p>
+      <p><b>Vocal final</b>: es morfema de género si hay oposición (niñ‑o / niñ‑a); si no la hay, es vocal temática (cas‑a, libr‑o).</p>
+      <p><b>Verbos</b>: lexema + vocal temática + tiempo‑aspecto‑modo + número‑persona: cant‑á‑ba‑mos, com‑ie‑ra‑n, cant‑a‑re‑mos. Infinitivo cant‑a‑r, participio cant‑a‑d‑o.</p>
+      <p><b>Interfijos</b>: elementos sin significado entre lexema y sufijo (pan‑ad‑er‑o, luc‑ec‑it‑a) o entre lexemas (pel‑i‑rroj‑o).</p>
+      <p><b>‑mente</b>: adjetivo en femenino + sufijo: rápid‑a‑mente.</p>
+    </div>
+    <div class="group-label">Variantes que también se aceptan</div>
+    <div class="group help">
+      <p>Sufijo junto a su vocal final: zapat‑<b>ero</b>, cas‑<b>ita</b>. Interfijo junto al sufijo: pan‑<b>ader</b>‑o. Dos sufijos juntos: libr‑<b>ería</b>.</p>
+      <p>Vocal temática junto al sufijo: lav‑<b>ador</b>‑a, aliment‑<b>ación</b>. En verbos: com‑<b>ía</b>‑mos, cant‑a‑<b>r‑ía</b>‑mos, cant‑<b>ad</b>‑o, cant‑<b>ando</b>.</p>
+      <p>Lo que nunca se acepta: dejar el lexema pegado a un morfema flexivo (niña‑s, canta‑ba‑mos) o partir un morfema por la mitad.</p>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status"><span class="ic"></span><span class="tx"></span></div>
+
+<script src="morfemas-datos.js"></script>
+<script>
+'use strict';
+const $ = s => document.querySelector(s);
+const { ITEMS, TIPOS, CATS, aceptadas, fronteras, formatear, sinTilde } = Morfemas;
+const TANDA_MAX = 25, TANDAS_MAX = 4;
+
+// ───────── Iconos (mismo trazo que Metas) ─────────
+const ICONS = {
+  left: '<path d="M15 5l-7 7 7 7"/>', right: '<path d="M9 5l7 7-7 7"/>', check: '<path d="M5 12.5l4.5 4.5L19 7"/>',
+  x: '<path d="M6 6l12 12M18 6L6 18"/>', minus: '<path d="M5 12h14"/>', down: '<path d="M12 4v12M6 11l6 6 6-6M5 20h14"/>',
+  sliders: '<path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2.2"/><circle cx="10" cy="17" r="2.2"/>',
+  list: '<path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1"/><circle cx="4.5" cy="12" r="1"/><circle cx="4.5" cy="18" r="1"/>',
+  table: '<rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/><path d="M3.5 9.5h17M3.5 14.5h17M10 9.5v10"/>',
+  help: '<circle cx="12" cy="12" r="9"/><path d="M9.6 9.3a2.5 2.5 0 0 1 4.8 1c0 1.7-2.4 2.2-2.4 3.7M12 17.2v.3"/>',
+  pencil: '<path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/>',
+  target: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.2"/>',
+  star: '<path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/>',
+  up: '<path d="M12 19V5M6 11l6-6 6 6"/>', clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.2 2"/>',
+  book: '<path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5A2.5 2.5 0 0 0 6.5 23H20v-5"/>',
+  scissors: '<circle cx="6" cy="7" r="2.5"/><circle cx="6" cy="17" r="2.5"/><path d="M8 8.5L20 17M8 15.5L20 7"/>'
+};
+const svg = (n, s = 20, w = 2) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[n]}</svg>`;
+const pintarIconos = (root = document) => root.querySelectorAll('i[data-i]').forEach(i => { i.outerHTML = svg(i.dataset.i, +i.dataset.s || 20, +i.dataset.w || 2); });
+function miniRing(p, color, size = 30, sw = 4.5) {
+  const r = (size - sw) / 2, c = 2 * Math.PI * r, h = size / 2;
+  return `<svg class="mini" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" style="--goal:${color};flex:none" aria-hidden="true">
+    <circle class="t" cx="${h}" cy="${h}" r="${r}" stroke-width="${sw}"/>
+    <circle class="p" cx="${h}" cy="${h}" r="${r}" stroke-width="${sw}" stroke-dasharray="${c.toFixed(2)}" stroke-dashoffset="${(c * (1 - p)).toFixed(2)}" transform="rotate(-90 ${h} ${h})" ${p <= 0 ? 'stroke-opacity="0"' : ''}/></svg>`;
+}
+
+// ───────── Almacenamiento ─────────
+const LS = {
+  get(k, d) { try { const v = localStorage.getItem('morfemas.' + k); return v ? JSON.parse(v) : d; } catch { return d; } },
+  set(k, v) { try { localStorage.setItem('morfemas.' + k, JSON.stringify(v)); } catch {} }
+};
+const ajustes = Object.assign({ inmediata: true, conjugadas: true, cats: Object.keys(CATS) }, LS.get('ajustes', {}));
+let estado = LS.get('estado', null);
+const guardar = () => LS.set('estado', estado);
+
+// ───────── Azar ─────────
+const rnd = n => { const a = new Uint32Array(1); crypto.getRandomValues(a); return a[0] % n; };
+const barajar = a => { for (let i = a.length - 1; i > 0; i--) { const j = rnd(i + 1); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+
+// Una entrada por palabra (cantaba es yo y él: basta con una)
+const POR_PALABRA = new Map();
+for (const it of ITEMS) if (!POR_PALABRA.has(it.palabra)) POR_PALABRA.set(it.palabra, it);
+const PALABRAS = [...POR_PALABRA.values()];
+const grupo = it => it.cat === 'ver' ? (it.tiempo ? 'conj' : 'ver') : it.cat;
+function pools() {
+  const g = {};
+  for (const it of PALABRAS) {
+    if (!ajustes.cats.includes(it.cat)) continue;
+    if (it.tiempo && !ajustes.conjugadas) continue;
+    (g[grupo(it)] = g[grupo(it)] || []).push(it);
+  }
+  return g;
+}
+function tamanoExamen() {
+  const total = Object.values(pools()).reduce((s, p) => s + p.length, 0);
+  const tanda = Math.min(TANDA_MAX, total);
+  const tandas = Math.max(1, Math.min(TANDAS_MAX, Math.floor(total / tanda)));
+  return { tanda, tandas, total };
+}
+
+// ───────── Generar examen sin repetir palabras ─────────
+function generarExamen() {
+  const { tanda, tandas } = tamanoExamen(), N = tanda * tandas;
+  const g = pools();
+  const vistos = new Set(LS.get('vistos', []));
+  // cada grupo, barajado y con las palabras no vistas delante
+  const colas = {};
+  for (const [k, lista] of Object.entries(g)) {
+    const b = barajar(lista.slice());
+    colas[k] = [...b.filter(it => !vistos.has(it.palabra)), ...b.filter(it => vistos.has(it.palabra))];
+  }
+  // reparto por categoría a partes iguales; dentro de los verbos, mitad infinitivos derivados y mitad conjugados
+  const peso = k => (k === 'ver' || k === 'conj') && colas.ver && colas.conj ? 0.5 : 1;
+  const items = [];
+  let ultimo = null;
+  while (items.length < N) {
+    const vivos = Object.keys(colas).filter(k => colas[k].length);
+    if (!vivos.length) break;
+    const cand = vivos.filter(k => k !== ultimo || vivos.length === 1);
+    const tot = cand.reduce((s, k) => s + peso(k), 0);
+    let r = rnd(1000) / 1000 * tot, k = cand[0];
+    for (const c of cand) { if (r < peso(c)) { k = c; break; } r -= peso(c); }
+    const it = colas[k].shift();
+    items.push({ palabra: it.palabra, cat: it.cat });
+    ultimo = rnd(3) ? k : null; // evita rachas sin volverlas imposibles
+  }
+  return { items: items.slice(0, N), tanda, tandas };
+}
+
+// ───────── Corrección ─────────
+function corregir(it, raw) {
+  const partes = raw.trim().split(/[\s\-–—+/|·.,]+/).filter(Boolean);
+  if (!partes.length) return { error: 'Escribe la palabra separada con guiones.' };
+  if (sinTilde(partes.join('')) !== sinTilde(it.palabra)) return { error: `Las letras no coinciden con «${it.palabra}». Escribe la misma palabra, solo con guiones.` };
+  const fr = fronteras(partes);
+  const acc = aceptadas(it);
+  const k = fr.join(',');
+  const ok = acc.some(s => s.join(',') === k);
+  // la segmentación aceptada más parecida, para explicar el fallo
+  const dif = s => s.filter(x => !fr.includes(x)).length + fr.filter(x => !s.includes(x)).length;
+  const cercana = acc.slice().sort((a, b) => dif(a) - dif(b))[0];
+  return { ok, fr, cercana, faltan: cercana.filter(x => !fr.includes(x)), sobran: fr.filter(x => !cercana.includes(x)) };
+}
+// tipo de los morfemas a ambos lados de una frontera / dentro de los que cae un corte
+function morfemaEn(it, pos) {
+  let acc = 0;
+  for (let i = 0; i < it.segs.length; i++) { const L = sinTilde(it.segs[i][0]).length; if (pos < acc + L) return i; acc += L; }
+  return it.segs.length - 1;
+}
+const nombreFrontera = (it, pos) => { const i = morfemaEn(it, pos); return `${TIPOS[it.segs[i - 1][1]]} y ${TIPOS[it.segs[i][1]]}`; };
+const nombreCorte = (it, pos) => TIPOS[it.segs[morfemaEn(it, pos)][1]];
+
+// ───────── Vistas ─────────
+const vistas = ['vInicio', 'vPregunta', 'vResultado'];
+function ver(id, titulo) {
+  vistas.forEach(v => $('#' + v).hidden = v !== id);
+  $('#backBtn').hidden = id === 'vInicio';
+  $('#setBtn').hidden = id !== 'vInicio';
+  $('#counter').hidden = id !== 'vPregunta';
+  $('#topTitle').textContent = titulo || 'Morfemas';
+  window.scrollTo(0, 0);
+  $('#topbar').classList.remove('scrolled');
+}
+addEventListener('scroll', () => $('#topbar').classList.toggle('scrolled', scrollY > 40), { passive: true });
+function anillo(el, frac, color) {
+  const L = 2 * Math.PI * 100;
+  el.closest('.hero').style.setProperty('--goal', color);
+  el.style.strokeDasharray = L; el.style.transition = 'none'; el.style.strokeDashoffset = L;
+  el.style.strokeOpacity = frac > 0 ? 1 : 0;
+  void el.getBoundingClientRect(); el.style.transition = '';
+  requestAnimationFrame(() => el.style.strokeDashoffset = L * (1 - frac));
+}
+const colorNota = n => n >= 7 ? 'var(--green)' : n >= 5 ? 'var(--orange)' : 'var(--red)';
+const clasePill = n => n >= 7 ? 'good' : n >= 5 ? 'mid' : 'bad';
+const calif = n => n >= 9 ? 'Sobresaliente' : n >= 7 ? 'Notable' : n >= 6 ? 'Bien' : n >= 5 ? 'Aprobado' : 'Suspenso';
+const fmt = n => n.toFixed(1).replace('.', ',');
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
+const tile = (icon, c, head, val, sub = '') => `<div class="tile" style="--c:${c}"><div class="tile-head">${svg(icon, 17, 2.4)}${head}</div><div class="tile-val num">${val}</div>${sub ? `<div class="tile-sub">${sub}</div>` : ''}</div>`;
+const chips = segs => `<div class="morfos">${segs.map(([s, t]) => `<span class="m t-${t}"><b>${esc(s)}</b><small>${TIPOS[t]}</small></span>`).join('')}</div>`;
+const etiquetaCat = it => it.tiempo ? `verbo · ${Morfemas.TIEMPOS_V[it.tiempo]}` : CATS[it.cat];
+
+let toastTimer;
+function toast(text, warn = false) {
+  const t = $('#toast'), ic = t.querySelector('.ic');
+  ic.classList.toggle('warn', warn); ic.innerHTML = svg(warn ? 'minus' : 'check', 15, 3.2);
+  t.querySelector('.tx').textContent = text; t.classList.add('show');
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), 2400);
+}
+
+// ───────── Hojas ─────────
+function abrirHoja(n) { if (n === 'cats') pintarCats(); $(n === 'cats' ? '#bdCats' : '#bdAyuda').classList.add('open'); }
+function cerrarHojas() { document.querySelectorAll('.backdrop.open').forEach(b => b.classList.remove('open')); if (!$('#vInicio').hidden) pintarInicio(); }
+document.querySelectorAll('.backdrop').forEach(b => b.addEventListener('click', e => { if (e.target === b || e.target.closest('[data-close]')) cerrarHojas(); }));
+function pintarCats() {
+  const n = {}; for (const it of PALABRAS) n[it.cat] = (n[it.cat] || 0) + 1;
+  $('#catGroup').innerHTML = Object.entries(CATS).map(([k, v]) => `
+    <div class="row"><div class="row-main"><div class="row-text"><div class="row-title">${cap(v)}s</div><div class="row-sub">${n[k]} palabras</div></div>
+    <button class="switch" role="switch" data-cat="${k}" aria-label="${v}" aria-checked="${ajustes.cats.includes(k)}"></button></div></div>`).join('');
+  document.querySelectorAll('[data-ajuste]').forEach(b => b.setAttribute('aria-checked', !!ajustes[b.dataset.ajuste]));
+}
+$('#leyenda').innerHTML = Object.entries(TIPOS).map(([t, n]) => `<span class="m t-${t}"><b>${{ L: 'cant', P: 'des', S: 'er', A: 'it', I: 'ec', G: 'a', N: 's', V: 'o', T: 'ba', X: 'mos', R: 'r', E: 'ndo', D: 'd' }[t]}</b><small>${n}</small></span>`).join('');
+
+// ───────── Inicio ─────────
+function pintarInicio() {
+  ver('vInicio');
+  $('#today').textContent = new Date().toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
+  const hist = LS.get('historial', []), ult = hist[0];
+  const tam = tamanoExamen();
+  $('#hiSub').textContent = `${tam.tandas} tanda${tam.tandas > 1 ? 's' : ''} de ${tam.tanda} · ${ajustes.cats.map(c => CATS[c] + 's').join(', ')}`;
+  if (ult) {
+    $('#hiNum').textContent = fmt(ult.nota); $('#hiRingSub').textContent = 'última nota';
+    $('#hiPill').className = 'pill num ' + clasePill(ult.nota); $('#hiPill').textContent = calif(ult.nota);
+    anillo($('#hiRing'), ult.nota / 10, colorNota(ult.nota));
+  } else {
+    $('#hiNum').textContent = '0'; $('#hiRingSub').textContent = 'sin examen todavía';
+    $('#hiPill').className = 'pill num'; $('#hiPill').textContent = 'Nuevo';
+    anillo($('#hiRing'), 0, 'var(--blue)');
+  }
+  const enCurso = estado && estado.i < estado.items.length;
+  $('#startTxt').textContent = enCurso ? 'Continuar examen' : 'Empezar examen';
+  $('#hiHint').innerHTML = enCurso
+    ? `Tanda ${Math.floor(estado.i / estado.tanda) + 1} · pregunta ${estado.i % estado.tanda + 1} de ${estado.tanda} · <button class="link" id="nuevoBtn">Empezar de cero</button>`
+    : 'Separa cada palabra en lexema, afijos y morfemas flexivos';
+  if (enCurso) $('#nuevoBtn').onclick = nuevoExamen;
+  const notas = hist.map(h => h.nota), vistos = LS.get('vistos', []).length;
+  $('#tiles').innerHTML =
+    tile('target', 'var(--blue)', 'Exámenes', hist.length, hist.length ? `${hist.reduce((s, h) => s + h.total, 0)} palabras respondidas` : 'Aún ninguno') +
+    tile('star', 'var(--orange)', 'Mejor nota', notas.length ? fmt(Math.max(...notas)) : '–', notas.length ? 'sobre 10' : 'Haz tu primer examen') +
+    tile('up', 'var(--green)', 'Media', notas.length ? fmt(notas.reduce((a, b) => a + b, 0) / notas.length) : '–', notas.length > 1 ? `antes ${fmt(notas[1])} → ahora ${fmt(notas[0])}` : 'de todos los exámenes') +
+    tile('scissors', 'var(--purple)', 'Palabras', PALABRAS.length, `${vistos} ya vistas`);
+  $('#hist').innerHTML = hist.length ? hist.slice(0, 15).map((h, k) => `
+    <button class="row tap" data-h="${k}">${miniRing(h.nota / 10, colorNota(h.nota))}
+      <span class="row-main"><span class="row-text"><span class="row-title" style="display:block">${cap(new Date(h.fecha).toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'short' }))}</span>
+      <span class="row-sub" style="display:block">${h.aciertos}/${h.total} · tandas ${h.tandas.map(fmt).join(' · ')}</span></span>
+      <span class="row-trail"><b style="color:var(--label);font-weight:600">${fmt(h.nota)}</b>${svg('down', 16, 2.4)}</span></span></button>`).join('')
+    : `<div class="placeholder">${svg('clock', 34, 1.8)}Aquí aparecerán tus exámenes terminados.</div>`;
+  $('#catsSub').textContent = ajustes.cats.length === 4 ? 'Todas' : ajustes.cats.map(c => cap(CATS[c]) + 's').join(', ');
+  document.querySelectorAll('[data-ajuste]').forEach(b => b.setAttribute('aria-checked', !!ajustes[b.dataset.ajuste]));
+  const n = {}; for (const it of PALABRAS) n[grupo(it)] = (n[grupo(it)] || 0) + 1;
+  $('#baseInfo').innerHTML = `Base de ${PALABRAS.length} palabras: ${n.sus} sustantivos, ${n.adj} adjetivos, ${n.adv} adverbios, ${n.ver} verbos derivados y ${n.conj} formas verbales conjugadas.<br>Cada análisis está revisado a mano; donde los manuales difieren se aceptan las dos separaciones.`;
+}
+document.addEventListener('click', e => {
+  const sw = e.target.closest('.switch');
+  if (sw && sw.dataset.cat) {
+    const k = sw.dataset.cat, on = ajustes.cats.includes(k);
+    if (on && ajustes.cats.length === 1) return toast('Deja al menos una categoría', true);
+    ajustes.cats = on ? ajustes.cats.filter(x => x !== k) : [...ajustes.cats, k];
+    LS.set('ajustes', ajustes); pintarCats();
+  } else if (sw && sw.dataset.ajuste) {
+    const k = sw.dataset.ajuste; ajustes[k] = !ajustes[k]; sw.setAttribute('aria-checked', ajustes[k]); LS.set('ajustes', ajustes);
+  }
+  const op = e.target.closest('[data-open]'); if (op) abrirHoja(op.dataset.open);
+  const h = e.target.closest('[data-h]'); if (h) { const x = LS.get('historial', [])[+h.dataset.h]; if (x) descargar(x.informe, x.fecha); }
+});
+$('#setBtn').onclick = () => abrirHoja('cats');
+function nuevoExamen() {
+  const ex = generarExamen();
+  estado = { inicio: Date.now(), items: ex.items, tanda: ex.tanda, tandas: ex.tandas, i: 0, resp: [] };
+  guardar(); pregunta();
+}
+$('#startBtn').onclick = () => (estado && estado.i < estado.items.length) ? pregunta() : nuevoExamen();
+$('#backBtn').onclick = () => pintarInicio();
+
+// ───────── Pregunta ─────────
+let esperando = false, t0 = 0, avanceTimer = 0;
+const itemDe = x => POR_PALABRA.get(x.palabra);
+function pintarTanda() {
+  const T = estado.tanda, i = estado.i, tanda = Math.floor(Math.min(i, estado.items.length - 1) / T), base = tanda * T;
+  const rs = estado.resp.slice(base, base + T).filter(Boolean), ok = rs.filter(r => r.ok).length;
+  $('#prog').innerHTML = Array.from({ length: T }, (_, k) => { const r = estado.resp[base + k]; return `<span class="${r ? (r.ok ? 'ok' : 'ko') : base + k === i ? 'now' : ''}"></span>`; }).join('');
+  $('#qTiles').innerHTML = tile('check', 'var(--green)', 'Aciertos', ok, `de ${rs.length} respondidas`) +
+    tile('x', 'var(--red)', 'Fallos', rs.length - ok, rs.length ? `${Math.round((rs.length - ok) / rs.length * 100)} % de error` : 'ninguno aún');
+}
+function pregunta() {
+  const T = estado.tanda, i = estado.i, x = estado.items[i], it = itemDe(x), tanda = Math.floor(i / T);
+  ver('vPregunta', `Tanda ${tanda + 1} de ${estado.tandas}`);
+  $('#qTitle').textContent = `Tanda ${tanda + 1}`;
+  $('#qMeta').textContent = `Tanda ${tanda + 1} de ${estado.tandas} · ${i}/${estado.items.length} respondidas`;
+  $('#counter').textContent = `${i % T + 1}/${T}`;
+  $('#qCat').textContent = etiquetaCat(it);
+  const w = $('#qWord'); w.textContent = it.palabra; w.classList.remove('bump'); void w.offsetWidth; w.classList.add('bump');
+  const a = $('#ans'); a.value = ''; a.disabled = false;
+  $('#searchBox').className = 'search';
+  $('#fb').hidden = true; $('#analisis').hidden = true;
+  $('#ansTxt').textContent = 'Comprobar';
+  pintarTanda();
+  esperando = false; t0 = performance.now();
+  a.focus();
+}
+function analisisHTML(it, extra = '') {
+  const alt = aceptadas(it).map(f => formatear(it.palabra, f)).filter(s => s !== it.segs.map(x => x[0]).join('-'));
+  return chips(it.segs) + `<div class="meta"><span>${etiquetaCat(it)}</span><span>palabra ${it.form}</span></div>` + extra +
+    (alt.length ? `<p>También vale: <b>${alt.map(esc).join('</b> · <b>')}</b></p>` : '') + (it.nota ? `<p>${esc(it.nota)}</p>` : '');
+}
+function feedback(cls, icon, color, title, sub) {
+  const fb = $('#fb'); fb.className = 'fb ' + cls; fb.hidden = false;
+  $('#fbIcon').style.setProperty('--c', color); $('#fbIcon').innerHTML = svg(icon, 17, 3);
+  $('#fbTitle').textContent = title; $('#fbSub').innerHTML = sub;
+}
+$('#ansForm').onsubmit = e => {
+  e.preventDefault();
+  if (avanceTimer) { clearTimeout(avanceTimer); avanceTimer = 0; return siguiente(); }
+  if (esperando) { esperando = false; return siguiente(); }
+  const raw = $('#ans').value, it = itemDe(estado.items[estado.i]);
+  const c = corregir(it, raw);
+  if (c.error) { $('#analisis').hidden = true; return feedback('warn', 'help', 'var(--orange)', 'Revisa la palabra', esc(c.error)); }
+  const tuya = formatear(it.palabra, c.fr);
+  estado.resp[estado.i] = { raw: tuya, ok: c.ok, seg: Math.round((performance.now() - t0) / 100) / 10,
+    faltan: c.faltan.map(p => nombreFrontera(it, p)), sobran: c.sobran.map(p => nombreCorte(it, p)) };
+  estado.i++; guardar();
+  if (!ajustes.inmediata) return siguiente();
+  $('#searchBox').classList.add(c.ok ? 'ok' : 'ko'); $('#ans').disabled = true;
+  pintarTanda();
+  $('#analisis').hidden = false;
+  if (c.ok) {
+    feedback('ok', 'check', 'var(--green)', 'Correcto', esc(tuya));
+    $('#analisis').innerHTML = analisisHTML(it);
+    avanceTimer = setTimeout(() => { avanceTimer = 0; siguiente(); }, 1400);
+  } else {
+    const r = estado.resp[estado.i - 1];
+    const motivo = [...r.faltan.map(f => `te faltó separar ${f}`), ...r.sobran.map(s => `partiste el ${s}`)];
+    feedback('ko', 'x', 'var(--red)', `Pusiste ${tuya}`, esc(cap(motivo.join(' · '))));
+    $('#analisis').innerHTML = analisisHTML(it);
+    esperando = true; $('#ansTxt').textContent = 'Siguiente';
+  }
+  $('#ansBtn').focus();
+};
+function siguiente() { if (estado.i % estado.tanda === 0 || estado.i >= estado.items.length) resultado(); else pregunta(); }
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && document.querySelector('.backdrop.open')) return cerrarHojas();
+  // tras un acierto, empezar a escribir pasa ya a la siguiente palabra sin perder la tecla
+  if (avanceTimer && e.key.length === 1 && !e.ctrlKey && !e.metaKey) { clearTimeout(avanceTimer); avanceTimer = 0; siguiente(); return; }
+  if (e.key !== 'Enter' || document.querySelector('.backdrop.open')) return;
+  const libre = document.activeElement === document.body || !document.activeElement;
+  if (!$('#vInicio').hidden && libre) { e.preventDefault(); $('#startBtn').click(); }
+  else if (!$('#vResultado').hidden && libre) { e.preventDefault(); $('#nextBtn').click(); }
+});
+
+// ───────── Resultado ─────────
+function resultado() {
+  const T = estado.tanda, N = estado.items.length, fin = estado.i >= N;
+  const tanda = Math.floor((estado.i - 1) / T);
+  const desde = fin ? 0 : tanda * T, hasta = estado.i;
+  const resp = estado.resp.slice(desde, hasta), items = estado.items.slice(desde, hasta);
+  const aciertos = resp.filter(r => r.ok).length, n = resp.length, nota = aciertos / n * 10;
+  ver('vResultado', fin ? 'Resultado final' : `Tanda ${tanda + 1}`);
+  $('#rMeta').textContent = fin ? `Examen completo · ${N} palabras` : `Tanda ${tanda + 1} de ${estado.tandas} terminada`;
+  $('#rTitle').textContent = fin ? 'Resultado final' : `Tanda ${tanda + 1}`;
+  $('#rName').textContent = `${aciertos} aciertos · ${n - aciertos} fallos`;
+  const quedan = estado.tandas - tanda - 1;
+  $('#rSub').textContent = fin ? `Nota global de ${estado.tandas > 1 ? 'las ' + estado.tandas + ' tandas' : 'la tanda'}` : `Quedan ${quedan} tanda${quedan === 1 ? '' : 's'}`;
+  $('#rPill').className = 'pill num ' + clasePill(nota); $('#rPill').textContent = calif(nota);
+  $('#rNum').textContent = fmt(nota);
+  anillo($('#rRing'), nota / 10, colorNota(nota));
+  $('#rWrap').classList.remove('pop'); void $('#rWrap').offsetWidth; $('#rWrap').classList.add('pop');
+  $('#nextBtn').innerHTML = fin ? 'Volver al inicio <kbd>Enter</kbd>' : `Empezar tanda ${tanda + 2} <kbd>Enter</kbd>`;
+  $('#dlBtn').hidden = !fin;
+  $('#rHint').innerHTML = fin ? 'Pásale el informe a Claude para que analice tus errores · <button class="link" id="cpBtn">Copiar</button>' : '';
+  if (fin) $('#cpBtn').onclick = () => navigator.clipboard.writeText(estado.informe).then(() => toast('Informe copiado'), () => toast('No se pudo copiar', true));
+  $('#rTilesWrap').hidden = !fin || estado.tandas < 2;
+  const fallos = items.map((x, k) => ({ it: itemDe(x), r: resp[k] })).filter(f => !f.r.ok);
+  $('#rErrHead').textContent = fallos.length ? `Fallos (${fallos.length})` : 'Sin fallos';
+  $('#rErr').innerHTML = fallos.length ? fallos.map(({ it, r }) => `
+    <div class="row"><span class="app-icon" style="--c:var(--red);border-radius:50%">${svg('x', 15, 3)}</span><div class="row-main"><div class="row-text">
+      <div class="row-title"><b style="font-weight:600">${esc(it.segs.map(s => s[0]).join('-'))}</b> <span style="color:var(--label2)">· ${esc(etiquetaCat(it))}</span></div>
+      <div class="row-sub">Pusiste <span class="err-cut" style="color:var(--red-ink)">${esc(r.raw)}</span>${r.faltan.length ? ` · faltó separar ${esc(r.faltan.join(', '))}` : ''}${r.sobran.length ? ` · partiste el ${esc(r.sobran.join(', '))}` : ''}</div>
+    </div></div></div>`).join('') : `<div class="placeholder">${svg('star', 34, 1.8)}Ni un fallo. Perfecto.</div>`;
+  if (fin) {
+    const notas = Array.from({ length: estado.tandas }, (_, t) => estado.resp.slice(t * T, (t + 1) * T).filter(r => r.ok).length / T * 10);
+    $('#rTiles').innerHTML = notas.map((x, t) => `<div class="tile" style="--c:${colorNota(x)}"><div class="tile-head">${miniRing(x / 10, colorNota(x), 18, 3.5)}Tanda ${t + 1}</div><div class="tile-val num">${fmt(x)}</div></div>`).join('');
+    if (!estado.cerrado) {
+      const informe = generarInforme(nota, notas);
+      const hist = LS.get('historial', []);
+      hist.unshift({ fecha: Date.now(), nota, aciertos, total: N, tandas: notas, informe });
+      LS.set('historial', hist.slice(0, 50));
+      const vistos = LS.get('vistos', []); vistos.push(...estado.items.map(x => x.palabra)); LS.set('vistos', [...new Set(vistos)].slice(-5000));
+      estado.cerrado = true; estado.informe = informe; guardar();
+    }
+  }
+}
+$('#nextBtn').onclick = () => { if (estado.i >= estado.items.length) { estado = null; LS.set('estado', null); pintarInicio(); } else pregunta(); };
+$('#dlBtn').onclick = () => descargar(estado.informe, estado.inicio);
+function descargar(texto, fecha) {
+  const d = new Date(fecha), p = x => String(x).padStart(2, '0');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([texto], { type: 'text/markdown;charset=utf-8' }));
+  a.download = `informe-morfemas-${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}-${p(d.getHours())}${p(d.getMinutes())}.md`;
+  document.body.appendChild(a); a.click(); a.remove();
+  toast('Informe descargado');
+}
+
+// ───────── Informe para el análisis ─────────
+function generarInforme(nota, notas) {
+  const T = estado.tanda;
+  const filas = estado.items.map((x, k) => { const it = itemDe(x); return { it, ...estado.resp[k], n: k + 1, tanda: Math.floor(k / T) + 1 }; });
+  const errs = filas.filter(f => !f.ok);
+  const pct = (a, b) => b ? Math.round(a / b * 100) + ' %' : '–';
+  const media = a => a.length ? fmt(a.reduce((s, x) => s + x, 0) / a.length) : '–';
+  const agrupa = clave => {
+    const m = {};
+    for (const f of filas) { const k = clave(f); (m[k] = m[k] || { t: 0, ok: 0 }); m[k].t++; if (f.ok) m[k].ok++; }
+    return Object.entries(m).sort((a, b) => a[1].ok / a[1].t - b[1].ok / b[1].t);
+  };
+  const cuenta = lista => { const m = {}; for (const x of lista) m[x] = (m[x] || 0) + 1; return Object.entries(m).sort((a, b) => b[1] - a[1]); };
+  const tabla = (titulo, cab, rows) => `## ${titulo}\n\n| ${cab.join(' | ')} |\n|${cab.map(() => '---').join('|')}|\n${rows.map(r => '| ' + r.join(' | ') + ' |').join('\n')}\n`;
+  const correcta = it => it.segs.map(s => s[0]).join('-');
+  let md = `# Informe de errores · Separar en morfemas\n\n`;
+  md += `> Pásale este archivo a Claude y pídele: «analiza en qué fallo más y por qué».\n\n`;
+  md += `- Fecha: ${new Date(estado.inicio).toLocaleString('es-ES')}\n- Nota global: **${fmt(nota)} / 10** (${filas.length - errs.length} aciertos de ${filas.length})\n`;
+  md += `- Notas por tanda: ${notas.map((x, t) => `T${t + 1} ${fmt(x)}`).join(' · ')}\n`;
+  md += `- Tiempo medio por palabra: ${media(filas.map(f => f.seg))} s (aciertos ${media(filas.filter(f => f.ok).map(f => f.seg))} s · fallos ${media(errs.map(f => f.seg))} s)\n`;
+  md += `- Categorías incluidas: ${ajustes.cats.map(c => CATS[c]).join(', ')}${ajustes.cats.includes('ver') ? (ajustes.conjugadas ? ' (con formas conjugadas)' : ' (solo infinitivos)') : ''}\n\n`;
+  md += tabla('Rendimiento por categoría (peor primero)', ['Categoría', 'Palabras', 'Aciertos', 'Fallos', '% acierto'],
+    agrupa(f => f.it.tiempo ? 'verbo conjugado' : CATS[f.it.cat]).map(([k, v]) => [k, v.t, v.ok, v.t - v.ok, pct(v.ok, v.t)])) + '\n';
+  md += tabla('Rendimiento por tipo de palabra', ['Formación', 'Palabras', 'Aciertos', '% acierto'],
+    agrupa(f => f.it.form).map(([k, v]) => [k, v.t, v.ok, pct(v.ok, v.t)])) + '\n';
+  md += tabla('Rendimiento por tiempo verbal (solo formas conjugadas)', ['Forma', 'Palabras', 'Aciertos', '% acierto'],
+    agrupa(f => f.it.tiempo ? Morfemas.TIEMPOS_V[f.it.tiempo] : '—').filter(([k]) => k !== '—').map(([k, v]) => [k, v.t, v.ok, pct(v.ok, v.t)])) + '\n';
+  const faltan = cuenta(errs.flatMap(f => f.faltan)), sobran = cuenta(errs.flatMap(f => f.sobran));
+  md += faltan.length ? tabla('Fronteras que no separaste (morfemas que dejaste pegados)', ['Entre', 'Veces'], faltan) + '\n' : '';
+  md += sobran.length ? tabla('Morfemas que partiste por la mitad', ['Morfema partido', 'Veces'], sobran) + '\n' : '';
+  md += tabla('Evolución por tanda', ['Tanda', 'Aciertos', 'Fallos', 'Nota'],
+    notas.map((x, t) => { const s = filas.filter(f => f.tanda === t + 1); const o = s.filter(f => f.ok).length; return [t + 1, o, s.length - o, fmt(x)]; })) + '\n';
+  md += errs.length ? tabla(`Detalle de los ${errs.length} errores`, ['#', 'Tanda', 'Palabra', 'Categoría', 'Formación', 'Correcto', 'Tipos', 'Lo que pusiste', 'Faltó separar', 'Partiste', 'Seg.'],
+    errs.map(f => [f.n, f.tanda, f.it.palabra, f.it.tiempo ? 'verbo · ' + Morfemas.TIEMPOS_V[f.it.tiempo] : CATS[f.it.cat], f.it.form, `**${correcta(f.it)}**`,
+      f.it.segs.map(s => s[1]).join(' '), f.raw, f.faltan.join('; ') || '—', f.sobran.join('; ') || '—', fmt(f.seg)])) + '\n' : '## Sin errores\n\n';
+  md += `Claves de tipos: ${Object.entries(TIPOS).map(([k, v]) => `${k} = ${v}`).join(' · ')}\n\n`;
+  md += tabla('Todas las respuestas', ['#', 'Palabra', 'Correcto', 'Lo que pusiste', '✓/✗'],
+    filas.map(f => [f.n, f.it.palabra, correcta(f.it), f.raw, f.ok ? '✓' : '✗'])) + '\n';
+  md += '## Datos en bruto\n\n```json\n' + JSON.stringify(filas.map(f => ({ n: f.n, tanda: f.tanda, palabra: f.it.palabra, categoria: f.it.cat, tiempo: f.it.tiempo || null,
+    formacion: f.it.form, correcto: f.it.segs, aceptadas: aceptadas(f.it).map(fr => formatear(f.it.palabra, fr)), respuesta: f.raw, ok: f.ok, faltan: f.faltan, sobran: f.sobran, seg: f.seg }))) + '\n```\n';
+  return md;
+}
+
+pintarIconos();
+pintarInicio();
+</script>
+</body>
+</html>
