@@ -193,10 +193,7 @@ const nombreT = id => T[id] ? (T[id].modo === 'Imperativo' ? 'Imperativo afirmat
 
 
 // ───────── Almacenamiento ─────────
-const LS = {
-  get(k, d) { try { const v = localStorage.getItem('verbos.' + k); return v ? JSON.parse(v) : d; } catch { return d; } },
-  set(k, v) { try { localStorage.setItem('verbos.' + k, JSON.stringify(v)); } catch {} }
-};
+const LS = crearAlmacen('verbos.');
 const ajustes = Object.assign({ inmediata: true, infinitivo: true, tiempos: Motor.TIEMPOS.map(t => t.id) }, LS.get('ajustes', {}));
 let estado = LS.get('estado', null);
 const guardar = () => LS.set('estado', estado);
@@ -513,7 +510,7 @@ document.addEventListener('click', e => {
   const op = e.target.closest('[data-open]');
   if (op) abrirHoja(op.dataset.open);
   const h = e.target.closest('[data-h]');
-  if (h) { const x = LS.get('historial', [])[+h.dataset.h]; if (x) descargar(x.informe, x.fecha); }
+  if (h) { const x = LS.get('historial', [])[+h.dataset.h]; if (x && x.informe) descargar(x.informe, x.fecha); else if (x) toast(`Solo se guardan los informes de los ${INFORMES_GUARDADOS} últimos exámenes`, true); }
 });
 $('#setBtn').onclick = () => abrirHoja('tiempos');
 function nuevoExamen() {
@@ -712,7 +709,7 @@ function resultado() {
       const informe = generarInforme(nota, notas);
       const hist = LS.get('historial', []);
       hist.unshift({ fecha: Date.now(), nota, aciertos, tandas: notas, informe });
-      LS.set('historial', hist.slice(0, 50));
+      LS.set('historial', podarHistorial(hist.slice(0, 50)));
       // marcar como vistas para que no se repitan en exámenes futuros
       const vistos = LS.get('vistos', []); vistos.push(...estado.items.map(i => i.clave)); LS.set('vistos', vistos.slice(-30000));
       const rec = LS.get('recientes', []); rec.push(...estado.items.map(i => i.v)); LS.set('recientes', rec.slice(-500));

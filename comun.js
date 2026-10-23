@@ -67,3 +67,34 @@ addEventListener('scroll', () => $('#topbar').classList.toggle('scrolled', scrol
 function volverAlInicio() { if (history.state && history.state.juego) history.back(); else pintarInicio(); }
 addEventListener('popstate', () => { if ($('#vInicio').hidden) pintarInicio(); });
 if (history.state && history.state.juego) history.replaceState(null, '');
+
+// ───────── Almacenamiento con prefijo y a prueba de «memoria llena» ─────────
+// Safari limita cada web a ~5 MB (compartidos por los dos juegos). Los informes completos
+// solo se guardan en los últimos exámenes; si aun así se llena, se libera espacio y se reintenta,
+// para no perder nunca el examen en curso.
+const INFORMES_GUARDADOS = 8;
+function podarHistorial(hist, guardar = INFORMES_GUARDADOS) {
+  return hist.map((h, i) => i < guardar ? h : (({ informe, ...resto }) => resto)(h));
+}
+function crearAlmacen(prefijo) {
+  const leer = (k, d) => { try { const v = localStorage.getItem(prefijo + k); return v ? JSON.parse(v) : d; } catch { return d; } };
+  const escribir = (k, v) => localStorage.setItem(prefijo + k, JSON.stringify(v));
+  function liberarEspacio(paso) {
+    for (const p of ['verbos.', 'morfemas.']) {
+      try {
+        const h = JSON.parse(localStorage.getItem(p + 'historial') || '[]');
+        localStorage.setItem(p + 'historial', JSON.stringify(podarHistorial(h, paso === 0 ? 3 : 0)));
+        if (paso > 0) { const v = JSON.parse(localStorage.getItem(p + 'vistos') || '[]'); localStorage.setItem(p + 'vistos', JSON.stringify(v.slice(-Math.floor(v.length / 2)))); }
+      } catch {}
+    }
+  }
+  return {
+    get: leer,
+    set(k, v) {
+      for (let paso = 0; paso < 3; paso++) {
+        try { escribir(k, v); return true; } catch { liberarEspacio(paso); }
+      }
+      return false;
+    }
+  };
+}

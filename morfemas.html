@@ -277,10 +277,7 @@ const TANDA_MAX = 25, TANDAS_MAX = 4;
 
 
 // ───────── Almacenamiento ─────────
-const LS = {
-  get(k, d) { try { const v = localStorage.getItem('morfemas.' + k); return v ? JSON.parse(v) : d; } catch { return d; } },
-  set(k, v) { try { localStorage.setItem('morfemas.' + k, JSON.stringify(v)); } catch {} }
-};
+const LS = crearAlmacen('morfemas.');
 const ajustes = Object.assign({ identificar: true, redactar: true, conjugadas: true, cats: Object.keys(CATS) }, LS.get('ajustes', {}));
 let estado = LS.get('estado', null);
 // exámenes empezados con una versión anterior (un solo paso): se completan los campos que faltan
@@ -475,7 +472,7 @@ document.addEventListener('click', e => {
     const k = sw.dataset.ajuste; ajustes[k] = !ajustes[k]; sw.setAttribute('aria-checked', ajustes[k]); LS.set('ajustes', ajustes);
   }
   const op = e.target.closest('[data-open]'); if (op) abrirHoja(op.dataset.open);
-  const h = e.target.closest('[data-h]'); if (h) { const x = LS.get('historial', [])[+h.dataset.h]; if (x) descargar(x.informe, x.fecha); }
+  const h = e.target.closest('[data-h]'); if (h) { const x = LS.get('historial', [])[+h.dataset.h]; if (x && x.informe) descargar(x.informe, x.fecha); else if (x) toast(`Solo se guardan los informes de los ${INFORMES_GUARDADOS} últimos exámenes`, true); }
 });
 $('#setBtn').onclick = () => abrirHoja('cats');
 function nuevoExamen() {
@@ -724,7 +721,7 @@ function resultado() {
       const informe = generarInforme(nota, notas);
       const hist = LS.get('historial', []);
       hist.unshift({ fecha: Date.now(), nota, aciertos, total: N, tandas: notas, informe });
-      LS.set('historial', hist.slice(0, 50));
+      LS.set('historial', podarHistorial(hist.slice(0, 50)));
       const vistos = LS.get('vistos', []); vistos.push(...estado.items.map(x => x.palabra)); LS.set('vistos', [...new Set(vistos)].slice(-5000));
       estado.cerrado = true; estado.informe = informe; guardar();
     }
