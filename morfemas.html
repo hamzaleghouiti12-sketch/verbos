@@ -7,6 +7,13 @@
 <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
 <title>Morfemas</title>
 <link rel="stylesheet" href="estilo.css">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Lengua">
 <style>
 .q-word{font-size:clamp(34px,9vw,50px);font-weight:700;letter-spacing:-.04em;line-height:1.08;margin:34px 0 8px;word-break:break-word}
 .q-word.bump{animation:bump .3s var(--ease)}
@@ -835,6 +842,8 @@ function generarInforme(nota, notas) {
   return md;
 }
 
+// sin conexión y «Añadir a pantalla de inicio» (solo en https o localhost)
+if ('serviceWorker' in navigator && location.protocol !== 'file:') navigator.serviceWorker.register('sw.js').catch(() => {});
 pintarIconos();
 pintarInicio();
 </script>
