@@ -200,6 +200,23 @@ kbd{font:inherit;font-size:12px;padding:1px 6px;border-radius:5px;background:var
 .help p{font-size:15px;padding:11px 16px;line-height:1.4;position:relative}
 .help p + p::before{content:"";position:absolute;top:0;left:16px;right:0;height:1px;background:var(--sep)}
 .help b{font-weight:600;color:var(--blue)}
+.tab-seg{margin:6px 16px 0}
+.tt{padding:11px 16px 12px;position:relative}
+.tt + .tt::before{content:"";position:absolute;top:0;left:16px;right:0;height:1px;background:var(--sep)}
+.tt-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.tt-name{font-size:15px;font-weight:600}
+.tt-bello{font-size:12px;color:var(--label2);white-space:nowrap}
+.tt-forms{display:grid;grid-template-columns:repeat(4,1fr);gap:4px 8px;margin-top:8px}
+.tt-forms span{font-size:13px;line-height:1.3}
+.tt-forms small{display:block;font-size:11px;color:var(--label3)}
+.tt-forms .aux{color:var(--blue);font-weight:600}
+.tt-forms small.alt{font-size:12px;color:var(--label2);margin-top:1px}
+.tt-ej{font-size:13px;color:var(--label2);margin-top:7px;font-style:italic}
+.tt-ej b{font-style:normal;font-weight:600;color:var(--label)}
+.imp-grid{display:grid;grid-template-columns:auto repeat(4,1fr);gap:9px 8px;padding:12px 16px;font-size:13px;align-items:baseline}
+.imp-grid .h{font-size:11px;color:var(--label3)}
+.imp-grid .p{color:var(--label2)}
+@media (max-width:420px){.tt-forms{grid-template-columns:repeat(2,1fr)}}
 
 /* Aviso tipo Dynamic Island */
 .toast{position:fixed;top:10px;left:50%;z-index:70;display:flex;align-items:center;gap:10px;max-width:calc(100vw - 32px);padding:9px 18px 9px 10px;border-radius:99px;background:#000;color:#fff;font-size:15px;font-weight:600;box-shadow:0 12px 32px rgba(0,0,0,.22);transform:translate(-50%,-160%) scale(.9);visibility:hidden;transition:transform .55s var(--ease),visibility 0s .55s}
@@ -264,6 +281,8 @@ kbd{font:inherit;font-size:12px;padding:1px 6px;border-radius:5px;background:var
         <div class="row-main"><div class="row-text"><div class="row-title">Corregir al momento</div></div><button class="switch" role="switch" data-ajuste="inmediata" aria-label="Corregir al momento"></button></div></div>
       <div class="row"><span class="app-icon" style="--c:var(--orange)"><i data-i="text" data-s="18" data-w="2.4"></i></span>
         <div class="row-main"><div class="row-text"><div class="row-title">Mostrar el infinitivo</div></div><button class="switch" role="switch" data-ajuste="infinitivo" aria-label="Mostrar el infinitivo"></button></div></div>
+      <button class="row tap" data-open="tabla"><span class="app-icon" style="--c:var(--teal)"><i data-i="table" data-s="18" data-w="2.2"></i></span>
+        <span class="row-main"><span class="row-text"><span class="row-title" style="display:block">Tabla de tiempos</span><span class="row-sub" style="display:block">Simples y compuestos con ejemplos</span></span><span class="row-trail"><i data-i="right" data-s="14" data-w="2.6"></i></span></span></button>
       <button class="row tap" data-open="ayuda"><span class="app-icon" style="--c:var(--gray)"><i data-i="help" data-s="18" data-w="2.4"></i></span>
         <span class="row-main"><span class="row-text"><span class="row-title" style="display:block">Cómo responder</span></span><span class="row-trail"><i data-i="right" data-s="14" data-w="2.6"></i></span></span></button>
     </div>
@@ -343,6 +362,21 @@ kbd{font:inherit;font-size:12px;padding:1px 6px;border-radius:5px;background:var
   </div>
 </div>
 
+<!-- ───────── Hoja: tabla de tiempos ───────── -->
+<div class="backdrop" id="bdTabla">
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="tbTitle">
+    <div class="grabber"></div>
+    <div class="sheet-nav"><span></span><h3 id="tbTitle">Tabla de tiempos</h3><button class="link" data-close>OK</button></div>
+    <div class="seg tab-seg" id="tabSeg" role="radiogroup" aria-label="Modo" style="--n:3">
+      <span class="seg-thumb"></span>
+      <button role="radio" data-modo="Indicativo">Indicativo</button>
+      <button role="radio" data-modo="Subjuntivo">Subjuntivo</button>
+      <button role="radio" data-modo="Imperativo">Imperativo</button>
+    </div>
+    <div id="tabBody"></div>
+  </div>
+</div>
+
 <!-- ───────── Hoja: ayuda ───────── -->
 <div class="backdrop" id="bdAyuda">
   <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="aTitle">
@@ -385,6 +419,7 @@ const ICONS = {
   list: '<path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1"/><circle cx="4.5" cy="12" r="1"/><circle cx="4.5" cy="18" r="1"/>',
   text: '<path d="M5 6h14M12 6v13M9 19h6"/>',
   help: '<circle cx="12" cy="12" r="9"/><path d="M9.6 9.3a2.5 2.5 0 0 1 4.8 1c0 1.7-2.4 2.2-2.4 3.7M12 17.2v.3"/>',
+  table: '<rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/><path d="M3.5 9.5h17M3.5 14.5h17M10 9.5v10"/>',
   pencil: '<path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/>',
   target: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.2"/>',
   star: '<path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/>',
@@ -544,7 +579,62 @@ function toast(text, warn = false) {
 }
 
 // ───────── Hojas ─────────
-function abrirHoja(n) { if (n === 'tiempos') pintarTiempos(); $(n === 'tiempos' ? '#bdTiempos' : '#bdAyuda').classList.add('open'); }
+function abrirHoja(n) {
+  if (n === 'tiempos') pintarTiempos();
+  if (n === 'tabla') pintarTabla();
+  $({ tiempos: '#bdTiempos', tabla: '#bdTabla', ayuda: '#bdAyuda' }[n]).classList.add('open');
+}
+
+// ───────── Tabla de tiempos (formas generadas por el motor) ─────────
+const EJ_VERBOS = ['cantar', 'comer', 'vivir', 'tener'];
+const BELLO = {
+  ind_pres: 'Presente', ind_impf: 'Copretérito', ind_indef: 'Pretérito', ind_fut: 'Futuro', ind_cond: 'Pospretérito',
+  ind_pps: 'Antepresente', ind_plusc: 'Antecopretérito', ind_ant: 'Antepretérito', ind_futc: 'Antefuturo', ind_condc: 'Antepospretérito',
+  sub_pres: 'Presente', sub_impf: 'Pretérito', sub_fut: 'Futuro', sub_pp: 'Antepresente', sub_plusc: 'Antepretérito', sub_futc: 'Antefuturo'
+};
+const FRASES = {
+  ind_pres: '<b>Canto</b> en la ducha.', ind_impf: 'De niño <b>cantaba</b> mucho.', ind_indef: 'Ayer <b>canté</b> en la fiesta.',
+  ind_fut: 'Mañana <b>cantaré</b>.', ind_cond: 'Yo <b>cantaría</b> si me dejaran.',
+  ind_pps: 'Hoy <b>he cantado</b> dos veces.', ind_plusc: 'Cuando llegaste ya <b>había cantado</b>.', ind_ant: 'En cuanto <b>hube cantado</b>, me fui.',
+  ind_futc: 'A las diez ya <b>habré cantado</b>.', ind_condc: '<b>Habría cantado</b>, pero me quedé afónico.',
+  sub_pres: 'Quiere que <b>cante</b>.', sub_impf: 'Si <b>cantara</b> mejor, me presentaría.', sub_fut: 'Quien <b>cantare</b> fuera de turno será multado.',
+  sub_pp: 'Me alegra que <b>hayas cantado</b>.', sub_plusc: 'Si <b>hubiera cantado</b>, habría ganado.', sub_futc: 'Si para mayo no <b>hubiere cantado</b>…'
+};
+let modoTabla = 'Indicativo';
+function pintarTabla() {
+  const botones = [...document.querySelectorAll('#tabSeg button')];
+  botones.forEach((b, i) => { const on = b.dataset.modo === modoTabla; b.setAttribute('aria-checked', on); if (on) $('#tabSeg').style.setProperty('--i', i); });
+  const persona = id => id === 'imp' ? 1 : 0;
+  const forma = (v, id) => {
+    const [f, alt] = Motor.formas(v, id, persona(id));
+    const html = f.includes(' ') ? `<span class="aux">${esc(f.split(' ')[0])}</span> ${esc(f.split(' ')[1])}` : esc(f);
+    // variante -se debajo, en gris (cantase / hubiese)
+    return alt ? `${html}<small class="alt">o ${esc(alt.split(' ')[0])}</small>` : html;
+  };
+  const fila = t => `<div class="tt"><div class="tt-head"><span class="tt-name">${t.nombre}</span><span class="tt-bello">Bello: ${BELLO[t.id]}</span></div>
+    <div class="tt-forms">${EJ_VERBOS.map(v => `<span><small>${v}</small>${forma(v, t.id)}</span>`).join('')}</div>
+    <div class="tt-ej">${FRASES[t.id]}</div></div>`;
+  if (modoTabla === 'Imperativo') {
+    const P = ['', 'tú', 'usted', 'nosotros/as', 'vosotros/as', 'ustedes'];
+    $('#tabBody').innerHTML = `<div class="group-label">Imperativo afirmativo</div><div class="group"><div class="imp-grid">
+      <span></span>${EJ_VERBOS.map(v => `<span class="h">${v}</span>`).join('')}
+      ${[1, 2, 3, 4, 5].map(p => `<span class="p">${P[p]}</span>${EJ_VERBOS.map(v => `<span>${esc(Motor.formas(v, 'imp', p)[0])}</span>`).join('')}`).join('')}
+    </div></div>
+    <p class="group-foot">Usted, nosotros y ustedes usan las formas del presente de subjuntivo. Solo tú y vosotros tienen forma propia (canta, cantad).</p>`;
+    return;
+  }
+  const ts = Motor.TIEMPOS.filter(t => t.modo === modoTabla);
+  const simples = ts.filter(t => !Motor.formas('cantar', t.id, 0)[0].includes(' '));
+  const compuestos = ts.filter(t => Motor.formas('cantar', t.id, 0)[0].includes(' '));
+  $('#tabBody').innerHTML =
+    `<div class="group-label">${modoTabla} · tiempos simples</div><div class="group">${simples.map(fila).join('')}</div>
+     <p class="group-foot">Una sola palabra. Ejemplos en primera persona (yo).</p>
+     <div class="group-label">${modoTabla} · tiempos compuestos</div><div class="group">${compuestos.map(fila).join('')}</div>
+     <p class="group-foot">Auxiliar <b style="color:var(--blue)">haber</b> + participio. El auxiliar te dice el tiempo: ${modoTabla === 'Indicativo'
+      ? 'he → perfecto compuesto · había → pluscuamperfecto · hube → anterior · habré → futuro compuesto · habría → condicional compuesto.'
+      : 'haya → perfecto · hubiera/hubiese → pluscuamperfecto · hubiere → futuro compuesto.'}</p>`;
+}
+document.querySelectorAll('#tabSeg button').forEach(b => b.onclick = () => { modoTabla = b.dataset.modo; pintarTabla(); });
 function cerrarHojas() { document.querySelectorAll('.backdrop.open').forEach(b => b.classList.remove('open')); if (!$('#vInicio').hidden) pintarInicio(); }
 document.querySelectorAll('.backdrop').forEach(b => b.addEventListener('click', e => { if (e.target === b || e.target.closest('[data-close]')) cerrarHojas(); }));
 
