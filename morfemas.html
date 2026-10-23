@@ -546,7 +546,10 @@ function bloqueFb(el, ok, titulo, sub) {
   el.hidden = false; el.className = 'fb ' + (ok ? 'ok' : 'ko');
   el.innerHTML = `<span class="app-icon" style="--c:${ok ? 'var(--green)' : 'var(--red)'}">${svg(ok ? 'check' : 'x', 17, 3)}</span><div><div class="fb-title">${esc(titulo)}</div><div class="fb-sub">${sub}</div></div>`;
 }
+// quita las líneas repetidas o ya contenidas en otra (el paso 1 y el 2 pueden explicar el mismo morfema)
+const sinRepetir = lineas => lineas.filter((l, i) => !lineas.some((o, j) => j !== i && (o === l ? j < i : o.includes(l))));
 function bloquePorque(el, lineas, titulo = 'Por qué') {
+  lineas = sinRepetir(lineas);
   if (!lineas.length) { el.hidden = true; return; }
   el.hidden = false; el.innerHTML = `<h4>${titulo}</h4><ul>${lineas.map(l => `<li>${esc(l)}</li>`).join('')}</ul>`;
 }
@@ -751,7 +754,7 @@ function resultado() {
       <span class="row-title" style="display:block"><b style="font-weight:600">${esc(it.segs.map(s => s[0]).join('-'))}</b> <span style="color:var(--label2)">· ${esc(etiquetaCat(it))}</span></span>
       <span class="row-sub" style="display:block">${resumenFallo(it, r)}</span>
     </span><span class="chev">${svg('right', 14, 2.6)}</span></span></summary>
-    <div class="det analisis">${analisisHTML(it, true)}<ul>${[...(r.porque || []), ...(r.id ? r.id.porque : []), ...(r.red ? r.red.porque : [])].map(l => `<li>${esc(l)}</li>`).join('')}</ul>${r.red ? `<p class="det-modelo"><b>Modelo:</b> ${esc(redaccionModelo(it))}</p>` : ''}</div></details>`).join('') : `<div class="placeholder">${svg('star', 34, 1.8)}Ni un fallo. Perfecto.</div>`;
+    <div class="det analisis">${analisisHTML(it, true)}<ul>${sinRepetir([...(r.porque || []), ...(r.id ? r.id.porque : []), ...(r.red ? r.red.porque : [])]).map(l => `<li>${esc(l)}</li>`).join('')}</ul>${r.red ? `<p class="det-modelo"><b>Modelo:</b> ${esc(redaccionModelo(it))}</p>` : ''}</div></details>`).join('') : `<div class="placeholder">${svg('star', 34, 1.8)}Ni un fallo. Perfecto.</div>`;
   if (fin) {
     const notas = Array.from({ length: estado.tandas }, (_, t) => estado.resp.slice(t * T, (t + 1) * T).reduce((s, r) => s + (r.puntos ?? (r.ok ? 1 : 0)), 0) / T * 10);
     $('#rTiles').innerHTML = notas.map((x, t) => `<div class="tile" style="--c:${colorNota(x)}"><div class="tile-head">${miniRing(x / 10, colorNota(x), 18, 3.5)}Tanda ${t + 1}</div><div class="tile-val num">${fmt(x)}</div></div>`).join('');
