@@ -76,7 +76,7 @@
 <div id="vPregunta" hidden>
   <header class="large"><p class="date num" id="qMeta"></p><h1 id="qTitle">Tanda 1</h1></header>
   <main class="layout">
-    <div class="progress" id="prog"></div>
+    <div class="progress" id="prog" role="img"></div>
     <div style="height:22px"></div>
     <div class="card q">
       <div class="q-top"><span class="q-person" id="qPerson"></span><span class="pill" id="qRepaso" hidden title="La fallaste en un examen anterior">Repaso</span></div>
@@ -538,6 +538,7 @@ function pintarTanda() {
     const r = estado.resp[base + k];
     return `<span class="${r ? (r.ok ? 'ok' : 'ko') : base + k === i ? 'now' : ''}"></span>`;
   }).join('');
+  $('#prog').setAttribute('aria-label', `Pregunta ${Math.min(i % TANDA + 1, TANDA)} de ${TANDA}: ${ok} acierto${ok === 1 ? '' : 's'}, ${rs.length - ok} fallo${rs.length - ok === 1 ? '' : 's'}`);
   $('#qTiles').innerHTML =
     tile('check', 'var(--green)', 'Aciertos', ok, `de ${rs.length} respondidas`) +
     tile('x', 'var(--red)', 'Fallos', rs.length - ok, rs.length ? `${Math.round((rs.length - ok) / rs.length * 100)} % de error` : 'ninguno aún');

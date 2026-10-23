@@ -128,7 +128,7 @@
 <div id="vPregunta" hidden>
   <header class="large"><p class="date num" id="qMeta"></p><h1 id="qTitle">Tanda 1</h1></header>
   <main class="layout">
-    <div class="progress" id="prog"></div>
+    <div class="progress" id="prog" role="img"></div>
     <div style="height:22px"></div>
     <div class="card q">
       <div class="q-top"><span class="q-person" id="qCat"></span><span class="pill" id="qRepaso" hidden title="No te salió perfecta en un examen anterior">Repaso</span><span class="pill num" id="qPasos"></span></div>
@@ -501,6 +501,7 @@ function pintarTanda() {
   const rs = estado.resp.slice(base, base + T).filter(Boolean), perfectas = rs.filter(r => r.ok).length;
   const nota = rs.length ? rs.reduce((s, r) => s + r.puntos, 0) / rs.length * 10 : 0;
   $('#prog').innerHTML = Array.from({ length: T }, (_, k) => { const r = estado.resp[base + k]; return `<span class="${r ? claseResp(r) : base + k === i ? 'now' : ''}"></span>`; }).join('');
+  $('#prog').setAttribute('aria-label', `Pregunta ${Math.min(i % T + 1, T)} de ${T}: ${perfectas} acierto${perfectas === 1 ? '' : 's'}, ${rs.length - perfectas} fallo${rs.length - perfectas === 1 ? '' : 's'}`);
   $('#qTiles').innerHTML = tile('check', 'var(--green)', 'Perfectas', perfectas, `de ${rs.length} respondidas`) +
     tile('star', 'var(--orange)', 'Nota provisional', rs.length ? fmt(nota) : '–', 'cuenta cada paso por separado');
 }
