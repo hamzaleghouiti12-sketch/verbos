@@ -719,7 +719,12 @@ function resultado() {
   $('#rWrap').classList.remove('pop'); void $('#rWrap').offsetWidth; $('#rWrap').classList.add('pop');
   $('#nextBtn').innerHTML = fin ? 'Volver al inicio <kbd>Enter</kbd>' : `Empezar tanda ${tanda + 2} <kbd>Enter</kbd>`;
   $('#dlBtn').hidden = !fin;
-  $('#rHint').innerHTML = fin ? 'Pásale el informe a Claude para que analice tus errores · <button class="link" id="cpBtn">Copiar</button>' : '';
+  // lo que más se ha fallado: tipos mal identificados o redactados; si solo hay paso 1, las fronteras olvidadas
+  const top = lista => { const m = {}; for (const x of lista) m[x] = (m[x] || 0) + 1; const t = Object.entries(m).sort((a, b) => b[1] - a[1])[0]; return t && t[1] >= 2 ? t : null; };
+  const tiposMal = resp.flatMap(r => [...(r.id ? r.id.errores.map(e => TIPOS[e.correcto]) : []), ...(r.red ? r.red.morfemas.filter(m => m.estado !== 'ok').map(m => TIPOS[m.correcto]) : [])]);
+  const masFallado = top(tiposMal.length ? tiposMal : resp.flatMap(r => (r.faltan || []).map(f => 'separar ' + f)));
+  $('#rHint').innerHTML = (masFallado ? `Lo que más fallaste: <b>${esc(masFallado[0])}</b> (${masFallado[1]})${fin ? '<br>' : ''}` : '') +
+    (fin ? 'Pásale el informe a Claude para que analice tus errores · <button class="link" id="cpBtn">Copiar</button>' : '');
   if (fin) $('#cpBtn').onclick = () => navigator.clipboard.writeText(estado.informe).then(() => toast('Informe copiado'), () => toast('No se pudo copiar', true));
   $('#rTilesWrap').hidden = !fin || estado.tandas < 2;
   const fallos = items.map((x, k) => ({ it: itemDe(x), r: resp[k] })).filter(f => !f.r.ok);
