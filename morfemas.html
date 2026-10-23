@@ -307,6 +307,13 @@ const LS = {
 };
 const ajustes = Object.assign({ identificar: true, redactar: true, conjugadas: true, cats: Object.keys(CATS) }, LS.get('ajustes', {}));
 let estado = LS.get('estado', null);
+// exámenes empezados con una versión anterior (un solo paso): se completan los campos que faltan
+if (estado && Array.isArray(estado.resp)) estado.resp.forEach(r => {
+  if (!r) return;
+  if (r.sepOk === undefined) r.sepOk = !!r.ok;
+  if (r.puntos === undefined) r.puntos = r.ok ? 1 : 0;
+  r.faltan = r.faltan || []; r.sobran = r.sobran || [];
+});
 const guardar = () => LS.set('estado', estado);
 
 // ───────── Azar ─────────
