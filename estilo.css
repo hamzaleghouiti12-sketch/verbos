@@ -248,3 +248,5 @@ kbd{font:inherit;font-size:12px;padding:1px 6px;border-radius:5px;background:var
 /* En pantallas táctiles, menos de 16px hace que el iPhone amplíe la página al enfocar */
 @media (pointer:coarse){.tsel,select{font-size:16px}}
 #qRepaso{background:color-mix(in srgb,var(--orange) 18%,transparent);color:var(--orange-ink)}
+/* La animación de entrada no debe provocar desplazamiento lateral en el móvil */
+body{overflow-x:clip}

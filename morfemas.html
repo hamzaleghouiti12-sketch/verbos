@@ -50,6 +50,16 @@
 .modelo h4{font-size:12px;font-weight:700;color:var(--label2);text-transform:uppercase;letter-spacing:.03em;margin-bottom:5px}
 .m.mal{box-shadow:0 0 0 2px var(--red)}
 #nextWordBtn{margin-top:18px}
+/* En el móvil, el paso 2 como una lista de iOS: el morfema a la izquierda y su tipo a la derecha */
+@media (max-width:520px){
+  .id-grid{flex-direction:column;align-items:stretch;gap:0;background:var(--fill);border-radius:14px;overflow:hidden}
+  .idm{flex-direction:row;justify-content:space-between;align-items:center;gap:12px;padding:8px 10px 8px 14px}
+  .idm + .idm{border-top:1px solid var(--sep)}
+  .idm b{background:none;padding:0;font-size:19px}
+  .idm .tsel{flex:1;max-width:210px;background:var(--card)}
+  .id-form{justify-content:space-between;padding:0 4px}
+  .id-keys{display:none}
+}
 </style>
 </head>
 <body>
@@ -529,7 +539,7 @@ function pregunta() {
   $('#qPasos').textContent = `${pasosActivos()} paso${pasosActivos() > 1 ? 's' : ''}`;
   $('#qHint').textContent = pasosActivos() === 1 ? 'Sepárala en morfemas con guiones' : ['Separa', ajustes.identificar && 'identifica', ajustes.redactar && 'redacta'].filter(Boolean).join(', ').replace(/, ([^,]*)$/, ' y $1');
   const w = $('#qWord'); w.textContent = it.palabra; w.classList.remove('bump'); void w.offsetWidth; w.classList.add('bump');
-  const a = $('#ans'); a.value = ''; a.disabled = false;
+  const a = $('#ans'); a.value = ''; a.readOnly = false;
   $('#searchBox').className = 'search';
   $('#ansForm').hidden = false; $('#ansBtn').hidden = false; $('#tit1').classList.remove('hecho');
   for (const id of ['fb', 'analisis', 'porque', 'idForm', 'fb2', 'analisis2', 'porque2', 'redForm', 'fb3', 'check3', 'porque3', 'modelo3', 'nextWordBtn']) $('#' + id).hidden = true;
@@ -561,7 +571,7 @@ $('#ansForm').onsubmit = e => {
   if (c.error) { $('#analisis').hidden = true; return feedback('warn', 'help', 'var(--orange)', 'Revisa la palabra', esc(c.error)); }
   const tuya = formatear(it.palabra, c.fr);
   actual.sep = { raw: tuya, ok: c.ok, faltan: c.faltan.map(p => nombreFrontera(it, p)), sobran: c.sobran.map(p => nombreCorte(it, p)), porque: c.ok ? [] : explicar(it, c.faltan, c.sobran) };
-  $('#searchBox').classList.add(c.ok ? 'ok' : 'ko'); $('#ans').disabled = true; $('#tit1').classList.add('hecho');
+  $('#searchBox').classList.add(c.ok ? 'ok' : 'ko'); $('#ans').readOnly = true; $('#tit1').classList.add('hecho');
   const motivo = [...actual.sep.faltan.map(f => `te faltó separar ${f}`), ...actual.sep.sobran.map(s => `partiste el ${s}`)];
   feedback(c.ok ? 'ok' : 'ko', c.ok ? 'check' : 'x', c.ok ? 'var(--green)' : 'var(--red)', c.ok ? 'Bien separada' : `Pusiste ${tuya}`, c.ok ? esc(tuya) : esc(cap(motivo.join(' · '))));
   // si quedan pasos, se muestran los cortes correctos pero sin decir qué es cada morfema

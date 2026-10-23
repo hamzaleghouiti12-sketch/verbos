@@ -552,7 +552,7 @@ function pregunta() {
   $('#qRepaso').hidden = !it.repaso;
   const f = $('#qForm'); f.textContent = it.forma; f.classList.remove('bump'); void f.offsetWidth; f.classList.add('bump');
   $('#qInf').textContent = ajustes.infinitivo ? `de ${it.v}` : '';
-  const a = $('#ans'); a.value = ''; a.disabled = false;
+  const a = $('#ans'); a.value = ''; a.readOnly = false;
   $('#searchBox').className = 'search';
   $('#fb').hidden = true; $('#porque').hidden = true;
   $('#ansTxt').textContent = 'Comprobar';
@@ -627,7 +627,7 @@ $('#ansForm').onsubmit = e => {
   LS.set('fallos', fallos.slice(0, 80));
   estado.i++; guardar();
   if (!ajustes.inmediata) return siguiente();
-  $('#searchBox').classList.add(ok ? 'ok' : 'ko'); $('#ans').disabled = true;
+  $('#searchBox').classList.add(ok ? 'ok' : 'ko'); $('#ans').readOnly = true; // readOnly y no disabled: el foco (y el teclado del iPhone) sigue en la casilla
   pintarTanda();
   if (ok) {
     const otros = it.validas.filter(x => x !== r.id);
@@ -637,14 +637,18 @@ $('#ansForm').onsubmit = e => {
     feedback('ko', 'x', 'var(--red)', `Era ${it.validas.map(nombreT).join(' o ')}`, `Pusiste ${esc(nombreT(r.id))}`);
     $('#porque').innerHTML = `<h4>Por qué</h4><ul>${explicarVerbo(it, r.id).map(l => `<li>${l}</li>`).join('')}</ul>`;
     $('#porque').hidden = false;
+    // con el teclado abierto en el móvil, la explicación quedaría tapada: se acerca a la vista
+    requestAnimationFrame(() => $('#porque').scrollIntoView({ block: 'nearest', behavior: 'smooth' }));
     esperando = true;
     $('#ansTxt').textContent = 'Siguiente';
   }
-  $('#ansBtn').focus();
+  $('#ans').focus();
 };
 function siguiente() { if (estado.i % TANDA === 0) resultado(); else pregunta(); }
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape' && document.querySelector('.backdrop.open')) return cerrarHojas();
+  // tras un acierto, empezar a escribir pasa ya a la siguiente pregunta sin perder la tecla
+  if (avanceTimer && e.key.length === 1 && !e.ctrlKey && !e.metaKey) { clearTimeout(avanceTimer); avanceTimer = 0; siguiente(); return; }
   if (e.key !== 'Enter' || document.querySelector('.backdrop.open')) return;
   const libre = document.activeElement === document.body || !document.activeElement;
   if (!$('#vInicio').hidden && libre) { e.preventDefault(); $('#startBtn').click(); }
