@@ -13,22 +13,8 @@
   --green-ink:#248A3D; --red-ink:#D70015; --orange-ink:#C93400;
   --ease:cubic-bezier(.32,.72,0,1);
 }
-@media (prefers-color-scheme: dark){
-  :root{
-    --bg:#000; --card:#1C1C1E;
-    --fill:rgba(118,118,128,.24); --fill-strong:rgba(118,118,128,.34);
-    --label:#FFF; --label2:rgba(235,235,245,.6); --label3:rgba(235,235,245,.3);
-    --sep:rgba(84,84,88,.5);
-    --thumb:#636366; --thumb-shadow:0 3px 8px rgba(0,0,0,.35);
-    --shadow:none;
-    --bar:rgba(0,0,0,.72);
-    --backdrop:rgba(0,0,0,.55);
-    --track:.24;
-    --blue:#0A84FF; --green:#30D158; --orange:#FF9F0A; --red:#FF453A; --pink:#FF375F;
-    --purple:#BF5AF2; --teal:#40C8E0; --indigo:#5E5CE6; --gray:#98989D;
-    --green-ink:#30D158; --red-ink:#FF453A; --orange-ink:#FF9F0A;
-  }
-}
+/* Siempre la paleta clara de iOS, aunque el dispositivo esté en modo oscuro */
+:root{color-scheme:light}
 *{box-sizing:border-box;margin:0;padding:0}
 [hidden]{display:none!important}
 html{-webkit-text-size-adjust:100%}
