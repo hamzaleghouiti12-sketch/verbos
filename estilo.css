@@ -238,3 +238,4 @@ kbd{font:inherit;font-size:12px;padding:1px 6px;border-radius:5px;background:var
 .porque li{font-size:14px;line-height:1.42;margin-top:5px}
 .porque li::marker{color:var(--label3)}
 .porque b{font-weight:600}
+.progress span.mid{background:var(--orange)}

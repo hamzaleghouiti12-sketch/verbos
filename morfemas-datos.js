@@ -538,7 +538,129 @@ abotonar|ver|parasintética|a/P boton/L a/V r/R
     return out.filter(Boolean);
   }
 
-  const API = { ITEMS, TIPOS, CATS, TIEMPOS_V, PERS, aceptadas, fronteras, formatear, sinTilde, explicar, explicarMorfema };
+  // ───────── Paso 2: identificar el tipo de cada morfema y la formación ─────────
+  // Tipos que se aceptan para cada morfema; el primero es el criterio de la app y el resto,
+  // variantes de manual que también se dan por buenas (con una nota).
+  function tiposAceptados(it, i) {
+    const [s, t] = it.segs[i], sig = it.segs[i + 1];
+    const finalNominal = it.cat !== 'ver' && (!sig || sig[1] === 'N') && t === 'V';
+    if (finalNominal) return { tipos: ['V', 'G'], nota: 'Se acepta «morfema de género»: algunos manuales llaman así a esta vocal aunque no tenga oposición de género.' };
+    if (t === 'S' && s === 'ec' && it.cat === 'ver') return { tipos: ['S', 'I'], nota: 'Se acepta «interfijo»: algunos manuales analizan así el ‑ec‑ de los verbos en ‑ecer.' };
+    if (t === 'A') return { tipos: ['A', 'S'], nota: `Se acepta «sufijo», aunque es más preciso decir «sufijo apreciativo» (${APREC[s] || 'valor afectivo'}).` };
+    if (t === 'X' && it.tiempo === 'pres' && it.persona === 0) return { tipos: ['X', 'T'], nota: 'Se acepta «tiempo, aspecto y modo»: la ‑o amalgama persona, número, tiempo y modo.' };
+    return { tipos: [t], nota: '' };
+  }
+  function formasAceptadas(it) {
+    if (it.cat === 'adv' && it.segs.some(x => x[0] === 'mente')) return { formas: ['derivada', 'compuesta'], nota: 'Se acepta «compuesta»: algunos manuales consideran compuestos los adverbios en ‑mente.' };
+    if (it.cat === 'ver' && ['mal', 'menos'].includes(it.segs[0][0])) return { formas: ['compuesta', 'derivada'], nota: `Se acepta «derivada»: algunos manuales tratan «${it.segs[0][0]}‑» como prefijo.` };
+    return { formas: [it.form], nota: '' };
+  }
+  function porQueFormacion(it) {
+    const tipos = it.segs.map(x => x[1]), nL = tipos.filter(t => t === 'L').length;
+    const af = it.segs.filter(x => ['P', 'S', 'A', 'I'].includes(x[1])).map(x => x[0]);
+    if (it.tiempo || it.form === 'simple') return 'Es simple: tiene un solo lexema y únicamente morfemas flexivos, sin prefijos ni sufijos derivativos.';
+    if (it.form === 'derivada') return `Es derivada: un solo lexema con afijos derivativos (${af.map(a => `«${a}»`).join(', ')}).`;
+    if (it.form === 'compuesta') return `Es compuesta: tiene ${nL} lexemas (${it.segs.filter(x => x[1] === 'L').map(x => `«${x[0]}»`).join(' y ')}).`;
+    return FORMACION['parasintética'];
+  }
+  function corregirIdentificacion(it, puestos, formaPuesta) {
+    const morfemas = it.segs.map((seg, i) => {
+      const acc = tiposAceptados(it, i), puesto = puestos[i];
+      const ok = acc.tipos.includes(puesto);
+      return { i, seg: seg[0], correcto: seg[1], puesto, ok, nota: ok && puesto !== seg[1] ? acc.nota : '' };
+    });
+    const fa = formasAceptadas(it);
+    const formOk = fa.formas.includes(formaPuesta);
+    const porque = [];
+    for (const m of morfemas) if (!m.ok) porque.push(`«${(m.i > 0 ? '‑' : '') + m.seg + (m.i < it.segs.length - 1 ? '‑' : '')}» no es ${TIPOS[m.puesto] || 'eso'}. ${explicarMorfema(it, m.i)}`);
+    if (!formOk) porque.push(`No es una palabra ${formaPuesta}. ${porQueFormacion(it)}`);
+    const notas = [...morfemas.filter(m => m.nota).map(m => m.nota), ...(formOk && formaPuesta !== it.form ? [fa.nota] : [])];
+    return { ok: morfemas.every(m => m.ok) && formOk, morfemas, formOk, formaPuesta, porque, notas };
+  }
+
+  // ───────── Paso 3: redactar el análisis ─────────
+  const CLAVES = [ // orden de prioridad: lo más específico primero
+    ['X', /numero y persona|persona y numero|morfema de persona|desinencia de persona/g],
+    ['T', /tiempo,? aspecto y modo|tiempo y modo|modo y tiempo|aspecto y modo|tiempo|aspecto|modo/g],
+    ['A', /sufijo(?: derivativo)?(?: apreciativo)?(?: de grado)? (?:diminutivo|aumentativo|despectivo|superlativo)|sufijo(?: derivativo)? apreciativo|apreciativo|diminutivo|aumentativo|despectivo|superlativo/g],
+    ['S', /sufijo|verbalizador/g], ['P', /prefijo/g], ['I', /interfijo|infijo/g],
+    ['V', /vocal tematica|tematica|\bvt\b/g], ['G', /genero/g], ['N', /numero|plural/g],
+    ['L', /lexema|raiz/g], ['R', /infinitivo/g], ['E', /gerundio/g], ['D', /participio/g]
+  ];
+  const FORMAS_CLAVE = [['parasintética', /parasint/g], ['compuesta', /compuest|composicion/g], ['derivada', /derivad|derivacion/g], ['simple', /\bsimple/g]];
+  const normalizar = s => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[‑–—]/g, '-').replace(/[«»“”"']/g, ' ');
+  function corregirRedaccion(it, texto) {
+    let t = ' ' + normalizar(texto) + ' ';
+    const blanco = m => ' '.repeat(m.length);
+    t = t.replace(/adverbios? de modo/g, blanco);                    // «modo» aquí no es el morfema verbal
+    t = t.replace(/[a-z]+(?:-[a-z]+)+/g, blanco);                    // la segmentación completa (pan-ad-er-o) no cuenta como mención
+    // palabras clave de tipo, sin solapes
+    const claves = [];
+    for (const [tipo, re] of CLAVES) for (const m of t.matchAll(re)) {
+      const a = m.index, b = a + m[0].length;
+      if (!claves.some(k => a < k.b && b > k.a)) claves.push({ tipo, a, b });
+    }
+    // límites de oración: la palabra clave debe estar en la misma oración que el morfema
+    // oraciones: . ; y salto de línea · cláusulas: además comas y la conjunción «y» (fuera de «número y persona», etc.)
+    const enClave = p => claves.some(k => p >= k.a && p < k.b);
+    const cortesO = [], cortesC = [];
+    for (let k = 0; k < t.length; k++) if ('.;\n'.includes(t[k])) { cortesO.push(k); cortesC.push(k); } else if (t[k] === ',') cortesC.push(k);
+    for (const m of t.matchAll(/ (?:y|e) /g)) if (!enClave(m.index + 1)) cortesC.push(m.index + 1);
+    const cuenta = cortes => pos => cortes.filter(k => k < pos).length;
+    const oracion = cuenta(cortesO), clausula = cuenta(cortesC);
+    const menciones = {};
+    for (const seg of new Set(it.segs.map(x => sinTilde(x[0])))) {
+      const corto = seg.length <= 2 || !it.segs.some(x => sinTilde(x[0]) === seg && x[1] === 'L') && seg.length <= 3;
+      const re = new RegExp(corto ? `(?<![a-z])(-${seg}-?|${seg}-)(?![a-z])` : `(?<![a-z])-?${seg}-?(?![a-z])`, 'g');
+      menciones[seg] = [...t.matchAll(re)].map(m => {
+        const pos = m.index, fin = pos + m[0].length, o = oracion(pos);
+        // primero la palabra clave de la misma cláusula (entre comas); si no hay, la más cercana de la oración
+        const c = clausula(pos), dist = k => ({ ...k, d: k.a >= fin ? k.a - fin : pos - k.b });
+        let cand = claves.filter(k => clausula(k.a) === c).map(dist);
+        if (!cand.length) cand = claves.filter(k => oracion(k.a) === o).map(dist);
+        cand.sort((x, y) => x.d - y.d);
+        return cand.length ? cand[0].tipo : null;
+      });
+    }
+    // reparto: cada morfema necesita una mención de su segmento con un tipo aceptado
+    const usadas = {};
+    const morfemas = it.segs.map((seg, i) => {
+      const s = sinTilde(seg[0]), lista = menciones[s] || [], acc = tiposAceptados(it, i).tipos;
+      usadas[s] = usadas[s] || new Set();
+      const k = lista.findIndex((tipo, j) => !usadas[s].has(j) && acc.includes(tipo));
+      if (k >= 0) { usadas[s].add(k); return { i, seg: seg[0], correcto: seg[1], estado: 'ok' }; }
+      const otra = lista.findIndex((tipo, j) => !usadas[s].has(j));
+      if (otra >= 0) { usadas[s].add(otra); return { i, seg: seg[0], correcto: seg[1], estado: lista[otra] ? 'mal' : 'sin-tipo', puesto: lista[otra] }; }
+      return { i, seg: seg[0], correcto: seg[1], estado: 'falta' };
+    });
+    const dichas = FORMAS_CLAVE.filter(([, re]) => re.test(t)).map(([f]) => f);
+    FORMAS_CLAVE.forEach(([, re]) => re.lastIndex = 0);
+    const fa = formasAceptadas(it).formas;
+    const form = dichas.some(f => fa.includes(f)) ? 'ok' : dichas.length ? 'mal' : 'falta';
+    const porque = [];
+    for (const m of morfemas) {
+      const tipo = TIPOS[m.correcto], g = (m.i > 0 ? '‑' : '') + m.seg + (m.i < it.segs.length - 1 ? '‑' : '');
+      if (m.estado === 'falta') porque.push(`Falta «${g}»: tienes que nombrarlo e identificarlo como ${tipo}.`);
+      else if (m.estado === 'sin-tipo') porque.push(`Nombras «${g}» pero no dices qué es: es ${tipo}.`);
+      else if (m.estado === 'mal') porque.push(`Identificas «${g}» como ${TIPOS[m.puesto]}, pero es ${tipo}. ${explicarMorfema(it, m.i)}`);
+    }
+    if (form === 'falta') porque.push(`Falta decir cómo está formada la palabra. ${porQueFormacion(it)}`);
+    if (form === 'mal') porque.push(`La palabra no es ${dichas.join(' ni ')}. ${porQueFormacion(it)}`);
+    return { ok: morfemas.every(m => m.estado === 'ok') && form === 'ok', morfemas, form, porque };
+  }
+  const NOMBRE_RED = {
+    L: 'lexema (raíz)', P: 'prefijo (morfema derivativo)', S: 'sufijo derivativo', A: 'sufijo apreciativo (derivativo)', I: 'interfijo',
+    G: 'morfema flexivo de género', N: 'morfema flexivo de número', V: 'vocal temática', T: 'morfema flexivo de tiempo, aspecto y modo',
+    X: 'morfema flexivo de número y persona', R: 'morfema de infinitivo', E: 'morfema de gerundio', D: 'morfema de participio'
+  };
+  function redaccionModelo(it) {
+    const cat = it.tiempo ? `${TIEMPOS_V[it.tiempo]} de «${it.verbo}»` : CATS[it.cat];
+    const partes = it.segs.map(([s, t], i) => `${(i > 0 && t !== 'L' ? '-' : '') + s + (i < it.segs.length - 1 ? '-' : '')}: ${NOMBRE_RED[t]}`);
+    return `«${it.palabra}» (${cat}) se segmenta ${it.segs.map(x => x[0]).join('-')}. ${partes.join('; ')}. ${porQueFormacion(it)}`;
+  }
+
+  const API = { ITEMS, TIPOS, CATS, TIEMPOS_V, PERS, aceptadas, fronteras, formatear, sinTilde, explicar, explicarMorfema,
+    tiposAceptados, formasAceptadas, corregirIdentificacion, corregirRedaccion, redaccionModelo, porQueFormacion };
   if (typeof module !== 'undefined' && module.exports) module.exports = API;
   else global.Morfemas = API;
 })(typeof window !== 'undefined' ? window : globalThis);

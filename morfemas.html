@@ -27,6 +27,29 @@
 .leyenda .m b{font-size:15px}
 .leyenda .m small{font-size:12px;max-width:none}
 .err-cut{font-family:inherit;font-weight:600;letter-spacing:.01em}
+.paso-tit{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:600;text-align:left;margin:4px 0 10px}
+.paso-tit span{width:22px;height:22px;border-radius:50%;background:var(--blue);color:#fff;font-size:12px;font-weight:700;display:grid;place-items:center;flex:none}
+.paso-tit.hecho span{background:var(--gray)}
+.paso{margin-top:22px;padding-top:18px;border-top:1px solid var(--sep);text-align:left}
+.id-grid{display:flex;flex-wrap:wrap;justify-content:center;gap:10px 8px;margin:6px 0 14px}
+.idm{display:flex;flex-direction:column;align-items:center;gap:6px}
+.idm b{font-size:21px;font-weight:700;letter-spacing:-.02em;padding:5px 12px;border-radius:12px;background:var(--fill)}
+.tsel{font:inherit;font-size:13px;font-weight:600;padding:7px 8px;border-radius:10px;border:0;background:var(--fill);color:var(--label);max-width:150px;outline:none}
+.tsel:focus{box-shadow:0 0 0 3px color-mix(in srgb,var(--blue) 40%,transparent)}
+.tsel.ok{box-shadow:0 0 0 2px var(--green)}
+.tsel.ko{box-shadow:0 0 0 2px var(--red)}
+.id-form{display:flex;align-items:center;justify-content:center;gap:10px;font-size:15px;color:var(--label2);margin-bottom:8px}
+.id-keys{font-size:12px;color:var(--label3);text-align:center;line-height:1.5;margin-bottom:10px}
+.redaccion{width:100%;min-height:104px;resize:vertical;border:0;border-radius:12px;background:var(--fill);color:var(--label);font:inherit;font-size:16px;line-height:1.45;padding:12px 14px;outline:none;margin-bottom:2px}
+.redaccion:focus{box-shadow:0 0 0 3px color-mix(in srgb,var(--blue) 35%,transparent)}
+.checklist{margin-top:12px;text-align:left;display:flex;flex-wrap:wrap;gap:6px}
+.checklist span{font-size:13px;font-weight:600;padding:5px 10px;border-radius:99px}
+.checklist .ok{background:color-mix(in srgb,var(--green) 16%,transparent);color:var(--green-ink)}
+.checklist .ko{background:color-mix(in srgb,var(--red) 14%,transparent);color:var(--red-ink)}
+.modelo{margin-top:12px;text-align:left;font-size:14px;line-height:1.45;padding:12px 14px;border-radius:14px;border:1px dashed var(--sep)}
+.modelo h4{font-size:12px;font-weight:700;color:var(--label2);text-transform:uppercase;letter-spacing:.03em;margin-bottom:5px}
+.m.mal{box-shadow:0 0 0 2px var(--red)}
+#nextWordBtn{margin-top:18px}
 </style>
 </head>
 <body>
@@ -48,7 +71,7 @@
     <div class="section-head"><h2>Examen</h2></div>
     <div class="card hero" id="heroInicio">
       <div class="hero-head">
-        <div class="hero-id"><div class="hero-name">Separar en morfemas</div><div class="hero-sub" id="hiSub"></div></div>
+        <div class="hero-id"><div class="hero-name">Análisis morfológico</div><div class="hero-sub" id="hiSub"></div></div>
         <span class="pill num" id="hiPill"></span>
       </div>
       <div class="ring-wrap">
@@ -73,8 +96,10 @@
     <div class="list">
       <button class="row tap" data-open="cats"><span class="app-icon" style="--c:var(--indigo)"><i data-i="list" data-s="18" data-w="2.4"></i></span>
         <span class="row-main"><span class="row-text"><span class="row-title" style="display:block">Categorías gramaticales</span><span class="row-sub" style="display:block" id="catsSub"></span></span><span class="row-trail"><i data-i="right" data-s="14" data-w="2.6"></i></span></span></button>
-      <div class="row"><span class="app-icon" style="--c:var(--green)"><i data-i="check" data-s="18" data-w="2.8"></i></span>
-        <div class="row-main"><div class="row-text"><div class="row-title">Corregir al momento</div></div><button class="switch" role="switch" data-ajuste="inmediata" aria-label="Corregir al momento"></button></div></div>
+      <div class="row"><span class="app-icon" style="--c:var(--orange)"><i data-i="target" data-s="18" data-w="2.4"></i></span>
+        <div class="row-main"><div class="row-text"><div class="row-title">Identificar raíz y afijos</div><div class="row-sub">Paso 2: el tipo de cada morfema y la formación</div></div><button class="switch" role="switch" data-ajuste="identificar" aria-label="Identificar raíz y afijos"></button></div></div>
+      <div class="row"><span class="app-icon" style="--c:var(--green)"><i data-i="pencil" data-s="18" data-w="2.4"></i></span>
+        <div class="row-main"><div class="row-text"><div class="row-title">Redactar el análisis</div><div class="row-sub">Paso 3: escribirlo como en el examen</div></div><button class="switch" role="switch" data-ajuste="redactar" aria-label="Redactar el análisis"></button></div></div>
       <button class="row tap" data-open="ayuda"><span class="app-icon" style="--c:var(--teal)"><i data-i="table" data-s="18" data-w="2.2"></i></span>
         <span class="row-main"><span class="row-text"><span class="row-title" style="display:block">Tipos de morfema y criterios</span><span class="row-sub" style="display:block">Qué se separa y qué variantes se aceptan</span></span><span class="row-trail"><i data-i="right" data-s="14" data-w="2.6"></i></span></span></button>
     </div>
@@ -89,17 +114,46 @@
     <div class="progress" id="prog"></div>
     <div style="height:22px"></div>
     <div class="card q">
-      <div class="q-top"><span class="q-person" id="qCat"></span></div>
+      <div class="q-top"><span class="q-person" id="qCat"></span><span class="pill num" id="qPasos"></span></div>
       <div class="q-word" id="qWord"></div>
-      <div class="q-hint">Sepárala en morfemas con guiones</div>
+      <div class="q-hint" id="qHint"></div>
+
+      <!-- Paso 1 · separar -->
+      <div class="paso-tit" id="tit1"><span>1</span>Separa en morfemas</div>
       <form class="answer" id="ansForm" autocomplete="off">
         <label class="search" id="searchBox"><i data-i="pencil" data-s="18" data-w="2.2"></i>
           <input id="ans" placeholder="ej.: des-orden-a-r" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Palabra separada en morfemas"></label>
-        <button class="wide" id="ansBtn" type="submit"><span id="ansTxt">Comprobar</span> <kbd>Enter</kbd></button>
+        <button class="wide" id="ansBtn" type="submit">Comprobar <kbd>Enter</kbd></button>
       </form>
       <div class="fb" id="fb" hidden><span class="app-icon" id="fbIcon"></span><div><div class="fb-title" id="fbTitle"></div><div class="fb-sub" id="fbSub"></div></div></div>
       <div class="analisis" id="analisis" hidden></div>
       <div class="porque" id="porque" hidden></div>
+
+      <!-- Paso 2 · identificar -->
+      <form id="idForm" class="paso" hidden autocomplete="off">
+        <div class="paso-tit"><span>2</span>Identifica la raíz y los afijos</div>
+        <div class="id-grid" id="idGrid"></div>
+        <label class="id-form">¿Cómo está formada? <select class="tsel" id="idFormacion">
+          <option value="">—</option><option value="simple">simple</option><option value="derivada">derivada</option><option value="compuesta">compuesta</option><option value="parasintética">parasintética</option></select></label>
+        <p class="id-keys">Teclas: L lexema · P prefijo · S sufijo · A apreciativo · I interfijo · G género · N número · V vocal temática · T tiempo‑modo · X número‑persona · R infinitivo · E gerundio · D participio</p>
+        <button class="wide" type="submit">Comprobar <kbd>Enter</kbd></button>
+      </form>
+      <div class="fb" id="fb2" hidden></div>
+      <div class="analisis" id="analisis2" hidden></div>
+      <div class="porque" id="porque2" hidden></div>
+
+      <!-- Paso 3 · redactar -->
+      <form id="redForm" class="paso" hidden autocomplete="off">
+        <div class="paso-tit"><span>3</span>Redacta el análisis</div>
+        <textarea class="redaccion" id="red" rows="4" spellcheck="true" placeholder="Nombra cada morfema con su tipo y di cómo está formada la palabra. Ej.: pan-: lexema; -ad-: interfijo; -er-: sufijo derivativo; -o: morfema de género. Es derivada."></textarea>
+        <button class="wide" type="submit">Comprobar <kbd>Ctrl + Enter</kbd></button>
+      </form>
+      <div class="fb" id="fb3" hidden></div>
+      <div class="checklist" id="check3" hidden></div>
+      <div class="porque" id="porque3" hidden></div>
+      <div class="modelo" id="modelo3" hidden></div>
+
+      <button class="wide" id="nextWordBtn" hidden>Siguiente palabra <kbd>Enter</kbd></button>
     </div>
     <p class="keys">Separa con <kbd>-</kbd> · las tildes dan igual · <kbd>Enter</kbd> comprueba y pasa</p>
     <div class="section-head"><h2>Esta tanda</h2></div>
@@ -167,6 +221,18 @@
       <p>Escribe la palabra entera separando cada morfema con un guion: <b>des-orden-a-r</b>, <b>niñ-a-s</b>, <b>cant-á-ba-mos</b>.</p>
       <p>Las tildes y las mayúsculas dan igual, pero no cambies letras: <b>pec-ec-ill-o</b>, no «pez-ecillo».</p>
     </div>
+    <div class="group-label">Los tres pasos</div>
+    <div class="group help">
+      <p><b>1 · Separar</b>: escribe la palabra con guiones. Te enseña los cortes correctos, sin decir aún qué es cada parte.</p>
+      <p><b>2 · Identificar</b>: elige el tipo de cada morfema (teclas L, P, S, A, I, G, N, V, T, X, R, E, D) y cómo está formada la palabra (S, D, C, P).</p>
+      <p><b>3 · Redactar</b>: escríbelo como en el examen, nombrando cada morfema con su tipo: «pan-: lexema; -ad-: interfijo; -er-: sufijo derivativo; -o: morfema de género. Es derivada.» Se comprueba en <b>Ctrl + Enter</b>.</p>
+      <p>Cada paso vale lo mismo en la nota; una palabra es perfecta si aciertas los tres. Puedes quitar los pasos 2 y 3 en Práctica.</p>
+    </div>
+    <div class="group-label">Cómo se corrige la redacción</div>
+    <div class="group help">
+      <p>Cada morfema tiene que aparecer escrito con guion (‑ad‑, ‑o, pan‑) y con su tipo en la misma frase o junto a él, separado por comas, punto y coma o saltos de línea.</p>
+      <p>También tienes que decir si la palabra es simple, derivada, compuesta o parasintética. Al terminar ves qué falta y una redacción modelo.</p>
+    </div>
     <div class="group-label">Criterios que sigue la corrección</div>
     <div class="group help">
       <p><b>Lexema</b>: la raíz con su alomorfo si cambia (pec‑ de pez, luc‑ de luz, blanqu‑ de blanco).</p>
@@ -190,7 +256,7 @@
 <script>
 'use strict';
 const $ = s => document.querySelector(s);
-const { ITEMS, TIPOS, CATS, aceptadas, fronteras, formatear, sinTilde, explicar } = Morfemas;
+const { ITEMS, TIPOS, CATS, aceptadas, fronteras, formatear, sinTilde, explicar, corregirIdentificacion, corregirRedaccion, redaccionModelo } = Morfemas;
 const TANDA_MAX = 25, TANDAS_MAX = 4;
 
 // ───────── Iconos (mismo trazo que Metas) ─────────
@@ -222,7 +288,7 @@ const LS = {
   get(k, d) { try { const v = localStorage.getItem('morfemas.' + k); return v ? JSON.parse(v) : d; } catch { return d; } },
   set(k, v) { try { localStorage.setItem('morfemas.' + k, JSON.stringify(v)); } catch {} }
 };
-const ajustes = Object.assign({ inmediata: true, conjugadas: true, cats: Object.keys(CATS) }, LS.get('ajustes', {}));
+const ajustes = Object.assign({ identificar: true, redactar: true, conjugadas: true, cats: Object.keys(CATS) }, LS.get('ajustes', {}));
 let estado = LS.get('estado', null);
 const guardar = () => LS.set('estado', estado);
 
@@ -415,15 +481,27 @@ function nuevoExamen() {
 $('#startBtn').onclick = () => (estado && estado.i < estado.items.length) ? pregunta() : nuevoExamen();
 $('#backBtn').onclick = () => pintarInicio();
 
-// ───────── Pregunta ─────────
-let esperando = false, t0 = 0, avanceTimer = 0;
+// ───────── Pregunta: 1 separar · 2 identificar · 3 redactar ─────────
+let paso = 0, actual = null, t0 = 0, avanceTimer = 0;
 const itemDe = x => POR_PALABRA.get(x.palabra);
+const pasosActivos = () => 1 + (ajustes.identificar ? 1 : 0) + (ajustes.redactar ? 1 : 0);
+const claseResp = r => !r ? '' : r.puntos === 1 ? 'ok' : r.puntos === 0 ? 'ko' : 'mid';
 function pintarTanda() {
   const T = estado.tanda, i = estado.i, tanda = Math.floor(Math.min(i, estado.items.length - 1) / T), base = tanda * T;
-  const rs = estado.resp.slice(base, base + T).filter(Boolean), ok = rs.filter(r => r.ok).length;
-  $('#prog').innerHTML = Array.from({ length: T }, (_, k) => { const r = estado.resp[base + k]; return `<span class="${r ? (r.ok ? 'ok' : 'ko') : base + k === i ? 'now' : ''}"></span>`; }).join('');
-  $('#qTiles').innerHTML = tile('check', 'var(--green)', 'Aciertos', ok, `de ${rs.length} respondidas`) +
-    tile('x', 'var(--red)', 'Fallos', rs.length - ok, rs.length ? `${Math.round((rs.length - ok) / rs.length * 100)} % de error` : 'ninguno aún');
+  const rs = estado.resp.slice(base, base + T).filter(Boolean), perfectas = rs.filter(r => r.ok).length;
+  const nota = rs.length ? rs.reduce((s, r) => s + r.puntos, 0) / rs.length * 10 : 0;
+  $('#prog').innerHTML = Array.from({ length: T }, (_, k) => { const r = estado.resp[base + k]; return `<span class="${r ? claseResp(r) : base + k === i ? 'now' : ''}"></span>`; }).join('');
+  $('#qTiles').innerHTML = tile('check', 'var(--green)', 'Perfectas', perfectas, `de ${rs.length} respondidas`) +
+    tile('star', 'var(--orange)', 'Nota provisional', rs.length ? fmt(nota) : '–', 'cuenta cada paso por separado');
+}
+const g = (it, i) => (i > 0 && it.segs[i][1] !== 'L' ? '‑' : '') + it.segs[i][0] + (i < it.segs.length - 1 ? '‑' : '');
+function bloqueFb(el, ok, titulo, sub) {
+  el.hidden = false; el.className = 'fb ' + (ok ? 'ok' : 'ko');
+  el.innerHTML = `<span class="app-icon" style="--c:${ok ? 'var(--green)' : 'var(--red)'}">${svg(ok ? 'check' : 'x', 17, 3)}</span><div><div class="fb-title">${esc(titulo)}</div><div class="fb-sub">${sub}</div></div>`;
+}
+function bloquePorque(el, lineas, titulo = 'Por qué') {
+  if (!lineas.length) { el.hidden = true; return; }
+  el.hidden = false; el.innerHTML = `<h4>${titulo}</h4><ul>${lineas.map(l => `<li>${esc(l)}</li>`).join('')}</ul>`;
 }
 function pregunta() {
   const T = estado.tanda, i = estado.i, x = estado.items[i], it = itemDe(x), tanda = Math.floor(i / T);
@@ -432,59 +510,143 @@ function pregunta() {
   $('#qMeta').textContent = `Tanda ${tanda + 1} de ${estado.tandas} · ${i}/${estado.items.length} respondidas`;
   $('#counter').textContent = `${i % T + 1}/${T}`;
   $('#qCat').textContent = etiquetaCat(it);
+  $('#qPasos').textContent = `${pasosActivos()} paso${pasosActivos() > 1 ? 's' : ''}`;
+  $('#qHint').textContent = pasosActivos() === 1 ? 'Sepárala en morfemas con guiones' : ['Separa', ajustes.identificar && 'identifica', ajustes.redactar && 'redacta'].filter(Boolean).join(', ').replace(/, ([^,]*)$/, ' y $1');
   const w = $('#qWord'); w.textContent = it.palabra; w.classList.remove('bump'); void w.offsetWidth; w.classList.add('bump');
   const a = $('#ans'); a.value = ''; a.disabled = false;
   $('#searchBox').className = 'search';
-  $('#fb').hidden = true; $('#analisis').hidden = true; $('#porque').hidden = true;
-  $('#ansTxt').textContent = 'Comprobar';
+  $('#ansForm').hidden = false; $('#ansBtn').hidden = false; $('#tit1').classList.remove('hecho');
+  for (const id of ['fb', 'analisis', 'porque', 'idForm', 'fb2', 'analisis2', 'porque2', 'redForm', 'fb3', 'check3', 'porque3', 'modelo3', 'nextWordBtn']) $('#' + id).hidden = true;
+  $('#red').value = '';
+  paso = 1; actual = { t0: performance.now() };
   pintarTanda();
-  esperando = false; t0 = performance.now();
   a.focus();
 }
-function analisisHTML(it, extra = '') {
+function analisisHTML(it, conTipos = true, mal = []) {
   const alt = aceptadas(it).map(f => formatear(it.palabra, f)).filter(s => s !== it.segs.map(x => x[0]).join('-'));
-  return chips(it.segs) + `<div class="meta"><span>${etiquetaCat(it)}</span><span>palabra ${it.form}</span></div>` + extra +
-    (alt.length ? `<p>También vale: <b>${alt.map(esc).join('</b> · <b>')}</b></p>` : '') + (it.nota ? `<p>${esc(it.nota)}</p>` : '');
+  const fichas = `<div class="morfos">${it.segs.map(([s, t], i) => conTipos
+    ? `<span class="m t-${t}${mal.includes(i) ? ' mal' : ''}"><b>${esc(s)}</b><small>${TIPOS[t]}</small></span>`
+    : `<span class="m" style="--c:var(--label)"><b>${esc(s)}</b></span>`).join('')}</div>`;
+  return fichas + (conTipos ? `<div class="meta"><span>${etiquetaCat(it)}</span><span>palabra ${it.form}</span></div>` : '') +
+    (alt.length ? `<p>También vale: <b>${alt.map(esc).join('</b> · <b>')}</b></p>` : '') + (conTipos && it.nota ? `<p>${esc(it.nota)}</p>` : '');
 }
 function feedback(cls, icon, color, title, sub) {
   const fb = $('#fb'); fb.className = 'fb ' + cls; fb.hidden = false;
-  $('#fbIcon').style.setProperty('--c', color); $('#fbIcon').innerHTML = svg(icon, 17, 3);
-  $('#fbTitle').textContent = title; $('#fbSub').innerHTML = sub;
+  fb.innerHTML = `<span class="app-icon" style="--c:${color}">${svg(icon, 17, 3)}</span><div><div class="fb-title">${esc(title)}</div><div class="fb-sub">${sub}</div></div>`;
 }
+
+// Paso 1 · separar
 $('#ansForm').onsubmit = e => {
   e.preventDefault();
   if (avanceTimer) { clearTimeout(avanceTimer); avanceTimer = 0; return siguiente(); }
-  if (esperando) { esperando = false; return siguiente(); }
+  if (paso !== 1) return;
   const raw = $('#ans').value, it = itemDe(estado.items[estado.i]);
   const c = corregir(it, raw);
   if (c.error) { $('#analisis').hidden = true; return feedback('warn', 'help', 'var(--orange)', 'Revisa la palabra', esc(c.error)); }
   const tuya = formatear(it.palabra, c.fr);
-  estado.resp[estado.i] = { raw: tuya, ok: c.ok, seg: Math.round((performance.now() - t0) / 100) / 10,
-    faltan: c.faltan.map(p => nombreFrontera(it, p)), sobran: c.sobran.map(p => nombreCorte(it, p)), porque: explicar(it, c.faltan, c.sobran) };
-  estado.i++; guardar();
-  if (!ajustes.inmediata) return siguiente();
-  $('#searchBox').classList.add(c.ok ? 'ok' : 'ko'); $('#ans').disabled = true;
-  pintarTanda();
-  $('#analisis').hidden = false;
-  if (c.ok) {
-    feedback('ok', 'check', 'var(--green)', 'Correcto', esc(tuya));
-    $('#analisis').innerHTML = analisisHTML(it);
-    avanceTimer = setTimeout(() => { avanceTimer = 0; siguiente(); }, 1400);
-  } else {
-    const r = estado.resp[estado.i - 1];
-    const motivo = [...r.faltan.map(f => `te faltó separar ${f}`), ...r.sobran.map(s => `partiste el ${s}`)];
-    feedback('ko', 'x', 'var(--red)', `Pusiste ${tuya}`, esc(cap(motivo.join(' · '))));
-    $('#analisis').innerHTML = analisisHTML(it);
-    $('#porque').innerHTML = `<h4>Por qué</h4><ul>${r.porque.map(l => `<li>${esc(l)}</li>`).join('')}</ul>`;
-    $('#porque').hidden = false;
-    esperando = true; $('#ansTxt').textContent = 'Siguiente';
-  }
-  $('#ansBtn').focus();
+  actual.sep = { raw: tuya, ok: c.ok, faltan: c.faltan.map(p => nombreFrontera(it, p)), sobran: c.sobran.map(p => nombreCorte(it, p)), porque: c.ok ? [] : explicar(it, c.faltan, c.sobran) };
+  $('#searchBox').classList.add(c.ok ? 'ok' : 'ko'); $('#ans').disabled = true; $('#tit1').classList.add('hecho');
+  const motivo = [...actual.sep.faltan.map(f => `te faltó separar ${f}`), ...actual.sep.sobran.map(s => `partiste el ${s}`)];
+  feedback(c.ok ? 'ok' : 'ko', c.ok ? 'check' : 'x', c.ok ? 'var(--green)' : 'var(--red)', c.ok ? 'Bien separada' : `Pusiste ${tuya}`, c.ok ? esc(tuya) : esc(cap(motivo.join(' · '))));
+  // si quedan pasos, se muestran los cortes correctos pero sin decir qué es cada morfema
+  const sigue = ajustes.identificar || ajustes.redactar;
+  $('#ansBtn').hidden = true;
+  // si quedan pasos, los cortes correctos ya se ven en el paso 2 (sin decir qué es cada morfema)
+  $('#analisis').hidden = sigue; if (!sigue) $('#analisis').innerHTML = analisisHTML(it, true);
+  // la justificación de la separación no se enseña hasta el final si va a delatar los tipos
+  if (!sigue) bloquePorque($('#porque'), actual.sep.porque);
+  else if (!c.ok) bloquePorque($('#porque'), [`La separación correcta es ${it.segs.map(x => x[0]).join('-')}. En el siguiente paso identificas qué es cada parte.`], 'Corrección');
+  if (ajustes.identificar) abrirPaso2(it);
+  else if (ajustes.redactar) abrirPaso3(it);
+  else terminar(it, c.ok ? 450 : 0);
 };
+
+// Paso 2 · identificar
+const CODIGOS = ['L', 'P', 'S', 'A', 'I', 'G', 'N', 'V', 'T', 'X', 'R', 'E', 'D'];
+function abrirPaso2(it) {
+  paso = 2;
+  $('#idGrid').innerHTML = it.segs.map(([s], i) => `<div class="idm"><b>${esc(g(it, i))}</b>
+    <select class="tsel" data-m="${i}" aria-label="Tipo de ${esc(s)}"><option value="">—</option>${CODIGOS.map(c => `<option value="${c}">${c} · ${TIPOS[c]}</option>`).join('')}</select></div>`).join('');
+  $('#idFormacion').value = ''; $('#idFormacion').className = 'tsel';
+  $('#idForm').hidden = false;
+  $('#idGrid select').focus();
+}
+// escribir la letra del tipo lo elige y pasa al siguiente
+$('#idForm').addEventListener('keydown', e => {
+  const sel = e.target.closest('select');
+  if (!sel) return;
+  if (e.key === 'Enter') { e.preventDefault(); $('#idForm').requestSubmit(); return; }
+  const k = e.key.toUpperCase();
+  const lista = [...$('#idForm').querySelectorAll('select')], pos = lista.indexOf(sel);
+  const valor = sel.id === 'idFormacion' ? { S: 'simple', D: 'derivada', C: 'compuesta', P: 'parasintética' }[k] : CODIGOS.includes(k) && k;
+  if (valor && !e.ctrlKey && !e.metaKey && !e.altKey) { e.preventDefault(); sel.value = valor; sel.classList.remove('ko'); (lista[pos + 1] || $('#idForm button')).focus(); }
+});
+$('#idForm').onsubmit = e => {
+  e.preventDefault();
+  if (paso !== 2) return;
+  const it = itemDe(estado.items[estado.i]);
+  const sels = [...$('#idGrid').querySelectorAll('select')];
+  const vacios = [...sels, $('#idFormacion')].filter(s => !s.value);
+  if (vacios.length) { vacios.forEach(s => s.classList.add('ko')); vacios[0].focus(); return toast('Elige el tipo de cada morfema y la formación', true); }
+  const r = corregirIdentificacion(it, sels.map(s => s.value), $('#idFormacion').value);
+  actual.id = { tipos: sels.map(s => s.value), form: $('#idFormacion').value, ok: r.ok, errores: r.morfemas.filter(m => !m.ok).map(m => ({ seg: m.seg, correcto: m.correcto, puesto: m.puesto })), formOk: r.formOk, porque: r.porque };
+  sels.forEach((s, i) => { s.classList.add(r.morfemas[i].ok ? 'ok' : 'ko'); s.disabled = true; });
+  $('#idFormacion').classList.add(r.formOk ? 'ok' : 'ko'); $('#idFormacion').disabled = true;
+  $('#idForm button').hidden = true;
+  const nMal = r.morfemas.filter(m => !m.ok).length + (r.formOk ? 0 : 1);
+  bloqueFb($('#fb2'), r.ok, r.ok ? 'Identificación correcta' : `${nMal} fallo${nMal > 1 ? 's' : ''} al identificar`,
+    r.ok ? esc(`Palabra ${it.form}`) : esc(r.morfemas.filter(m => !m.ok).map(m => `«${m.seg}» era ${TIPOS[m.correcto]}`).concat(r.formOk ? [] : [`era ${it.form}`]).join(' · ')));
+  // ahora sí: el análisis completo con los tipos y todas las justificaciones
+  $('#analisis2').hidden = false; $('#analisis2').innerHTML = analisisHTML(it, true, r.morfemas.filter(m => !m.ok).map(m => m.i));
+  bloquePorque($('#porque2'), [...(actual.sep.ok ? [] : actual.sep.porque), ...r.porque, ...r.notas]);
+  if (ajustes.redactar) abrirPaso3(it);
+  else terminar(it, r.ok && actual.sep.ok ? 900 : 0);
+};
+
+// Paso 3 · redactar
+function abrirPaso3(it) {
+  paso = 3;
+  $('#redForm').hidden = false; $('#redForm button').hidden = false; $('#red').disabled = false;
+  $('#red').focus();
+}
+$('#red').addEventListener('keydown', e => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); $('#redForm').requestSubmit(); } });
+$('#redForm').onsubmit = e => {
+  e.preventDefault();
+  if (paso !== 3) return;
+  const it = itemDe(estado.items[estado.i]), texto = $('#red').value.trim();
+  if (texto.length < 8) { $('#red').focus(); return toast('Escribe el análisis antes de comprobar', true); }
+  const r = corregirRedaccion(it, texto);
+  actual.red = { texto, ok: r.ok, morfemas: r.morfemas.map(m => ({ seg: m.seg, correcto: m.correcto, estado: m.estado, puesto: m.puesto || null })), form: r.form, porque: r.porque };
+  $('#red').disabled = true; $('#redForm button').hidden = true;
+  const bien = r.morfemas.filter(m => m.estado === 'ok').length;
+  bloqueFb($('#fb3'), r.ok, r.ok ? 'Redacción completa' : 'A la redacción le falta algo',
+    esc(`${bien} de ${it.segs.length} morfemas bien identificados · formación ${r.form === 'ok' ? 'correcta' : r.form === 'falta' ? 'sin indicar' : 'incorrecta'}`));
+  $('#check3').hidden = false;
+  $('#check3').innerHTML = r.morfemas.map(m => `<span class="${m.estado === 'ok' ? 'ok' : 'ko'}">${m.estado === 'ok' ? '✓' : '✕'} ${esc(g(it, m.i))} ${esc(TIPOS[m.correcto])}</span>`).join('') +
+    `<span class="${r.form === 'ok' ? 'ok' : 'ko'}">${r.form === 'ok' ? '✓' : '✕'} palabra ${esc(it.form)}</span>`;
+  // si no hubo paso 2, aquí se enseña el análisis completo
+  if (!ajustes.identificar) { $('#analisis2').hidden = false; $('#analisis2').innerHTML = analisisHTML(it, true); bloquePorque($('#porque2'), actual.sep.ok ? [] : actual.sep.porque); }
+  bloquePorque($('#porque3'), r.porque, 'Qué corregir en la redacción');
+  $('#modelo3').hidden = false; $('#modelo3').innerHTML = `<h4>Redacción modelo</h4>${esc(redaccionModelo(it))}`;
+  terminar(it, 0);
+};
+
+function terminar(it, autoMs) {
+  const pasos = [actual.sep.ok, ...(ajustes.identificar ? [actual.id.ok] : []), ...(ajustes.redactar ? [actual.red.ok] : [])];
+  const puntos = pasos.filter(Boolean).length / pasos.length;
+  estado.resp[estado.i] = { ...actual.sep, sepOk: actual.sep.ok, id: actual.id || null, red: actual.red || null, puntos, ok: puntos === 1,
+    seg: Math.round((performance.now() - actual.t0) / 100) / 10 };
+  delete estado.resp[estado.i].t0;
+  estado.i++; guardar(); paso = 0;
+  pintarTanda();
+  if (autoMs) { avanceTimer = setTimeout(() => { avanceTimer = 0; siguiente(); }, autoMs); return; }
+  $('#nextWordBtn').hidden = false; $('#nextWordBtn').focus();
+}
+$('#nextWordBtn').onclick = () => siguiente();
 function siguiente() { if (estado.i % estado.tanda === 0 || estado.i >= estado.items.length) resultado(); else pregunta(); }
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape' && document.querySelector('.backdrop.open')) return cerrarHojas();
-  // tras un acierto, empezar a escribir pasa ya a la siguiente palabra sin perder la tecla
+  // tras un acierto automático, empezar a escribir pasa ya a la siguiente palabra sin perder la tecla
   if (avanceTimer && e.key.length === 1 && !e.ctrlKey && !e.metaKey) { clearTimeout(avanceTimer); avanceTimer = 0; siguiente(); return; }
   if (e.key !== 'Enter' || document.querySelector('.backdrop.open')) return;
   const libre = document.activeElement === document.body || !document.activeElement;
@@ -493,16 +655,25 @@ document.addEventListener('keydown', e => {
 });
 
 // ───────── Resultado ─────────
+function resumenFallo(it, r) {
+  const partes = [];
+  if (r.sepOk === false)
+    partes.push(`Separar: pusiste <span class="err-cut" style="color:var(--red-ink)">${esc(r.raw)}</span>`);
+  if (r.id && !r.id.ok) partes.push('Identificar: ' + esc([...r.id.errores.map(e => `«${e.seg}» era ${TIPOS[e.correcto]}`), ...(r.id.formOk ? [] : [`era ${it.form}`])].join(', ')));
+  if (r.red && !r.red.ok) partes.push('Redactar: ' + esc([...r.red.morfemas.filter(m => m.estado !== 'ok').map(m => `«${m.seg}» ${m.estado === 'falta' ? 'no aparece' : 'mal identificado'}`), ...(r.red.form === 'ok' ? [] : ['falta la formación'])].join(', ')));
+  return partes.join(' · ') || 'Separación incorrecta';
+}
+
 function resultado() {
   const T = estado.tanda, N = estado.items.length, fin = estado.i >= N;
   const tanda = Math.floor((estado.i - 1) / T);
   const desde = fin ? 0 : tanda * T, hasta = estado.i;
   const resp = estado.resp.slice(desde, hasta), items = estado.items.slice(desde, hasta);
-  const aciertos = resp.filter(r => r.ok).length, n = resp.length, nota = aciertos / n * 10;
+  const aciertos = resp.filter(r => r.ok).length, n = resp.length, nota = resp.reduce((s, r) => s + (r.puntos ?? (r.ok ? 1 : 0)), 0) / n * 10;
   ver('vResultado', fin ? 'Resultado final' : `Tanda ${tanda + 1}`);
   $('#rMeta').textContent = fin ? `Examen completo · ${N} palabras` : `Tanda ${tanda + 1} de ${estado.tandas} terminada`;
   $('#rTitle').textContent = fin ? 'Resultado final' : `Tanda ${tanda + 1}`;
-  $('#rName').textContent = `${aciertos} aciertos · ${n - aciertos} fallos`;
+  $('#rName').textContent = `${aciertos} perfectas · ${n - aciertos} con fallos`;
   const quedan = estado.tandas - tanda - 1;
   $('#rSub').textContent = fin ? `Nota global de ${estado.tandas > 1 ? 'las ' + estado.tandas + ' tandas' : 'la tanda'}` : `Quedan ${quedan} tanda${quedan === 1 ? '' : 's'}`;
   $('#rPill').className = 'pill num ' + clasePill(nota); $('#rPill').textContent = calif(nota);
@@ -519,10 +690,10 @@ function resultado() {
   $('#rErr').innerHTML = fallos.length ? fallos.map(({ it, r }) => `
     <div class="row"><span class="app-icon" style="--c:var(--red);border-radius:50%">${svg('x', 15, 3)}</span><div class="row-main"><div class="row-text">
       <div class="row-title"><b style="font-weight:600">${esc(it.segs.map(s => s[0]).join('-'))}</b> <span style="color:var(--label2)">· ${esc(etiquetaCat(it))}</span></div>
-      <div class="row-sub">Pusiste <span class="err-cut" style="color:var(--red-ink)">${esc(r.raw)}</span>${r.faltan.length ? ` · faltó separar ${esc(r.faltan.join(', '))}` : ''}${r.sobran.length ? ` · partiste el ${esc(r.sobran.join(', '))}` : ''}</div>
+      <div class="row-sub">${resumenFallo(it, r)}</div>
     </div></div></div>`).join('') : `<div class="placeholder">${svg('star', 34, 1.8)}Ni un fallo. Perfecto.</div>`;
   if (fin) {
-    const notas = Array.from({ length: estado.tandas }, (_, t) => estado.resp.slice(t * T, (t + 1) * T).filter(r => r.ok).length / T * 10);
+    const notas = Array.from({ length: estado.tandas }, (_, t) => estado.resp.slice(t * T, (t + 1) * T).reduce((s, r) => s + (r.puntos ?? (r.ok ? 1 : 0)), 0) / T * 10);
     $('#rTiles').innerHTML = notas.map((x, t) => `<div class="tile" style="--c:${colorNota(x)}"><div class="tile-head">${miniRing(x / 10, colorNota(x), 18, 3.5)}Tanda ${t + 1}</div><div class="tile-val num">${fmt(x)}</div></div>`).join('');
     if (!estado.cerrado) {
       const informe = generarInforme(nota, notas);
@@ -554,37 +725,60 @@ function generarInforme(nota, notas) {
   const media = a => a.length ? fmt(a.reduce((s, x) => s + x, 0) / a.length) : '–';
   const agrupa = clave => {
     const m = {};
-    for (const f of filas) { const k = clave(f); (m[k] = m[k] || { t: 0, ok: 0 }); m[k].t++; if (f.ok) m[k].ok++; }
-    return Object.entries(m).sort((a, b) => a[1].ok / a[1].t - b[1].ok / b[1].t);
+    for (const f of filas) { const k = clave(f); (m[k] = m[k] || { t: 0, ok: 0, p: 0 }); m[k].t++; if (f.ok) m[k].ok++; m[k].p += f.puntos; }
+    return Object.entries(m).sort((a, b) => a[1].p / a[1].t - b[1].p / b[1].t);
   };
   const cuenta = lista => { const m = {}; for (const x of lista) m[x] = (m[x] || 0) + 1; return Object.entries(m).sort((a, b) => b[1] - a[1]); };
   const tabla = (titulo, cab, rows) => `## ${titulo}\n\n| ${cab.join(' | ')} |\n|${cab.map(() => '---').join('|')}|\n${rows.map(r => '| ' + r.join(' | ') + ' |').join('\n')}\n`;
+  const limpio = s => String(s).replace(/\|/g, '/').replace(/\n+/g, ' ');
   const correcta = it => it.segs.map(s => s[0]).join('-');
-  let md = `# Informe de errores · Separar en morfemas\n\n`;
+  const conId = filas.filter(f => f.id), conRed = filas.filter(f => f.red);
+  let md = `# Informe de errores · Análisis morfológico\n\n`;
   md += `> Pásale este archivo a Claude y pídele: «analiza en qué fallo más y por qué».\n\n`;
-  md += `- Fecha: ${new Date(estado.inicio).toLocaleString('es-ES')}\n- Nota global: **${fmt(nota)} / 10** (${filas.length - errs.length} aciertos de ${filas.length})\n`;
+  md += `- Fecha: ${new Date(estado.inicio).toLocaleString('es-ES')}\n- Nota global: **${fmt(nota)} / 10** (cada paso cuenta por separado; ${filas.length - errs.length} de ${filas.length} palabras perfectas)\n`;
   md += `- Notas por tanda: ${notas.map((x, t) => `T${t + 1} ${fmt(x)}`).join(' · ')}\n`;
-  md += `- Tiempo medio por palabra: ${media(filas.map(f => f.seg))} s (aciertos ${media(filas.filter(f => f.ok).map(f => f.seg))} s · fallos ${media(errs.map(f => f.seg))} s)\n`;
+  md += `- Tiempo medio por palabra: ${media(filas.map(f => f.seg))} s\n`;
+  md += `- Pasos: separar${ajustes.identificar ? ' · identificar raíz y afijos' : ''}${ajustes.redactar ? ' · redactar' : ''}\n`;
   md += `- Categorías incluidas: ${ajustes.cats.map(c => CATS[c]).join(', ')}${ajustes.cats.includes('ver') ? (ajustes.conjugadas ? ' (con formas conjugadas)' : ' (solo infinitivos)') : ''}\n\n`;
-  md += tabla('Rendimiento por categoría (peor primero)', ['Categoría', 'Palabras', 'Aciertos', 'Fallos', '% acierto'],
-    agrupa(f => f.it.tiempo ? 'verbo conjugado' : CATS[f.it.cat]).map(([k, v]) => [k, v.t, v.ok, v.t - v.ok, pct(v.ok, v.t)])) + '\n';
-  md += tabla('Rendimiento por tipo de palabra', ['Formación', 'Palabras', 'Aciertos', '% acierto'],
-    agrupa(f => f.it.form).map(([k, v]) => [k, v.t, v.ok, pct(v.ok, v.t)])) + '\n';
-  md += tabla('Rendimiento por tiempo verbal (solo formas conjugadas)', ['Forma', 'Palabras', 'Aciertos', '% acierto'],
-    agrupa(f => f.it.tiempo ? Morfemas.TIEMPOS_V[f.it.tiempo] : '—').filter(([k]) => k !== '—').map(([k, v]) => [k, v.t, v.ok, pct(v.ok, v.t)])) + '\n';
-  const faltan = cuenta(errs.flatMap(f => f.faltan)), sobran = cuenta(errs.flatMap(f => f.sobran));
-  md += faltan.length ? tabla('Fronteras que no separaste (morfemas que dejaste pegados)', ['Entre', 'Veces'], faltan) + '\n' : '';
-  md += sobran.length ? tabla('Morfemas que partiste por la mitad', ['Morfema partido', 'Veces'], sobran) + '\n' : '';
-  md += tabla('Evolución por tanda', ['Tanda', 'Aciertos', 'Fallos', 'Nota'],
+  md += tabla('Acierto por paso', ['Paso', 'Palabras', 'Bien', '% acierto'], [
+    ['1 · Separar', filas.length, filas.filter(f => f.sepOk).length, pct(filas.filter(f => f.sepOk).length, filas.length)],
+    ...(conId.length ? [['2 · Identificar', conId.length, conId.filter(f => f.id.ok).length, pct(conId.filter(f => f.id.ok).length, conId.length)]] : []),
+    ...(conRed.length ? [['3 · Redactar', conRed.length, conRed.filter(f => f.red.ok).length, pct(conRed.filter(f => f.red.ok).length, conRed.length)]] : [])
+  ]) + '\n';
+  md += tabla('Rendimiento por categoría (peor primero)', ['Categoría', 'Palabras', 'Perfectas', 'Nota media'],
+    agrupa(f => f.it.tiempo ? 'verbo conjugado' : CATS[f.it.cat]).map(([k, v]) => [k, v.t, v.ok, fmt(v.p / v.t * 10)])) + '\n';
+  md += tabla('Rendimiento por tipo de palabra', ['Formación', 'Palabras', 'Perfectas', 'Nota media'],
+    agrupa(f => f.it.form).map(([k, v]) => [k, v.t, v.ok, fmt(v.p / v.t * 10)])) + '\n';
+  const faltan = cuenta(filas.flatMap(f => f.faltan)), sobran = cuenta(filas.flatMap(f => f.sobran));
+  md += faltan.length ? tabla('Paso 1 · Fronteras que no separaste', ['Entre', 'Veces'], faltan) + '\n' : '';
+  md += sobran.length ? tabla('Paso 1 · Morfemas que partiste por la mitad', ['Morfema partido', 'Veces'], sobran) + '\n' : '';
+  const confId = cuenta(conId.flatMap(f => f.id.errores.map(e => `${TIPOS[e.correcto]} → ${TIPOS[e.puesto]}`)));
+  md += confId.length ? tabla('Paso 2 · Confusiones al identificar (era → pusiste)', ['Confusión', 'Veces'], confId) + '\n' : '';
+  const confForm = cuenta(conId.filter(f => !f.id.formOk).map(f => `${f.it.form} → ${f.id.form}`));
+  md += confForm.length ? tabla('Paso 2 · Formación mal clasificada (era → pusiste)', ['Confusión', 'Veces'], confForm) + '\n' : '';
+  const redMal = cuenta(conRed.flatMap(f => f.red.morfemas.filter(m => m.estado !== 'ok').map(m => `${TIPOS[m.correcto]}: ${m.estado === 'falta' ? 'no aparece' : m.estado === 'sin-tipo' ? 'aparece sin decir qué es' : 'identificado como ' + TIPOS[m.puesto]}`)));
+  md += redMal.length ? tabla('Paso 3 · Problemas en la redacción', ['Morfema', 'Veces'], redMal) + '\n' : '';
+  const redForm = conRed.filter(f => f.red.form !== 'ok').length;
+  if (conRed.length) md += `Redacciones sin la formación correcta: ${redForm} de ${conRed.length}.\n\n`;
+  md += tabla('Evolución por tanda', ['Tanda', 'Perfectas', 'Con fallos', 'Nota'],
     notas.map((x, t) => { const s = filas.filter(f => f.tanda === t + 1); const o = s.filter(f => f.ok).length; return [t + 1, o, s.length - o, fmt(x)]; })) + '\n';
-  md += errs.length ? tabla(`Detalle de los ${errs.length} errores`, ['#', 'Tanda', 'Palabra', 'Categoría', 'Formación', 'Correcto', 'Tipos', 'Lo que pusiste', 'Faltó separar', 'Partiste', 'Seg.', 'Por qué'],
-    errs.map(f => [f.n, f.tanda, f.it.palabra, f.it.tiempo ? 'verbo · ' + Morfemas.TIEMPOS_V[f.it.tiempo] : CATS[f.it.cat], f.it.form, `**${correcta(f.it)}**`,
-      f.it.segs.map(s => s[1]).join(' '), f.raw, f.faltan.join('; ') || '—', f.sobran.join('; ') || '—', fmt(f.seg), (f.porque || []).join(' ').replace(/\|/g, '/')])) + '\n' : '## Sin errores\n\n';
-  md += `Claves de tipos: ${Object.entries(TIPOS).map(([k, v]) => `${k} = ${v}`).join(' · ')}\n\n`;
-  md += tabla('Todas las respuestas', ['#', 'Palabra', 'Correcto', 'Lo que pusiste', '✓/✗'],
-    filas.map(f => [f.n, f.it.palabra, correcta(f.it), f.raw, f.ok ? '✓' : '✗'])) + '\n';
+  if (errs.length) {
+    md += `## Detalle de las ${errs.length} palabras con fallos\n\n`;
+    for (const f of errs) {
+      md += `### ${f.n}. ${f.it.palabra} (${f.it.tiempo ? 'verbo · ' + Morfemas.TIEMPOS_V[f.it.tiempo] : CATS[f.it.cat]}, ${f.it.form}) · tanda ${f.tanda} · ${fmt(f.puntos * 10)}/10\n\n`;
+      md += `- Correcto: **${correcta(f.it)}** — ${f.it.segs.map(([s, t]) => `${s} = ${TIPOS[t]}`).join('; ')}\n`;
+      md += `- Separar: ${f.sepOk ? '✓' : `✗ pusiste ${f.raw}`}\n`;
+      if (f.id) md += `- Identificar: ${f.id.ok ? '✓' : `✗ ${[...f.id.errores.map(e => `«${e.seg}» como ${TIPOS[e.puesto]} (era ${TIPOS[e.correcto]})`), ...(f.id.formOk ? [] : [`formación «${f.id.form}» (era ${f.it.form})`])].join('; ')}`}\n`;
+      if (f.red) md += `- Redactar: ${f.red.ok ? '✓' : '✗'} — lo que escribiste: «${limpio(f.red.texto)}»\n`;
+      const porque = [...(f.porque || []), ...(f.id ? f.id.porque : []), ...(f.red ? f.red.porque : [])];
+      if (porque.length) md += `- Por qué: ${limpio(porque.join(' '))}\n`;
+      md += '\n';
+    }
+  } else md += '## Sin fallos\n\n';
+  md += tabla('Todas las respuestas', ['#', 'Palabra', 'Correcto', 'Separaste', 'Separar', 'Identificar', 'Redactar'],
+    filas.map(f => [f.n, f.it.palabra, correcta(f.it), f.raw, f.sepOk ? '✓' : '✗', f.id ? (f.id.ok ? '✓' : '✗') : '—', f.red ? (f.red.ok ? '✓' : '✗') : '—'])) + '\n';
   md += '## Datos en bruto\n\n```json\n' + JSON.stringify(filas.map(f => ({ n: f.n, tanda: f.tanda, palabra: f.it.palabra, categoria: f.it.cat, tiempo: f.it.tiempo || null,
-    formacion: f.it.form, correcto: f.it.segs, aceptadas: aceptadas(f.it).map(fr => formatear(f.it.palabra, fr)), respuesta: f.raw, ok: f.ok, faltan: f.faltan, sobran: f.sobran, seg: f.seg }))) + '\n```\n';
+    formacion: f.it.form, correcto: f.it.segs, separacion: f.raw, faltan: f.faltan, sobran: f.sobran, identificacion: f.id, redaccion: f.red, puntos: f.puntos, seg: f.seg }))) + '\n```\n';
   return md;
 }
 
