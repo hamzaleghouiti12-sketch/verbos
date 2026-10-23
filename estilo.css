@@ -251,3 +251,5 @@ details.fallo li{margin-top:5px}
 details.fallo .det .morfos{justify-content:flex-start;margin-top:4px}
 .det-modelo{font-size:13px;color:var(--label2);margin-top:8px}
 @media (max-width:520px){details.fallo .det{padding-left:16px}}
+.porque .ver-mas{font-size:14px;font-weight:600;margin-top:10px}
+.tt.destaca{background:color-mix(in srgb,var(--orange) 16%,transparent);transition:background .4s}

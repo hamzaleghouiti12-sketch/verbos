@@ -456,7 +456,11 @@ function toast(text, warn = false) {
 
 // ───────── Hojas ─────────
 function abrirHoja(n) { if (n === 'cats') pintarCats(); $(n === 'cats' ? '#bdCats' : '#bdAyuda').classList.add('open'); }
-function cerrarHojas() { document.querySelectorAll('.backdrop.open').forEach(b => b.classList.remove('open')); if (!$('#vInicio').hidden) pintarInicio(); }
+function cerrarHojas() {
+  document.querySelectorAll('.backdrop.open').forEach(b => b.classList.remove('open'));
+  if (!$('#vInicio').hidden) pintarInicio();
+  else if (!$('#vPregunta').hidden && document.activeElement === document.body) $('#nextWordBtn').hidden || $('#nextWordBtn').focus({ preventScroll: true });
+}
 document.querySelectorAll('.backdrop').forEach(b => b.addEventListener('click', e => { if (e.target === b || e.target.closest('[data-close]')) cerrarHojas(); }));
 function pintarCats() {
   const n = {}; for (const it of PALABRAS) n[it.cat] = (n[it.cat] || 0) + 1;
@@ -551,7 +555,7 @@ const sinRepetir = lineas => lineas.filter((l, i) => !lineas.some((o, j) => j !=
 function bloquePorque(el, lineas, titulo = 'Por qué') {
   lineas = sinRepetir(lineas);
   if (!lineas.length) { el.hidden = true; return; }
-  el.hidden = false; el.innerHTML = `<h4>${titulo}</h4><ul>${lineas.map(l => `<li>${esc(l)}</li>`).join('')}</ul>`;
+  el.hidden = false; el.innerHTML = `<h4>${titulo}</h4><ul>${lineas.map(l => `<li>${esc(l)}</li>`).join('')}</ul><button type="button" class="link ver-mas" data-open="ayuda">Ver los criterios de cada tipo de morfema ›</button>`;
 }
 function pregunta() {
   const T = estado.tanda, i = estado.i, x = estado.items[i], it = itemDe(x), tanda = Math.floor(i / T);

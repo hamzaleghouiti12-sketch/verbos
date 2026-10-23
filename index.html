@@ -464,7 +464,7 @@ function pintarTabla() {
     // variante -se debajo, en gris (cantase / hubiese)
     return alt ? `${html}<small class="alt">o ${esc(alt.split(' ')[0])}</small>` : html;
   };
-  const fila = t => `<div class="tt"><div class="tt-head"><span class="tt-name">${t.nombre}</span><span class="tt-bello">Bello: ${BELLO[t.id]}</span></div>
+  const fila = t => `<div class="tt" id="tt-${t.id}"><div class="tt-head"><span class="tt-name">${t.nombre}</span><span class="tt-bello">Bello: ${BELLO[t.id]}</span></div>
     <div class="tt-forms">${EJ_VERBOS.map(v => `<span><small>${v}</small>${forma(v, t.id)}</span>`).join('')}</div>
     <div class="tt-ej">${FRASES[t.id]}</div></div>`;
   if (modoTabla === 'Imperativo') {
@@ -488,7 +488,16 @@ function pintarTabla() {
       : 'haya → perfecto · hubiera/hubiese → pluscuamperfecto · hubiere → futuro compuesto.'}</p>`;
 }
 document.querySelectorAll('#tabSeg button').forEach(b => b.onclick = () => { modoTabla = b.dataset.modo; pintarTabla(); });
-function cerrarHojas() { document.querySelectorAll('.backdrop.open').forEach(b => b.classList.remove('open')); if (!$('#vInicio').hidden) pintarInicio(); }
+function cerrarHojas() {
+  document.querySelectorAll('.backdrop.open').forEach(b => b.classList.remove('open'));
+  if (!$('#vInicio').hidden) pintarInicio();
+  else if (!$('#vPregunta').hidden) $('#ans').focus({ preventScroll: true }); // de vuelta a la pregunta, listo para seguir
+}
+// abre la tabla en el modo del tiempo y lo resalta un momento
+function verEnTabla(tid) {
+  modoTabla = T[tid].modo; abrirHoja('tabla');
+  setTimeout(() => { const f = $('#tt-' + tid); if (!f) return; f.scrollIntoView({ block: 'center', behavior: 'smooth' }); f.classList.add('destaca'); setTimeout(() => f.classList.remove('destaca'), 1600); }, 380);
+}
 document.querySelectorAll('.backdrop').forEach(b => b.addEventListener('click', e => { if (e.target === b || e.target.closest('[data-close]')) cerrarHojas(); }));
 
 const PRESETS = {
@@ -565,6 +574,7 @@ document.addEventListener('click', e => {
   }
   const pr = e.target.closest('[data-preset]');
   if (pr) { ajustes.tiempos = PRESETS[pr.dataset.preset](); LS.set('ajustes', ajustes); pintarTiempos(); }
+  const vt = e.target.closest('[data-tabla]'); if (vt) verEnTabla(vt.dataset.tabla);
   const op = e.target.closest('[data-open]');
   if (op) abrirHoja(op.dataset.open);
   const h = e.target.closest('[data-h]');
@@ -708,7 +718,7 @@ $('#ansForm').onsubmit = e => {
     avanceTimer = setTimeout(() => { avanceTimer = 0; siguiente(); }, otros.length ? 1100 : 450);
   } else {
     feedback('ko', 'x', 'var(--red)', `Era ${it.validas.map(nombreT).join(' o ')}`, `Pusiste ${esc(nombreT(r.id))}`);
-    $('#porque').innerHTML = `<h4>Por qué</h4><ul>${explicarVerbo(it, r.id).map(l => `<li>${l}</li>`).join('')}</ul>`;
+    $('#porque').innerHTML = `<h4>Por qué</h4><ul>${explicarVerbo(it, r.id).map(l => `<li>${l}</li>`).join('')}</ul><button type="button" class="link ver-mas" data-tabla="${it.tid}">Ver en la tabla de tiempos ›</button>`;
     $('#porque').hidden = false;
     // con el teclado abierto en el móvil, la explicación quedaría tapada: se acerca a la vista
     requestAnimationFrame(() => $('#porque').scrollIntoView({ block: 'nearest', behavior: 'smooth' }));
