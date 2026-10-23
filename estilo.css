@@ -264,3 +264,5 @@ button,a,summary,select,label,.switch{touch-action:manipulation}
   .hint .link,.porque .ver-mas,#cpBtn{position:relative}
   .hint .link::after,.porque .ver-mas::after,#cpBtn::after{content:"";position:absolute;inset:-12px -8px}
 }
+
+.plantilla{font-size:14px;font-weight:600;margin:8px 2px 4px}

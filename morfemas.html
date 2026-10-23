@@ -163,6 +163,7 @@
       <form id="redForm" class="paso" hidden autocomplete="off">
         <div class="paso-tit"><span>3</span>Redacta el análisis</div>
         <textarea class="redaccion" id="red" rows="4" spellcheck="true" placeholder="Nombra cada morfema con su tipo y di cómo está formada la palabra. Ej.: pan-: lexema; -ad-: interfijo; -er-: sufijo derivativo; -o: morfema de género. Es derivada."></textarea>
+        <button type="button" class="link plantilla" id="plantillaBtn">Usar plantilla (una línea por morfema)</button>
         <button class="wide" type="submit">Comprobar <kbd>Ctrl + Enter</kbd></button>
       </form>
       <div class="fb" id="fb3" role="status" aria-live="polite" hidden></div>
@@ -621,6 +622,14 @@ $('#idForm').onsubmit = e => {
 };
 
 // Paso 3 · redactar
+// plantilla opcional: una línea por morfema y otra para la formación; el tipo lo escribe el alumno
+function plantilla(it) { return it.segs.map(([s, t], i) => g(it, i) + ': ').join('\n') + '\nFormación: '; }
+$('#plantillaBtn').onclick = () => {
+  const it = itemDe(estado.items[estado.i]), red = $('#red');
+  if (red.value.trim() && !confirm('¿Sustituir lo que has escrito por la plantilla?')) return;
+  red.value = plantilla(it); red.focus();
+  red.setSelectionRange(red.value.indexOf(': ') + 2, red.value.indexOf(': ') + 2); // cursor en el primer hueco
+};
 function abrirPaso3(it) {
   paso = 3;
   $('#redForm').hidden = false; $('#redForm button').hidden = false; $('#red').disabled = false;
