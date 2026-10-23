@@ -589,9 +589,28 @@ function rasgo(tid, forma, p) {
   }
   return RASGO[tid];
 }
+// Parte de la forma que delata el tiempo (‑ría‑, ‑ba‑, ‑ra‑, el auxiliar…); null si no hay una marca clara
+const MARCA = { // grupo 1: la marca de tiempo; grupo 2: la persona que la sigue
+  ind_impf: /(aba|ába|ía)(s|mos|is|n)?$/, ind_fut: /(r[éáe])(s|mos|is|n)?$/, ind_cond: /(ría)(s|mos|is|n)?$/,
+  ind_indef: /(é|aste|ó|asteis|aron|iste|ió|isteis|ieron|eron)$/, sub_pres: /([eéaá])(s|mos|is|n)?$/,
+  sub_impf: /([rs][ae])(s|mos|is|n)?$/, sub_fut: /(re)(s|mos|is|n)?$/
+};
+function marcaTiempo(forma, tid) {
+  if (AUX[tid]) { const aux = forma.split(' ')[0]; return [aux, forma.slice(aux.length)]; }
+  if (tid === 'imp' && /d$/.test(forma)) return [forma.slice(0, -1), 'd', ''];
+  const m = MARCA[tid] && forma.match(MARCA[tid]);
+  if (!m || m.index < 2) return null;
+  return [forma.slice(0, m.index), m[1], forma.slice(m.index + m[1].length)];
+}
+function conMarca(forma, tid) {
+  const p = marcaTiempo(forma, tid);
+  if (!p) return esc(forma);
+  if (p.length === 2) return `<mark class="marca">${esc(p[0])}</mark>${esc(p[1])}`; // compuesto: el auxiliar
+  return `${esc(p[0])}<mark class="marca">${esc(p[1])}</mark>${esc(p[2])}`;
+}
 function explicarVerbo(it, respId) {
   const out = [], [tid] = [it.tid];
-  out.push(`«<b>${esc(it.forma)}</b>» es ${esc(nombreT(tid))}: ${esc(rasgo(tid, it.forma, it.p))}`);
+  out.push(`«<b>${conMarca(it.forma, tid)}</b>» es ${esc(nombreT(tid))}: ${esc(rasgo(tid, it.forma, it.p))}`);
   const otros = it.validas.filter(x => x !== tid);
   if (otros.length) out.push(`Con «${esc(PERSONAS[it.p])}» esta forma coincide con ${esc(otros.map(nombreT).join(' y '))}, que también se aceptaba.`);
   if (!T[respId]) {
@@ -627,6 +646,8 @@ $('#ansForm').onsubmit = e => {
   LS.set('fallos', fallos.slice(0, 80));
   estado.i++; guardar();
   if (!ajustes.inmediata) return siguiente();
+  // la forma grande enseña qué parte delata el tiempo (también al acertar, para fijarlo)
+  $('#qForm').innerHTML = conMarca(it.forma, ok ? r.id : it.tid);
   $('#searchBox').classList.add(ok ? 'ok' : 'ko'); $('#ans').readOnly = true; // readOnly y no disabled: el foco (y el teclado del iPhone) sigue en la casilla
   pintarTanda();
   if (ok) {

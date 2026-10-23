@@ -250,3 +250,5 @@ kbd{font:inherit;font-size:12px;padding:1px 6px;border-radius:5px;background:var
 #qRepaso{background:color-mix(in srgb,var(--orange) 18%,transparent);color:var(--orange-ink)}
 /* La animación de entrada no debe provocar desplazamiento lateral en el móvil */
 body{overflow-x:clip}
+/* Marca que delata el tiempo verbal en la corrección */
+mark.marca{background:color-mix(in srgb,var(--orange) 26%,transparent);color:inherit;border-radius:5px;padding:0 2px}
