@@ -252,3 +252,16 @@ kbd{font:inherit;font-size:12px;padding:1px 6px;border-radius:5px;background:var
 body{overflow-x:clip}
 /* Marca que delata el tiempo verbal en la corrección */
 mark.marca{background:color-mix(in srgb,var(--orange) 26%,transparent);color:inherit;border-radius:5px;padding:0 2px}
+
+/* Fallos desplegables en el resultado */
+details.fallo summary{list-style:none;cursor:pointer}
+details.fallo summary::-webkit-details-marker{display:none}
+details.fallo .chev{color:var(--label3);transition:transform .25s var(--ease);flex:none}
+details.fallo[open] .chev{transform:rotate(90deg)}
+details.fallo + details.fallo summary .row-main{border-top:1px solid var(--sep)}
+details.fallo .det{margin:0;padding:2px 16px 14px 60px;font-size:14px;line-height:1.42}
+details.fallo ul.det,details.fallo .det ul{padding-left:18px}
+details.fallo li{margin-top:5px}
+details.fallo .det .morfos{justify-content:flex-start;margin-top:4px}
+.det-modelo{font-size:13px;color:var(--label2);margin-top:8px}
+@media (max-width:520px){details.fallo .det{padding-left:16px}}

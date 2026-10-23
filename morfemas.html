@@ -135,7 +135,7 @@
           <input id="ans" placeholder="ej.: des-orden-a-r" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Palabra separada en morfemas"></label>
         <button class="wide" id="ansBtn" type="submit">Comprobar <kbd>Enter</kbd></button>
       </form>
-      <div class="fb" id="fb" hidden><span class="app-icon" id="fbIcon"></span><div><div class="fb-title" id="fbTitle"></div><div class="fb-sub" id="fbSub"></div></div></div>
+      <div class="fb" id="fb" role="status" aria-live="polite" hidden><span class="app-icon" id="fbIcon"></span><div><div class="fb-title" id="fbTitle"></div><div class="fb-sub" id="fbSub"></div></div></div>
       <div class="analisis" id="analisis" hidden></div>
       <div class="porque" id="porque" hidden></div>
 
@@ -148,7 +148,7 @@
         <p class="id-keys">Teclas: L lexema · P prefijo · S sufijo · A apreciativo · I interfijo · G género · N número · V vocal temática · T tiempo‑modo · X número‑persona · R infinitivo · E gerundio · D participio</p>
         <button class="wide" type="submit">Comprobar <kbd>Enter</kbd></button>
       </form>
-      <div class="fb" id="fb2" hidden></div>
+      <div class="fb" id="fb2" role="status" aria-live="polite" hidden></div>
       <div class="analisis" id="analisis2" hidden></div>
       <div class="porque" id="porque2" hidden></div>
 
@@ -158,7 +158,7 @@
         <textarea class="redaccion" id="red" rows="4" spellcheck="true" placeholder="Nombra cada morfema con su tipo y di cómo está formada la palabra. Ej.: pan-: lexema; -ad-: interfijo; -er-: sufijo derivativo; -o: morfema de género. Es derivada."></textarea>
         <button class="wide" type="submit">Comprobar <kbd>Ctrl + Enter</kbd></button>
       </form>
-      <div class="fb" id="fb3" hidden></div>
+      <div class="fb" id="fb3" role="status" aria-live="polite" hidden></div>
       <div class="checklist" id="check3" hidden></div>
       <div class="porque" id="porque3" hidden></div>
       <div class="modelo" id="modelo3" hidden></div>
@@ -633,7 +633,10 @@ $('#idForm').onsubmit = e => {
 function abrirPaso3(it) {
   paso = 3;
   $('#redForm').hidden = false; $('#redForm button').hidden = false; $('#red').disabled = false;
-  $('#red').focus();
+  // el cursor va a la redacción, pero la vista se queda en la corrección del paso anterior
+  $('#red').focus({ preventScroll: true });
+  const ancla = !$('#fb2').hidden ? $('#fb2') : $('#fb');
+  requestAnimationFrame(() => ancla.scrollIntoView({ block: 'start', behavior: 'smooth' }));
 }
 $('#red').addEventListener('keydown', e => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); $('#redForm').requestSubmit(); } });
 $('#redForm').onsubmit = e => {
@@ -670,7 +673,9 @@ function terminar(it, autoMs) {
   estado.i++; guardar(); paso = 0;
   pintarTanda();
   if (autoMs) { avanceTimer = setTimeout(() => { avanceTimer = 0; siguiente(); }, autoMs); return; }
-  $('#nextWordBtn').hidden = false; $('#nextWordBtn').focus();
+  $('#nextWordBtn').hidden = false; $('#nextWordBtn').focus({ preventScroll: true });
+  const ultimo = ['#fb3', '#fb2', '#fb'].map(x => $(x)).find(el => !el.hidden);
+  if (ultimo) requestAnimationFrame(() => ultimo.scrollIntoView({ block: 'start', behavior: 'smooth' }));
 }
 $('#nextWordBtn').onclick = () => siguiente();
 function siguiente() { if (estado.i % estado.tanda === 0 || estado.i >= estado.items.length) resultado(); else pregunta(); }
@@ -718,10 +723,11 @@ function resultado() {
   const fallos = items.map((x, k) => ({ it: itemDe(x), r: resp[k] })).filter(f => !f.r.ok);
   $('#rErrHead').textContent = fallos.length ? `Fallos (${fallos.length})` : 'Sin fallos';
   $('#rErr').innerHTML = fallos.length ? fallos.map(({ it, r }) => `
-    <div class="row"><span class="app-icon" style="--c:var(--red);border-radius:50%">${svg('x', 15, 3)}</span><div class="row-main"><div class="row-text">
-      <div class="row-title"><b style="font-weight:600">${esc(it.segs.map(s => s[0]).join('-'))}</b> <span style="color:var(--label2)">· ${esc(etiquetaCat(it))}</span></div>
-      <div class="row-sub">${resumenFallo(it, r)}</div>
-    </div></div></div>`).join('') : `<div class="placeholder">${svg('star', 34, 1.8)}Ni un fallo. Perfecto.</div>`;
+    <details class="fallo"><summary class="row"><span class="app-icon" style="--c:var(--red);border-radius:50%">${svg('x', 15, 3)}</span><span class="row-main"><span class="row-text">
+      <span class="row-title" style="display:block"><b style="font-weight:600">${esc(it.segs.map(s => s[0]).join('-'))}</b> <span style="color:var(--label2)">· ${esc(etiquetaCat(it))}</span></span>
+      <span class="row-sub" style="display:block">${resumenFallo(it, r)}</span>
+    </span><span class="chev">${svg('right', 14, 2.6)}</span></span></summary>
+    <div class="det analisis">${analisisHTML(it, true)}<ul>${[...(r.porque || []), ...(r.id ? r.id.porque : []), ...(r.red ? r.red.porque : [])].map(l => `<li>${esc(l)}</li>`).join('')}</ul>${r.red ? `<p class="det-modelo"><b>Modelo:</b> ${esc(redaccionModelo(it))}</p>` : ''}</div></details>`).join('') : `<div class="placeholder">${svg('star', 34, 1.8)}Ni un fallo. Perfecto.</div>`;
   if (fin) {
     const notas = Array.from({ length: estado.tandas }, (_, t) => estado.resp.slice(t * T, (t + 1) * T).reduce((s, r) => s + (r.puntos ?? (r.ok ? 1 : 0)), 0) / T * 10);
     $('#rTiles').innerHTML = notas.map((x, t) => `<div class="tile" style="--c:${colorNota(x)}"><div class="tile-head">${miniRing(x / 10, colorNota(x), 18, 3.5)}Tanda ${t + 1}</div><div class="tile-val num">${fmt(x)}</div></div>`).join('');

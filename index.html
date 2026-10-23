@@ -80,7 +80,7 @@
           <input id="ans" placeholder="Modo y tiempo" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Modo y tiempo"></label>
         <button class="wide" id="ansBtn" type="submit"><span id="ansTxt">Comprobar</span> <kbd>Enter</kbd></button>
       </form>
-      <div class="fb" id="fb" hidden><span class="app-icon" id="fbIcon"></span><div><div class="fb-title" id="fbTitle"></div><div class="fb-sub" id="fbSub"></div></div></div>
+      <div class="fb" id="fb" hidden role="status" aria-live="polite"><span class="app-icon" id="fbIcon"></span><div><div class="fb-title" id="fbTitle"></div><div class="fb-sub" id="fbSub"></div></div></div>
       <div class="porque" id="porque" hidden></div>
     </div>
     <p class="keys">Ej.: <kbd>ind pres</kbd> <kbd>sub impf</kbd> <kbd>imp</kbd> · <kbd>Enter</kbd> comprueba y pasa</p>
@@ -702,10 +702,11 @@ function resultado() {
   const fallos = items.map((it, k) => ({ it, r: resp[k] })).filter(x => !x.r.ok);
   $('#rErrHead').textContent = fallos.length ? `Fallos (${fallos.length})` : 'Sin fallos';
   $('#rErr').innerHTML = fallos.length ? fallos.map(({ it, r }) => `
-    <div class="row"><span class="app-icon" style="--c:var(--red);border-radius:50%">${svg('x', 15, 3)}</span><div class="row-main"><div class="row-text">
-      <div class="row-title"><span style="color:var(--label2)">${esc(PERSONAS[it.p])}</span> <b style="font-weight:600">${esc(it.forma)}</b> <span style="color:var(--label2)">· ${esc(it.v)}</span></div>
-      <div class="row-sub">Era <span style="color:var(--green-ink);font-weight:600">${it.validas.map(nombreT).join(' / ')}</span> · pusiste <span style="color:var(--red-ink)">${esc(nombreT(r.id))}</span></div>
-    </div></div></div>`).join('') : `<div class="placeholder">${svg('star', 34, 1.8)}Ni un fallo. Perfecto.</div>`;
+    <details class="fallo"><summary class="row"><span class="app-icon" style="--c:var(--red);border-radius:50%">${svg('x', 15, 3)}</span><span class="row-main"><span class="row-text">
+      <span class="row-title" style="display:block"><span style="color:var(--label2)">${esc(PERSONAS[it.p])}</span> <b style="font-weight:600">${conMarca(it.forma, it.tid)}</b> <span style="color:var(--label2)">· ${esc(it.v)}</span></span>
+      <span class="row-sub" style="display:block">Era <span style="color:var(--green-ink);font-weight:600">${it.validas.map(nombreT).join(' / ')}</span> · pusiste <span style="color:var(--red-ink)">${esc(nombreT(r.id))}</span></span>
+    </span><span class="chev">${svg('right', 14, 2.6)}</span></span></summary>
+    <ul class="det">${explicarVerbo(it, r.id).map(l => `<li>${l}</li>`).join('')}</ul></details>`).join('') : `<div class="placeholder">${svg('star', 34, 1.8)}Ni un fallo. Perfecto.</div>`;
 
   if (fin) {
     const notas = [0, 1, 2, 3].map(t => estado.resp.slice(t * TANDA, (t + 1) * TANDA).filter(r => r.ok).length / TANDA * 10);
