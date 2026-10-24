@@ -303,7 +303,7 @@ abotonar|ver|parasintética|a/P boton/L a/V r/R
   const TIEMPOS_V = {
     inf: 'infinitivo', ger: 'gerundio', par: 'participio', pres: 'presente de indicativo', impf: 'pretérito imperfecto de indicativo',
     fut: 'futuro simple', cond: 'condicional simple', spres: 'presente de subjuntivo', sra: 'pretérito imperfecto de subjuntivo (‑ra)',
-    sse: 'pretérito imperfecto de subjuntivo (‑se)'
+    sse: 'pretérito imperfecto de subjuntivo (‑se)', indef: 'pretérito perfecto simple de indicativo', sfut: 'futuro simple de subjuntivo'
   };
   const NP = ['', 's', '', 'mos', 'is', 'n'];
   const PERS = ['yo', 'tú', 'él / ella', 'nosotros', 'vosotros', 'ellos / ellas'];
@@ -533,7 +533,7 @@ abotonar|ver|parasintética|a/P boton/L a/V r/R
     }
     if (it.tiempo && !['inf', 'ger', 'par'].includes(it.tiempo) && !it.segs.some(x => x[1] === 'X'))
       out.push('En esta persona el morfema de número y persona es cero: no tiene forma visible.');
-    if (it.tiempo) out.push(`Es una forma flexiva del verbo «${it.verbo}»: no tiene afijos derivativos, solo lexema y morfemas flexivos.`);
+    if (it.tiempo && it.form === 'simple') out.push(`Es una forma flexiva del verbo «${it.verbo}»: no tiene afijos derivativos, solo lexema y morfemas flexivos.`);
     else out.push(FORMACION[it.form]);
     return out.filter(Boolean);
   }
@@ -558,7 +558,7 @@ abotonar|ver|parasintética|a/P boton/L a/V r/R
   function porQueFormacion(it) {
     const tipos = it.segs.map(x => x[1]), nL = tipos.filter(t => t === 'L').length;
     const af = it.segs.filter(x => ['P', 'S', 'A', 'I'].includes(x[1])).map(x => x[0]);
-    if (it.tiempo || it.form === 'simple') return 'Es simple: tiene un solo lexema y únicamente morfemas flexivos, sin prefijos ni sufijos derivativos.';
+    if (it.form === 'simple') return 'Es simple: tiene un solo lexema y únicamente morfemas flexivos, sin prefijos ni sufijos derivativos.';
     if (it.form === 'derivada') return `Es derivada: un solo lexema con afijos derivativos (${af.map(a => `«${a}»`).join(', ')}).`;
     if (it.form === 'compuesta') return `Es compuesta: tiene ${nL} lexemas (${it.segs.filter(x => x[1] === 'L').map(x => `«${x[0]}»`).join(' y ')}).`;
     return FORMACION['parasintética'];

@@ -20,10 +20,12 @@ for (const f of ['index.html', 'morfemas.html', 'maestro.html']) {
     if (!sw.includes(`'${src}'`)) { fallos++; console.log(`✗ ${src} no está en la caché de sw.js`); }
   }
 }
-for (const f of ['comun.js', 'motor.js', 'morfemas-datos.js', 'sw.js']) compilar(f, fs.readFileSync(__dirname + '/' + f, 'utf8'));
+for (const f of ['comun.js', 'motor.js', 'morfemas-datos.js', 'lecciones.js', 'sw.js']) compilar(f, fs.readFileSync(__dirname + '/' + f, 'utf8'));
 
-for (const p of ['pruebas.js', 'pruebas-morfemas.js', 'pruebas-redaccion.js', 'pruebas-respuestas.js']) {
-  const salida = execFileSync(process.execPath, [__dirname + '/' + p], { encoding: 'utf8' });
+for (const p of ['pruebas.js', 'pruebas-morfemas.js', 'pruebas-redaccion.js', 'pruebas-respuestas.js', 'maestro.js --lecciones']) {
+  const [archivo, ...arg] = p.split(' ');
+  let salida;
+  try { salida = execFileSync(process.execPath, [__dirname + '/' + archivo, ...arg], { encoding: 'utf8' }); } catch (e) { salida = e.stdout || '✗ no se pudo ejecutar'; }
   const mal = salida.split('\n').filter(l => l.startsWith('✗') || /\d+ (casos|problemas)( mal)?$/.test(l.trim()) && !/^0 /.test(l.trim()));
   if (mal.length) { fallos++; console.log(`✗ ${p}:\n  ${mal.join('\n  ')}`); }
   else console.log(`✓ ${p}`);

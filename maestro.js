@@ -13,15 +13,87 @@ const WEB = 'https://hamzaleghouiti12-sketch.github.io/verbos/maestro.html';
 const LOCAL = 'http://localhost:8761/maestro.html';
 
 const args = process.argv.slice(2);
-if (!args.length) { console.log('Uso: node maestro.js <palabra> | "seg/T seg/T ..." --cat sus|adj|ver|adv --form simple|derivada|compuesta|parasintética'); process.exit(1); }
+if (!args.length && require.main === module) { console.log('Uso: node maestro.js <palabra> | "seg/T seg/T ..." --cat sus|adj|ver|adv --form simple|derivada|compuesta|parasintética'); process.exit(1); }
 const opt = k => { const i = args.indexOf('--' + k); return i >= 0 ? args[i + 1] : undefined; };
 const exps = args.flatMap((a, i) => a === '--exp' ? [args[i + 1]] : []);
 
 const enlace = hash => ({ web: `${WEB}#${hash}`, local: `${LOCAL}#${hash}` });
 const muestra = it => `${it.segs.map(s => s[0]).join('-')}   (${it.segs.map(([s, t]) => `${s} = ${M.TIPOS[t]}`).join(' · ')})`;
 
-// 1) palabra de la base
+// Reglas de una palabra analizada (las mismas que pruebas-morfemas.js)
+function problemasDe(segs, cat, form) {
+  const problemas = [];
+  for (const [s, t] of segs) { if (!s) problemas.push('hay un segmento vacío'); if (!M.TIPOS[t]) problemas.push(`tipo desconocido «${t}»`); }
+  if (!['simple', 'derivada', 'compuesta', 'parasintética'].includes(form)) problemas.push('falta --form (simple, derivada, compuesta o parasintética)');
+  if (!cat) problemas.push('falta --cat (sus, adj, ver, adv u otra categoría)');
+  const tipos = segs.map(s => s[1]), nL = tipos.filter(t => t === 'L').length, deriv = tipos.some(t => ['P', 'S', 'A', 'I'].includes(t));
+  if (form === 'simple' && (nL !== 1 || deriv)) problemas.push('una palabra simple tiene un solo lexema y ningún afijo derivativo');
+  if (form === 'derivada' && (nL !== 1 || !deriv)) problemas.push('una derivada tiene un solo lexema y algún afijo derivativo');
+  if (form === 'compuesta' && nL < 2) problemas.push('una compuesta tiene al menos dos lexemas');
+  if (form === 'parasintética' && !(nL >= 2 && tipos.includes('S')) && !(tipos.includes('P') && (tipos.includes('S') || tipos.includes('V'))))
+    problemas.push('una parasintética combina prefijo y sufijo (o terminación verbal), o composición y derivación');
+  if (tipos[0] !== 'L' && tipos[0] !== 'P') problemas.push('la palabra debe empezar por lexema o prefijo');
+  if (['P', 'I'].includes(tipos.at(-1))) problemas.push('no puede acabar en prefijo ni interfijo');
+  if (tipos.includes('N') && tipos.indexOf('N') !== tipos.length - 1) problemas.push('el morfema de número va al final');
+  return problemas;
+}
+
+// Lecciones de lecciones.js: cada palabra con las reglas de arriba y la forma comprobada con el conjugador del juego
+const MOTOR_SIMPLE = { pres: 'ind_pres', impf: 'ind_impf', indef: 'ind_indef', fut: 'ind_fut', cond: 'ind_cond', spres: 'sub_pres', sra: 'sub_impf.ra', sse: 'sub_impf.se', sfut: 'sub_fut' };
+const MOTOR_COMP = { ind_pres: 'ind_pps', ind_impf: 'ind_plusc', ind_indef: 'ind_ant', ind_fut: 'ind_futc', ind_cond: 'ind_condc', sub_pres: 'sub_pp', 'sub_impf.ra': 'sub_plusc.ra', 'sub_impf.se': 'sub_plusc.se', sub_fut: 'sub_futc' };
+function problemasLeccion(l) {
+  const L = require('./lecciones.js'), motor = require('./motor.js');
+  const pals = L.palabrasDe(l), out = [];
+  pals.forEach((p, w) => {
+    for (const x of problemasDe(p.segs, p.cat, p.form)) out.push(`${p.palabra}: ${x}`);
+    if (p.tiempo && !M.TIEMPOS_V[p.tiempo]) out.push(`${p.palabra}: tiempo desconocido «${p.tiempo}»`);
+    if (p.tiempo && p.tiempo !== 'par' && !(p.persona >= 0 && p.persona <= 5)) out.push(`${p.palabra}: falta la persona (0–5)`);
+    if (p.tiempo === 'par' && p.persona !== undefined) out.push(`${p.palabra}: el participio no tiene persona`);
+  });
+  for (const k of Object.keys(l.e || {})) {
+    const [w, i] = k.includes('.') ? k.split('.').map(Number) : [0, +k];
+    if (!pals[w] || !pals[w].segs[i]) out.push(`explicación «${k}» sin morfema`);
+  }
+  if (pals.length > 2) out.push('una forma compuesta tiene dos palabras: auxiliar y participio');
+  if (pals.length === 2 && (pals[0].verbo !== 'haber' || pals[1].tiempo !== 'par' || !l.tt)) out.push('forma compuesta = haber conjugado | participio, con tt');
+  // la forma tiene que salir igual en el conjugador (cada verbo si hay varios: «ser / ir»)
+  const ult = pals.at(-1), simple = MOTOR_SIMPLE[pals[0].tiempo];
+  const id = pals.length === 2 ? MOTOR_COMP[simple] : simple;
+  const forma = pals.map(p => p.palabra).join(' ');
+  for (const v of String(ult.verbo).split('/').map(x => x.trim())) {
+    let F = motor.conjugar(v).F; for (const parte of String(id).split('.')) F = F && F[parte];
+    const esperada = F && F[pals[0].persona];
+    if (esperada !== forma) out.push(`el conjugador da «${esperada}» para ${v}, no «${forma}»`);
+  }
+  return out;
+}
+if (require.main !== module) { module.exports = { problemasDe, problemasLeccion }; return; }
+if (args[0] === '--lecciones') {
+  const { LECCIONES, palabrasDe } = require('./lecciones.js');
+  let mal = 0;
+  for (const l of LECCIONES) {
+    const nombre = palabrasDe(l).map(p => p.palabra).join(' '), p = problemasLeccion(l);
+    if (p.length) { mal++; console.log(`✗ ${nombre}: ${p.join(' · ')}`); } else console.log(`✓ ${nombre}`);
+  }
+  console.log(`${mal} problemas`);
+  process.exit(mal ? 1 : 0);
+}
+
+// 1) palabra de la base o de las lecciones añadidas
 if (!args[0].includes('/')) {
+  const { LECCIONES, palabrasDe } = require('./lecciones.js');
+  const lec = LECCIONES.find(l => M.sinTilde(palabrasDe(l).map(p => p.palabra).join(' ')) === M.sinTilde(args.join(' ').toLowerCase()));
+  if (lec) {
+    const pals = palabrasDe(lec), nombre = pals.map(p => p.palabra).join(' ');
+    console.log(`LECCIÓN AÑADIDA: ${nombre}${lec.tt ? ' · ' + lec.tt : ''}`);
+    pals.forEach(p => console.log('Análisis: ' + muestra(p)));
+    if (lec.nota) console.log('Nota: ' + lec.nota);
+    const e = enlace('p=' + encodeURIComponent(nombre));
+    console.log(`
+Lección: ${e.web}
+Local:   ${e.local}`);
+    process.exit(0);
+  }
   const w = M.sinTilde(args[0]);
   const it = M.ITEMS.find(x => M.sinTilde(x.palabra) === w);
   if (!it) { console.log(`«${args[0]}» no está en la base: analízala y pásala como "seg/T seg/T ..." con --cat y --form.`); process.exit(2); }
@@ -39,19 +111,7 @@ if (!args[0].includes('/')) {
 // 2) análisis nuevo: mismas comprobaciones que pruebas-morfemas.js
 const segs = args[0].trim().split(/\s+/).map(x => { const i = x.lastIndexOf('/'); return [x.slice(0, i), x.slice(i + 1)]; });
 const cat = opt('cat'), form = opt('form');
-const problemas = [];
-for (const [s, t] of segs) { if (!s) problemas.push('hay un segmento vacío'); if (!M.TIPOS[t]) problemas.push(`tipo desconocido «${t}»`); }
-if (!['simple', 'derivada', 'compuesta', 'parasintética'].includes(form)) problemas.push('falta --form (simple, derivada, compuesta o parasintética)');
-if (!cat) problemas.push('falta --cat (sus, adj, ver, adv u otra categoría)');
-const tipos = segs.map(s => s[1]), nL = tipos.filter(t => t === 'L').length, deriv = tipos.some(t => ['P', 'S', 'A', 'I'].includes(t));
-if (form === 'simple' && (nL !== 1 || deriv)) problemas.push('una palabra simple tiene un solo lexema y ningún afijo derivativo');
-if (form === 'derivada' && (nL !== 1 || !deriv)) problemas.push('una derivada tiene un solo lexema y algún afijo derivativo');
-if (form === 'compuesta' && nL < 2) problemas.push('una compuesta tiene al menos dos lexemas');
-if (form === 'parasintética' && !(nL >= 2 && tipos.includes('S')) && !(tipos.includes('P') && (tipos.includes('S') || tipos.includes('V'))))
-  problemas.push('una parasintética combina prefijo y sufijo (o terminación verbal), o composición y derivación');
-if (tipos[0] !== 'L' && tipos[0] !== 'P') problemas.push('la palabra debe empezar por lexema o prefijo');
-if (['P', 'I'].includes(tipos.at(-1))) problemas.push('no puede acabar en prefijo ni interfijo');
-if (tipos.includes('N') && tipos.indexOf('N') !== tipos.length - 1) problemas.push('el morfema de número va al final');
+const problemas = problemasDe(segs, cat, form);
 if (problemas.length) { console.log('ANÁLISIS NO VÁLIDO:\n- ' + [...new Set(problemas)].join('\n- ')); process.exit(1); }
 
 const palabra = segs.map(s => s[0]).join('');
