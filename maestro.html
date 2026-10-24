@@ -73,6 +73,21 @@
 .aviso{font-size:14px;color:var(--label2);margin-top:10px;line-height:1.45}
 .aviso b{color:var(--label)}
 .ej-fila .row-title b{font-weight:600}
+/* explorador de la base */
+.explorador{padding:14px 14px 16px}
+.explorador .seg{margin-bottom:12px;--n:4}
+.ex-filtros{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.ex-filtros button{font-size:13px;font-weight:600;padding:6px 11px;border-radius:99px;background:var(--fill);color:var(--label2);transition:background .2s,color .2s}
+.ex-filtros button.act{background:var(--blue);color:#fff}
+.ex-filtros button:disabled{opacity:.35}
+.ex-filtros .n{font-weight:500;opacity:.7;margin-left:3px;font-variant-numeric:tabular-nums}
+.ex-lista{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:8px;margin-top:12px}
+.ex-lista button{text-align:left;padding:10px 12px;border-radius:13px;background:var(--fill);transition:transform .14s var(--ease)}
+.ex-lista button:active{transform:scale(.97)}
+.ex-lista b{display:block;font-size:15px;font-weight:600;color:var(--label)}
+.ex-lista .segm{display:block;font-size:13px;font-weight:600;margin-top:2px;color:var(--label3)}
+.ex-lista .segm span{color:var(--c)}
+.ex-mas{display:block;margin:12px auto 0;font-size:15px;font-weight:600;color:var(--blue);padding:8px 14px}
 @media (max-width:520px){.escenario{min-height:170px}.mm .rot{width:70px;margin-left:-35px;font-size:11px}}
 </style>
 </head>
@@ -122,6 +137,17 @@
       <div class="list" id="ejemplos"></div>
       <p class="foot">Cada ejemplo comparte un afijo con la palabra de la lección. Para practicar con nota, ve al <a class="link" href="morfemas.html" style="font-size:13px">juego de Morfemas</a>.</p>
     </div>
+    <div class="section-head"><h2>Explora la base</h2><span class="row-trail num" id="exCuenta"></span></div>
+    <div class="card explorador">
+      <div class="seg" id="exCat"><span class="seg-thumb"></span>
+        <button role="radio" data-c="sus">Sustantivos</button><button role="radio" data-c="adj">Adjetivos</button><button role="radio" data-c="ver">Verbos</button><button role="radio" data-c="adv">Adverbios</button>
+      </div>
+      <div class="ex-filtros" id="exForm" aria-label="Formación"></div>
+      <div class="ex-filtros" id="exAfijo" aria-label="Afijos"></div>
+      <div class="ex-lista" id="exLista"></div>
+      <button class="ex-mas" id="exMas" hidden>Ver más</button>
+    </div>
+    <p class="foot">Todas las palabras están analizadas a mano con el criterio de 2.º de Bachillerato. Toca una para ver su lección.</p>
   </main>
 </div>
 
@@ -180,7 +206,8 @@ function construirPasos() {
     const it = pals[0], resto = 'Vamos a descomponerla en morfemas: primero la raíz, luego los cortes y después qué es cada pieza.';
     paso({ titulo: 'La palabra',
       txt: it.tiempo && it.verbo ? `«${it.palabra}» es una forma del verbo «${it.verbo}»: ${TIEMPOS_V[it.tiempo] || it.tiempo}${persona(it) ? `, ${persona(it)}` : ''}. ${resto}`
-        : `«${it.palabra}» es un ${etiquetaCat(it)}. ${resto}` });
+        : `«${it.palabra}» es un ${etiquetaCat(it)}. ${resto}`,
+      sec: ['sus', 'adj'].includes(it.cat) ? `En ${it.cat === 'sus' ? 'un sustantivo' : 'un adjetivo'} busca el lexema, después los afijos derivativos (prefijos, interfijos y sufijos) y, al final, los flexivos: género y número. Para saber si la vocal final es género, prueba a cambiarla: si existe la otra forma con el mismo significado (niñ‑o / niñ‑a), es género.` : '' });
   }
   pals.forEach((it, w) => {
     const pre = varias ? `${it.palabra} · ` : '', k = i => `${w}.${i}`;
@@ -357,6 +384,48 @@ $('#sugerencias').onclick = abrir; $('#pedidas').onclick = abrir;
 $('#sugerencias').innerHTML = barajar(ITEMS.filter(x => !x.tiempo && x.form !== 'simple')).slice(0, 6).map(x => `<button data-w="${esc(x.palabra)}">${esc(x.palabra)}</button>`).join('');
 $('#pedidas').innerHTML = LECCIONES.map(l => `<button data-w="${esc(nombreDe(l))}">${esc(nombreDe(l))}</button>`).join('');
 addEventListener('hashchange', cargar);
+
+// ───────── Explorar la base por categoría, formación y tipo de afijo ─────────
+const LS = crearAlmacen('maestro.');
+const ex = Object.assign({ c: 'sus', f: 'todas', a: 'todos' }, LS.get('explorar', {}));
+let exVer = 60;
+const BASE = ITEMS.filter(x => !x.tiempo).filter((x, i, a) => a.findIndex(y => y.palabra === x.palabra) === i)
+  .sort((x, y) => x.palabra.localeCompare(y.palabra, 'es'));
+const FORMAS = [['todas', 'Todas'], ['simple', 'Simples'], ['derivada', 'Derivadas'], ['compuesta', 'Compuestas'], ['parasintética', 'Parasintéticas']];
+const AFIJOS = [['todos', 'Cualquier afijo'], ['P', 'Con prefijo'], ['S', 'Con sufijo'], ['A', 'Apreciativos'], ['I', 'Con interfijo']];
+const tiene = (x, a) => a === 'todos' || x.segs.some(s => s[1] === a);
+function pintarExplorador() {
+  const enCat = BASE.filter(x => x.cat === ex.c);
+  const cats = [...$('#exCat').querySelectorAll('[data-c]')];
+  cats.forEach((b, i) => { b.setAttribute('aria-checked', b.dataset.c === ex.c); if (b.dataset.c === ex.c) $('#exCat').style.setProperty('--i', i); });
+  $('#exForm').innerHTML = FORMAS.map(([k, t]) => {
+    const n = k === 'todas' ? enCat.length : enCat.filter(x => x.form === k).length;
+    return `<button data-f="${k}" class="${ex.f === k ? 'act' : ''}" ${n ? '' : 'disabled'}>${t}<span class="n">${n}</span></button>`;
+  }).join('');
+  const enForm = enCat.filter(x => ex.f === 'todas' || x.form === ex.f);
+  $('#exAfijo').innerHTML = AFIJOS.map(([k, t]) => {
+    const n = enForm.filter(x => tiene(x, k)).length;
+    return `<button data-a="${k}" class="${ex.a === k ? 'act' : ''}" ${n ? '' : 'disabled'}>${t}<span class="n">${n}</span></button>`;
+  }).join('');
+  const lista = enForm.filter(x => tiene(x, ex.a));
+  $('#exCuenta').textContent = `${lista.length} palabras`;
+  $('#exLista').innerHTML = lista.slice(0, exVer).map(x => `<button data-w="${esc(x.palabra)}"><b>${esc(x.palabra)}</b><span class="segm">${x.segs.map(([s, t]) => `<span class="t-${t}">${esc(s)}</span>`).join('-')}</span></button>`).join('')
+    || '<div class="placeholder">No hay palabras con estos filtros.</div>';
+  $('#exMas').hidden = lista.length <= exVer;
+  $('#exMas').textContent = `Ver más (${lista.length - exVer})`;
+}
+function cambiarEx(k, v) {
+  ex[k] = v; exVer = 60;
+  if (k === 'c') { ex.f = 'todas'; ex.a = 'todos'; }
+  if (k === 'f') ex.a = 'todos';
+  LS.set('explorar', ex); pintarExplorador();
+}
+$('#exCat').onclick = e => { const b = e.target.closest('[data-c]'); if (b) cambiarEx('c', b.dataset.c); };
+$('#exForm').onclick = e => { const b = e.target.closest('[data-f]'); if (b && !b.disabled) cambiarEx('f', b.dataset.f); };
+$('#exAfijo').onclick = e => { const b = e.target.closest('[data-a]'); if (b && !b.disabled) cambiarEx('a', b.dataset.a); };
+$('#exLista').onclick = abrir;
+$('#exMas').onclick = () => { exVer += 60; pintarExplorador(); };
+pintarExplorador();
 function pintarInicio() { location.href = 'morfemas.html'; } // lo usa comun.js al volver atrás
 pintarIconos();
 cargar();

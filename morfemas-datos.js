@@ -14,6 +14,7 @@
   const CATS = { sus: 'sustantivo', adj: 'adjetivo', ver: 'verbo', adv: 'adverbio' };
   const NOTA_V = 'La vocal final sin variación de género se analiza como vocal temática (algunos manuales la llaman morfema de género).';
   const NOTA_MENTE = 'Los adverbios en ‑mente se analizan como derivados (adjetivo en femenino + sufijo ‑mente); algunos manuales los consideran compuestos.';
+  const NOTA_ISIM = '‑ísimo es el sufijo del grado superlativo; algunos manuales lo tratan como morfema flexivo de grado.';
   const NOTA_PARA = 'Parasintética: el prefijo y el sufijo (o la composición y la derivación) se añaden a la vez; no existe la palabra solo con uno de ellos.';
 
   const DATOS = `
@@ -290,6 +291,571 @@ acercar|ver|parasintética|a/P cerc/L a/V r/R
 alejar|ver|parasintética|a/P lej/L a/V r/R
 agrandar|ver|parasintética|a/P grand/L a/V r/R
 abotonar|ver|parasintética|a/P boton/L a/V r/R
+niños|sus|simple|niñ/L o/G s/N
+abuelas|sus|simple|abuel/L a/G s/N
+primos|sus|simple|prim/L o/G s/N
+tías|sus|simple|tí/L a/G s/N
+lobas|sus|simple|lob/L a/G s/N
+maestros|sus|simple|maestr/L o/G s/N
+alumnas|sus|simple|alumn/L a/G s/N
+vecinos|sus|simple|vecin/L o/G s/N
+gata|sus|simple|gat/L a/G
+abuelo|sus|simple|abuel/L o/G
+camas|sus|simple|cam/L a/V s/N
+ventanas|sus|simple|ventan/L a/V s/N
+puertas|sus|simple|puert/L a/V s/N
+sillas|sus|simple|sill/L a/V s/N
+platos|sus|simple|plat/L o/V s/N
+vasos|sus|simple|vas/L o/V s/N
+manos|sus|simple|man/L o/V s/N
+llaves|sus|simple|llav/L e/V s/N
+nubes|sus|simple|nub/L e/V s/N
+calles|sus|simple|call/L e/V s/N
+noches|sus|simple|noch/L e/V s/N
+trenes|sus|simple|tren/L es/N
+flores|sus|simple|flor/L es/N
+relojes|sus|simple|reloj/L es/N
+luces|sus|simple|luc/L es/N|||El lexema luz se escribe luc‑ ante e (luc‑es): es el mismo lexema con otra grafía.
+peces|sus|simple|pec/L es/N|||El lexema pez se escribe pec‑ ante e (pec‑es): es el mismo lexema con otra grafía.
+voces|sus|simple|voc/L es/N
+lápices|sus|simple|lápic/L es/N
+ciudades|sus|simple|ciudad/L es/N
+mares|sus|simple|mar/L es/N
+sofás|sus|simple|sofá/L s/N|||Tras vocal tónica el plural es ‑s (sofá‑s).
+gatito|sus|derivada|gat/L it/A o/G
+niñito|sus|derivada|niñ/L it/A o/G
+abuelita|sus|derivada|abuel/L it/A a/G
+hermanito|sus|derivada|herman/L it/A o/G
+mesita|sus|derivada|mes/L it/A a/V
+arbolito|sus|derivada|arbol/L it/A o/V
+cosita|sus|derivada|cos/L it/A a/V
+ratito|sus|derivada|rat/L it/A o/V
+cafecito|sus|derivada|caf/L ec/I it/A o/V
+pueblecito|sus|derivada|puebl/L ec/I it/A o/V
+florecita|sus|derivada|flor/L ec/I it/A a/V
+avecilla|sus|derivada|av/L ec/I ill/A a/V
+pajarillo|sus|derivada|pajar/L ill/A o/V
+perrillo|sus|derivada|perr/L ill/A o/G
+cosilla|sus|derivada|cos/L ill/A a/V
+papelucho|sus|derivada|papel/L uch/A o/V
+animalucho|sus|derivada|animal/L uch/A o/V
+cuartucho|sus|derivada|cuart/L uch/A o/V
+perrazo|sus|derivada|perr/L az/A o/G
+manaza|sus|derivada|man/L az/A a/V
+golazo|sus|derivada|gol/L az/A o/V
+casona|sus|derivada|cas/L on/A a/V
+hombrón|sus|derivada|hombr/L ón/A
+librote|sus|derivada|libr/L ot/A e/V
+martillazo|sus|derivada|martill/L az/S o/V
+portazo|sus|derivada|port/L az/S o/V|||port‑ es el alomorfo de puerta (el diptongo ue solo aparece en sílaba tónica).
+zapatazo|sus|derivada|zapat/L az/S o/V
+balonazo|sus|derivada|balon/L az/S o/V
+latigazo|sus|derivada|latig/L az/S o/V
+pelotazo|sus|derivada|pelot/L az/S o/V
+botellazo|sus|derivada|botell/L az/S o/V
+escobazo|sus|derivada|escob/L az/S o/V
+rodillazo|sus|derivada|rodill/L az/S o/V
+sartenazo|sus|derivada|sarten/L az/S o/V
+barbero|sus|derivada|barb/L er/S o/G
+pastelero|sus|derivada|pastel/L er/S o/G
+joyero|sus|derivada|joy/L er/S o/G
+granjero|sus|derivada|granj/L er/S o/G
+banquero|sus|derivada|banqu/L er/S o/G
+cervecero|sus|derivada|cervec/L er/S o/G
+torero|sus|derivada|tor/L er/S o/G
+vaquero|sus|derivada|vaqu/L er/S o/G
+consejero|sus|derivada|consej/L er/S o/G
+mensajero|sus|derivada|mensaj/L er/S o/G
+enfermero|sus|derivada|enferm/L er/S o/G
+hotelero|sus|derivada|hotel/L er/S o/G
+guerrero|sus|derivada|guerr/L er/S o/G
+prisionero|sus|derivada|prision/L er/S o/G
+carcelero|sus|derivada|carcel/L er/S o/G
+obrero|sus|derivada|obr/L er/S o/G
+viajero|sus|derivada|viaj/L er/S o/G
+papelera|sus|derivada|papel/L er/S a/V
+perchero|sus|derivada|perch/L er/S o/V
+trastero|sus|derivada|trast/L er/S o/V
+bañera|sus|derivada|bañ/L er/S a/V
+sopera|sus|derivada|sop/L er/S a/V
+panera|sus|derivada|pan/L er/S a/V
+ensaladera|sus|derivada|ensalad/L er/S a/V
+nevera|sus|derivada|nev/L er/S a/V|||nev‑ es el alomorfo de nieve (el diptongo ie solo aparece en sílaba tónica).
+pecera|sus|derivada|pec/L er/S a/V
+guantera|sus|derivada|guant/L er/S a/V
+cafetera|sus|derivada|caf/L et/I er/S a/V
+cartera|sus|derivada|cart/L er/S a/V
+joyería|sus|derivada|joy/L er/S ía/S
+pastelería|sus|derivada|pastel/L er/S ía/S
+carnicería|sus|derivada|carn/L ic/I er/S ía/S
+papelería|sus|derivada|papel/L er/S ía/S
+perfumería|sus|derivada|perfum/L er/S ía/S
+relojería|sus|derivada|reloj/L er/S ía/S
+cervecería|sus|derivada|cervec/L er/S ía/S
+cafetería|sus|derivada|caf/L et/I er/S ía/S
+mensajería|sus|derivada|mensaj/L er/S ía/S
+fregadero|sus|derivada|freg/L a/V der/S o/V
+matadero|sus|derivada|mat/L a/V der/S o/V
+comedero|sus|derivada|com/L e/V der/S o/V
+bebedero|sus|derivada|beb/L e/V der/S o/V
+paradero|sus|derivada|par/L a/V der/S o/V
+regadera|sus|derivada|reg/L a/V der/S a/V
+trabajador|sus|derivada|trabaj/L a/V dor/S
+ganador|sus|derivada|gan/L a/V dor/S
+luchador|sus|derivada|luch/L a/V dor/S
+pescador|sus|derivada|pesc/L a/V dor/S
+cazador|sus|derivada|caz/L a/V dor/S
+ordenador|sus|derivada|orden/L a/V dor/S
+secador|sus|derivada|sec/L a/V dor/S
+mirador|sus|derivada|mir/L a/V dor/S
+bebedor|sus|derivada|beb/L e/V dor/S
+conocedor|sus|derivada|conoc/L e/V dor/S
+servidor|sus|derivada|serv/L i/V dor/S
+repartidor|sus|derivada|repart/L i/V dor/S
+seguidor|sus|derivada|segu/L i/V dor/S
+consumidor|sus|derivada|consum/L i/V dor/S
+comerciante|sus|derivada|comerci/L a/V nte/S
+navegante|sus|derivada|naveg/L a/V nte/S
+caminante|sus|derivada|camin/L a/V nte/S
+ayudante|sus|derivada|ayud/L a/V nte/S
+visitante|sus|derivada|visit/L a/V nte/S
+amante|sus|derivada|am/L a/V nte/S
+dependiente|sus|derivada|depend/L ie/V nte/S
+votación|sus|derivada|vot/L a/V ción/S
+plantación|sus|derivada|plant/L a/V ción/S
+navegación|sus|derivada|naveg/L a/V ción/S
+educación|sus|derivada|educ/L a/V ción/S
+preparación|sus|derivada|prepar/L a/V ción/S
+explicación|sus|derivada|explic/L a/V ción/S
+invitación|sus|derivada|invit/L a/V ción/S
+observación|sus|derivada|observ/L a/V ción/S
+celebración|sus|derivada|celebr/L a/V ción/S
+comunicación|sus|derivada|comunic/L a/V ción/S
+imitación|sus|derivada|imit/L a/V ción/S
+población|sus|derivada|pobl/L a/V ción/S
+creación|sus|derivada|cre/L a/V ción/S
+separación|sus|derivada|separ/L a/V ción/S
+contaminación|sus|derivada|contamin/L a/V ción/S
+actuación|sus|derivada|actu/L a/V ción/S
+declaración|sus|derivada|declar/L a/V ción/S
+repetición|sus|derivada|repet/L i/V ción/S
+prohibición|sus|derivada|prohib/L i/V ción/S
+competición|sus|derivada|compet/L i/V ción/S
+definición|sus|derivada|defin/L i/V ción/S
+medición|sus|derivada|med/L i/V ción/S
+movimiento|sus|derivada|mov/L i/V mient/S o/V
+conocimiento|sus|derivada|conoc/L i/V mient/S o/V
+sufrimiento|sus|derivada|sufr/L i/V mient/S o/V
+nacimiento|sus|derivada|nac/L i/V mient/S o/V
+crecimiento|sus|derivada|crec/L i/V mient/S o/V
+pensamiento|sus|derivada|pens/L a/V mient/S o/V
+sentimiento|sus|derivada|sent/L i/V mient/S o/V
+entrenamiento|sus|derivada|entren/L a/V mient/S o/V
+tratamiento|sus|derivada|trat/L a/V mient/S o/V
+aburrimiento|sus|derivada|aburr/L i/V mient/S o/V
+levantamiento|sus|derivada|levant/L a/V mient/S o/V
+cumplimiento|sus|derivada|cumpl/L i/V mient/S o/V
+cerradura|sus|derivada|cerr/L a/V dur/S a/V
+picadura|sus|derivada|pic/L a/V dur/S a/V
+quemadura|sus|derivada|quem/L a/V dur/S a/V
+rozadura|sus|derivada|roz/L a/V dur/S a/V
+mordedura|sus|derivada|mord/L e/V dur/S a/V
+confianza|sus|derivada|confi/L a/V nz/S a/V
+matanza|sus|derivada|mat/L a/V nz/S a/V
+tardanza|sus|derivada|tard/L a/V nz/S a/V
+añoranza|sus|derivada|añor/L a/V nz/S a/V
+alabanza|sus|derivada|alab/L a/V nz/S a/V
+crianza|sus|derivada|cri/L a/V nz/S a/V
+mudanza|sus|derivada|mud/L a/V nz/S a/V
+adivinanza|sus|derivada|adivin/L a/V nz/S a/V
+plumaje|sus|derivada|plum/L aj/S e/V
+ramaje|sus|derivada|ram/L aj/S e/V
+doblaje|sus|derivada|dobl/L aj/S e/V
+montaje|sus|derivada|mont/L aj/S e/V
+rapidez|sus|derivada|rapid/L ez/S
+timidez|sus|derivada|timid/L ez/S
+sencillez|sus|derivada|sencill/L ez/S
+vejez|sus|derivada|vej/L ez/S
+niñez|sus|derivada|niñ/L ez/S
+madurez|sus|derivada|madur/L ez/S
+palidez|sus|derivada|palid/L ez/S
+estupidez|sus|derivada|estupid/L ez/S
+grandeza|sus|derivada|grand/L ez/S a/V
+riqueza|sus|derivada|riqu/L ez/S a/V
+limpieza|sus|derivada|limpi/L ez/S a/V
+firmeza|sus|derivada|firm/L ez/S a/V
+torpeza|sus|derivada|torp/L ez/S a/V
+rareza|sus|derivada|rar/L ez/S a/V
+pureza|sus|derivada|pur/L ez/S a/V
+nobleza|sus|derivada|nobl/L ez/S a/V
+dureza|sus|derivada|dur/L ez/S a/V
+flaqueza|sus|derivada|flaqu/L ez/S a/V
+certeza|sus|derivada|cert/L ez/S a/V
+delicadeza|sus|derivada|delicad/L ez/S a/V
+aspereza|sus|derivada|asper/L ez/S a/V
+gentileza|sus|derivada|gentil/L ez/S a/V
+extrañeza|sus|derivada|extrañ/L ez/S a/V
+sutileza|sus|derivada|sutil/L ez/S a/V
+blancura|sus|derivada|blanc/L ur/S a/V
+hermosura|sus|derivada|hermos/L ur/S a/V
+dulzura|sus|derivada|dulz/L ur/S a/V
+frescura|sus|derivada|fresc/L ur/S a/V
+locura|sus|derivada|loc/L ur/S a/V
+altura|sus|derivada|alt/L ur/S a/V
+anchura|sus|derivada|anch/L ur/S a/V
+ternura|sus|derivada|tern/L ur/S a/V
+amargura|sus|derivada|amarg/L ur/S a/V
+finura|sus|derivada|fin/L ur/S a/V
+gordura|sus|derivada|gord/L ur/S a/V
+negrura|sus|derivada|negr/L ur/S a/V
+bondad|sus|derivada|bon/L dad/S|||bon‑ es el alomorfo culto de bueno (bon‑dad, bon‑ach‑ón).
+falsedad|sus|derivada|fals/L edad/S|||‑dad tiene las variantes ‑dad, ‑idad y ‑edad según la base (mal‑dad, felic‑idad, fals‑edad).
+suciedad|sus|derivada|suci/L edad/S|||‑dad tiene las variantes ‑dad, ‑idad y ‑edad según la base (mal‑dad, felic‑idad, fals‑edad).
+seriedad|sus|derivada|seri/L edad/S|||‑dad tiene las variantes ‑dad, ‑idad y ‑edad según la base (mal‑dad, felic‑idad, fals‑edad).
+variedad|sus|derivada|vari/L edad/S|||‑dad tiene las variantes ‑dad, ‑idad y ‑edad según la base (mal‑dad, felic‑idad, fals‑edad).
+brevedad|sus|derivada|brev/L edad/S|||‑dad tiene las variantes ‑dad, ‑idad y ‑edad según la base (mal‑dad, felic‑idad, fals‑edad).
+felicidad|sus|derivada|felic/L idad/S
+claridad|sus|derivada|clar/L idad/S
+oscuridad|sus|derivada|oscur/L idad/S
+utilidad|sus|derivada|util/L idad/S
+fragilidad|sus|derivada|fragil/L idad/S
+habilidad|sus|derivada|habil/L idad/S
+seguridad|sus|derivada|segur/L idad/S
+sinceridad|sus|derivada|sincer/L idad/S
+comodidad|sus|derivada|comod/L idad/S
+cortesía|sus|derivada|cortes/L ía/S
+lozanía|sus|derivada|lozan/L ía/S
+villanía|sus|derivada|villan/L ía/S
+optimismo|sus|derivada|optim/L ism/S o/V
+pesimismo|sus|derivada|pesim/L ism/S o/V
+egoísmo|sus|derivada|ego/L ísm/S o/V
+realismo|sus|derivada|real/L ism/S o/V
+machismo|sus|derivada|mach/L ism/S o/V
+heroísmo|sus|derivada|hero/L ísm/S o/V|||hero‑ es el alomorfo de héroe ante el sufijo.
+patriotismo|sus|derivada|patriot/L ism/S o/V
+ciclismo|sus|derivada|cicl/L ism/S o/V
+atletismo|sus|derivada|atlet/L ism/S o/V
+periodismo|sus|derivada|period/L ism/S o/V
+futbolista|sus|derivada|futbol/L ist/S a/V
+taxista|sus|derivada|tax/L ist/S a/V
+ciclista|sus|derivada|cicl/L ist/S a/V
+guitarrista|sus|derivada|guitarr/L ist/S a/V
+flautista|sus|derivada|flaut/L ist/S a/V
+novelista|sus|derivada|novel/L ist/S a/V
+violinista|sus|derivada|violin/L ist/S a/V
+oficinista|sus|derivada|oficin/L ist/S a/V
+deportista|sus|derivada|deport/L ist/S a/V
+trapecista|sus|derivada|trapec/L ist/S a/V
+optimista|sus|derivada|optim/L ist/S a/V
+pesimista|sus|derivada|pesim/L ist/S a/V
+egoísta|sus|derivada|ego/L íst/S a/V
+trigal|sus|derivada|trig/L al/S
+maizal|sus|derivada|maiz/L al/S
+arrozal|sus|derivada|arroz/L al/S
+manzanar|sus|derivada|manzan/L ar/S
+melonar|sus|derivada|melon/L ar/S
+castañar|sus|derivada|castañ/L ar/S
+encinar|sus|derivada|encin/L ar/S
+robledal|sus|derivada|robl/L ed/I al/S
+exalumno|sus|derivada|ex/P alumn/L o/G
+bisnieto|sus|derivada|bis/P niet/L o/G
+tatarabuelo|sus|derivada|tatar/P abuel/L o/G|||El prefijo es tatara‑, que pierde su ‑a final ante la a‑ de abuelo (tatar‑abuelo).
+coautor|sus|derivada|co/P autor/L
+copiloto|sus|derivada|co/P pilot/L o/V
+sobresueldo|sus|derivada|sobre/P sueld/L o/V
+sobrepeso|sus|derivada|sobre/P pes/L o/V
+sobremesa|sus|derivada|sobre/P mes/L a/V
+subgrupo|sus|derivada|sub/P grup/L o/V
+submundo|sus|derivada|sub/P mund/L o/V
+supermercado|sus|derivada|super/P mercad/L o/V
+hipermercado|sus|derivada|hiper/P mercad/L o/V
+antesala|sus|derivada|ante/P sal/L a/V
+entresuelo|sus|derivada|entre/P suel/L o/V
+contraluz|sus|derivada|contra/P luz/L
+contraveneno|sus|derivada|contra/P venen/L o/V
+contraataque|sus|derivada|contra/P ataqu/L e/V
+desacuerdo|sus|derivada|des/P acuerd/L o/V
+desempleo|sus|derivada|des/P emple/L o/V
+deshonor|sus|derivada|des/P honor/L
+desinterés|sus|derivada|des/P interés/L
+desconfianza|sus|derivada|des/P confi/L a/V nz/S a/V
+inseguridad|sus|derivada|in/P segur/L idad/S
+infelicidad|sus|derivada|in/P felic/L idad/S
+intranquilidad|sus|derivada|in/P tranquil/L idad/S
+semicírculo|sus|derivada|semi/P círcul/L o/V
+semifinal|sus|derivada|semi/P fin/L al/S
+pararrayos|sus|compuesta|par/L a/V rray/L o/V s/N|||rray‑ es el lexema de rayo: la r se duplica al quedar entre vocales (para‑rrayos).
+tocadiscos|sus|compuesta|toc/L a/V disc/L o/V s/N
+lanzallamas|sus|compuesta|lanz/L a/V llam/L a/V s/N
+quitanieves|sus|compuesta|quit/L a/V niev/L e/V s/N
+cascanueces|sus|compuesta|casc/L a/V nuec/L es/N
+cuentagotas|sus|compuesta|cuent/L a/V got/L a/V s/N
+tragaperras|sus|compuesta|trag/L a/V perr/L a/V s/N
+espantapájaros|sus|compuesta|espant/L a/V pájar/L o/V s/N
+trotamundos|sus|compuesta|trot/L a/V mund/L o/V s/N
+pintalabios|sus|compuesta|pint/L a/V labi/L o/V s/N
+cortacésped|sus|compuesta|cort/L a/V césped/L
+sacapuntas|sus|compuesta|sac/L a/V punt/L a/V s/N
+rompecabezas|sus|compuesta|romp/L e/V cabez/L a/V s/N
+pisapapeles|sus|compuesta|pis/L a/V papel/L es/N
+lavavajillas|sus|compuesta|lav/L a/V vajill/L a/V s/N
+portavoz|sus|compuesta|port/L a/V voz/L
+guardabosques|sus|compuesta|guard/L a/V bosqu/L e/V s/N
+guardarropa|sus|compuesta|guard/L a/V rrop/L a/V
+matasellos|sus|compuesta|mat/L a/V sell/L o/V s/N
+quitamanchas|sus|compuesta|quit/L a/V manch/L a/V s/N
+cubrecama|sus|compuesta|cubr/L e/V cam/L a/V
+cortafuegos|sus|compuesta|cort/L a/V fueg/L o/V s/N
+picaporte|sus|compuesta|pic/L a/V port/L e/V
+tirachinas|sus|compuesta|tir/L a/V chin/L a/V s/N
+pelagatos|sus|compuesta|pel/L a/V gat/L o/V s/N
+nochebuena|sus|compuesta|noch/L e/V buen/L a/G
+camposanto|sus|compuesta|camp/L o/V sant/L o/G
+caradura|sus|compuesta|car/L a/V dur/L a/G
+telaraña|sus|compuesta|tel/L arañ/L a/V|||Al unirse, la ‑a final de tela se funde con la a‑ de araña (tel‑araña).
+aguanieve|sus|compuesta|agu/L a/V niev/L e/V
+madreselva|sus|compuesta|madr/L e/V selv/L a/V
+compraventa|sus|compuesta|compr/L a/V vent/L a/V
+balonmano|sus|compuesta|balon/L man/L o/V
+ferrocarril|sus|compuesta|ferr/L o/I carril/L
+altavoz|sus|compuesta|alt/L a/G voz/L
+medianoche|sus|compuesta|medi/L a/G noch/L e/V
+sinvergüenza|sus|compuesta|sin/L vergüenz/L a/V|||Compuesto de preposición + sustantivo; algunos manuales consideran sin‑ un prefijo.
+centrocampista|sus|parasintética|centr/L o/V camp/L ist/S a/V
+mileurista|sus|parasintética|mil/L eur/L ist/S a/V
+blancos|adj|simple|blanc/L o/G s/N
+buenas|adj|simple|buen/L a/G s/N
+largas|adj|simple|larg/L a/G s/N
+fríos|adj|simple|frí/L o/G s/N
+viejos|adj|simple|viej/L o/G s/N
+nuevas|adj|simple|nuev/L a/G s/N
+guapa|adj|simple|guap/L a/G
+lista|adj|simple|list/L a/G
+gordo|adj|simple|gord/L o/G
+jóvenes|adj|simple|jóven/L es/N
+útiles|adj|simple|útil/L es/N
+comunes|adj|simple|comun/L es/N
+veloces|adj|simple|veloc/L es/N
+audaces|adj|simple|audac/L es/N
+fuertes|adj|simple|fuert/L e/V s/N
+tristes|adj|simple|trist/L e/V s/N
+dulces|adj|simple|dulc/L e/V s/N
+alegres|adj|simple|alegr/L e/V s/N
+inteligentes|adj|simple|inteligent/L e/V s/N
+sabroso|adj|derivada|sabr/L os/S o/G|||sabr‑ es el alomorfo de sabor ante el sufijo.
+gracioso|adj|derivada|graci/L os/S o/G
+nervioso|adj|derivada|nervi/L os/S o/G
+ruidoso|adj|derivada|ruid/L os/S o/G
+tormentoso|adj|derivada|torment/L os/S o/G
+montañoso|adj|derivada|montañ/L os/S o/G
+rocoso|adj|derivada|roc/L os/S o/G
+jugoso|adj|derivada|jug/L os/S o/G
+espumoso|adj|derivada|espum/L os/S o/G
+mentiroso|adj|derivada|mentir/L os/S o/G
+amoroso|adj|derivada|amor/L os/S o/G
+envidioso|adj|derivada|envidi/L os/S o/G
+orgulloso|adj|derivada|orgull/L os/S o/G
+perezoso|adj|derivada|perez/L os/S o/G
+estudioso|adj|derivada|estudi/L os/S o/G
+poderoso|adj|derivada|poder/L os/S o/G
+cuidadoso|adj|derivada|cuidad/L os/S o/G
+vergonzoso|adj|derivada|vergonz/L os/S o/G|||vergonz‑ es el alomorfo de vergüenza (el diptongo ue solo aparece en sílaba tónica).
+caluroso|adj|derivada|calur/L os/S o/G|||calur‑ es el alomorfo de calor ante el sufijo.
+lujoso|adj|derivada|luj/L os/S o/G
+ventoso|adj|derivada|vent/L os/S o/G|||vent‑ es el alomorfo de viento (el diptongo ie solo aparece en sílaba tónica).
+sedoso|adj|derivada|sed/L os/S o/G
+cremoso|adj|derivada|crem/L os/S o/G
+aceitoso|adj|derivada|aceit/L os/S o/G
+talentoso|adj|derivada|talent/L os/S o/G
+glorioso|adj|derivada|glori/L os/S o/G
+furioso|adj|derivada|furi/L os/S o/G
+silencioso|adj|derivada|silenci/L os/S o/G
+hambriento|adj|derivada|hambr/L ient/S o/G
+sediento|adj|derivada|sed/L ient/S o/G
+grasiento|adj|derivada|gras/L ient/S o/G
+sangriento|adj|derivada|sangr/L ient/S o/G
+mugriento|adj|derivada|mugr/L ient/S o/G
+peludo|adj|derivada|pel/L ud/S o/G
+narigudo|adj|derivada|narig/L ud/S o/G|||narig‑ es el alomorfo de nariz ante el sufijo.
+cabezudo|adj|derivada|cabez/L ud/S o/G
+forzudo|adj|derivada|forz/L ud/S o/G
+panzudo|adj|derivada|panz/L ud/S o/G
+huesudo|adj|derivada|hues/L ud/S o/G
+bigotudo|adj|derivada|bigot/L ud/S o/G
+melenudo|adj|derivada|melen/L ud/S o/G
+lanudo|adj|derivada|lan/L ud/S o/G
+picudo|adj|derivada|pic/L ud/S o/G
+mundial|adj|derivada|mund/L ial/S
+comercial|adj|derivada|comerci/L al/S
+personal|adj|derivada|person/L al/S
+semanal|adj|derivada|seman/L al/S
+digital|adj|derivada|digit/L al/S
+central|adj|derivada|centr/L al/S
+regional|adj|derivada|region/L al/S
+tropical|adj|derivada|tropic/L al/S
+otoñal|adj|derivada|otoñ/L al/S
+mortal|adj|derivada|mort/L al/S
+ornamental|adj|derivada|ornament/L al/S
+sentimental|adj|derivada|sentiment/L al/S
+accidental|adj|derivada|accident/L al/S
+emocional|adj|derivada|emocion/L al/S
+profesional|adj|derivada|profesion/L al/S
+tradicional|adj|derivada|tradicion/L al/S
+polar|adj|derivada|pol/L ar/S
+muscular|adj|derivada|muscul/L ar/S
+histórico|adj|derivada|histór/L ic/S o/G
+rítmico|adj|derivada|rítm/L ic/S o/G
+atómico|adj|derivada|atóm/L ic/S o/G
+metálico|adj|derivada|metál/L ic/S o/G
+volcánico|adj|derivada|volcán/L ic/S o/G
+angélico|adj|derivada|angél/L ic/S o/G
+irónico|adj|derivada|irón/L ic/S o/G
+oceánico|adj|derivada|oceán/L ic/S o/G
+telefónico|adj|derivada|telefón/L ic/S o/G
+bebible|adj|derivada|beb/L i/V ble/S
+temible|adj|derivada|tem/L i/V ble/S
+creíble|adj|derivada|cre/L í/V ble/S
+adorable|adj|derivada|ador/L a/V ble/S
+admirable|adj|derivada|admir/L a/V ble/S
+aceptable|adj|derivada|acept/L a/V ble/S
+agradable|adj|derivada|agrad/L a/V ble/S
+comparable|adj|derivada|compar/L a/V ble/S
+observable|adj|derivada|observ/L a/V ble/S
+respetable|adj|derivada|respet/L a/V ble/S
+razonable|adj|derivada|razon/L a/V ble/S
+lamentable|adj|derivada|lament/L a/V ble/S
+imaginable|adj|derivada|imagin/L a/V ble/S
+habitable|adj|derivada|habit/L a/V ble/S
+navegable|adj|derivada|naveg/L a/V ble/S
+apreciable|adj|derivada|apreci/L a/V ble/S
+discutible|adj|derivada|discut/L i/V ble/S
+preferible|adj|derivada|prefer/L i/V ble/S
+inolvidable|adj|derivada|in/P olvid/L a/V ble/S
+irrompible|adj|derivada|ir/P romp/L i/V ble/S
+inagotable|adj|derivada|in/P agot/L a/V ble/S
+inaceptable|adj|derivada|in/P acept/L a/V ble/S
+insoportable|adj|derivada|in/P soport/L a/V ble/S
+increíble|adj|derivada|in/P cre/L í/V ble/S
+intocable|adj|derivada|in/P toc/L a/V ble/S
+inimaginable|adj|derivada|in/P imagin/L a/V ble/S
+indiscutible|adj|derivada|in/P discut/L i/V ble/S
+imparable|adj|derivada|im/P par/L a/V ble/S
+inalcanzable|adj|derivada|in/P alcanz/L a/V ble/S
+deportivo|adj|derivada|deport/L iv/S o/G
+festivo|adj|derivada|fest/L iv/S o/G|||fest‑ es el alomorfo de fiesta (el diptongo ie solo aparece en sílaba tónica).
+creativo|adj|derivada|cre/L a/V tiv/S o/G
+decorativo|adj|derivada|decor/L a/V tiv/S o/G
+informativo|adj|derivada|inform/L a/V tiv/S o/G
+educativo|adj|derivada|educ/L a/V tiv/S o/G
+imaginativo|adj|derivada|imagin/L a/V tiv/S o/G
+comunicativo|adj|derivada|comunic/L a/V tiv/S o/G
+competitivo|adj|derivada|compet/L i/V tiv/S o/G
+dentado|adj|derivada|dent/L ad/S o/G
+rosado|adj|derivada|ros/L ad/S o/G
+alado|adj|derivada|al/L ad/S o/G
+aceitunado|adj|derivada|aceitun/L ad/S o/G
+enfermizo|adj|derivada|enferm/L iz/S o/G
+cobrizo|adj|derivada|cobr/L iz/S o/G
+pajizo|adj|derivada|paj/L iz/S o/G
+plomizo|adj|derivada|plom/L iz/S o/G
+marino|adj|derivada|mar/L in/S o/G
+cristalino|adj|derivada|cristal/L in/S o/G
+americano|adj|derivada|americ/L an/S o/G
+africano|adj|derivada|afric/L an/S o/G
+colombiano|adj|derivada|colombi/L an/S o/G
+italiano|adj|derivada|itali/L an/S o/G
+sevillano|adj|derivada|sevill/L an/S o/G
+valenciano|adj|derivada|valenci/L an/S o/G
+mexicano|adj|derivada|mexic/L an/S o/G
+peruano|adj|derivada|peru/L an/S o/G
+cubano|adj|derivada|cub/L an/S o/G
+venezolano|adj|derivada|venezol/L an/S o/G|||venezol‑ es el alomorfo de Venezuela ante el sufijo.
+aldeano|adj|derivada|alde/L an/S o/G
+lejano|adj|derivada|lej/L an/S o/G
+cercano|adj|derivada|cerc/L an/S o/G
+malagueño|adj|derivada|malagu/L eñ/S o/G|||Se escribe malagu‑ (con u) para mantener el sonido de la g ante e.
+panameño|adj|derivada|panam/L eñ/S o/G
+brasileño|adj|derivada|brasil/L eñ/S o/G
+hondureño|adj|derivada|hondur/L eñ/S o/G
+caribeño|adj|derivada|carib/L eñ/S o/G
+isleño|adj|derivada|isl/L eñ/S o/G
+navideño|adj|derivada|navid/L eñ/S o/G
+hogareño|adj|derivada|hogar/L eñ/S o/G
+francés|adj|derivada|franc/L és/S|||En masculino el género no tiene marca visible (franc‑és); en femenino aparece ‑a (franc‑es‑a).
+portugués|adj|derivada|portugu/L és/S|||En masculino el género no tiene marca visible (portugu‑és); en femenino aparece ‑a (portugu‑es‑a).
+japonés|adj|derivada|japon/L és/S|||En masculino el género no tiene marca visible (japon‑és); en femenino aparece ‑a (japon‑es‑a).
+holandés|adj|derivada|holand/L és/S|||En masculino el género no tiene marca visible (holand‑és); en femenino aparece ‑a (holand‑es‑a).
+cordobés|adj|derivada|cordob/L és/S|||En masculino el género no tiene marca visible (cordob‑és); en femenino aparece ‑a (cordob‑es‑a).
+aragonés|adj|derivada|aragon/L és/S|||En masculino el género no tiene marca visible (aragon‑és); en femenino aparece ‑a (aragon‑es‑a).
+canadiense|adj|derivada|canad/L iense/S
+ateniense|adj|derivada|aten/L iense/S
+nicaragüense|adj|derivada|nicaragü/L ense/S
+juvenil|adj|derivada|juven/L il/S|||juven‑ es el alomorfo culto de joven.
+varonil|adj|derivada|varon/L il/S
+playero|adj|derivada|play/L er/S o/G
+dominguero|adj|derivada|domingu/L er/S o/G
+casero|adj|derivada|cas/L er/S o/G
+pesquero|adj|derivada|pesqu/L er/S o/G
+mañanero|adj|derivada|mañan/L er/S o/G
+embustero|adj|derivada|embust/L er/S o/G
+gordito|adj|derivada|gord/L it/A o/G
+bajito|adj|derivada|baj/L it/A o/G
+flacucho|adj|derivada|flac/L uch/A o/G
+debilucho|adj|derivada|debil/L uch/A o/G
+feúcho|adj|derivada|fe/L úch/A o/G
+buenísimo|adj|derivada|buen/L ísim/A o/G
+rapidísimo|adj|derivada|rapid/L ísim/A o/G
+tristísimo|adj|derivada|trist/L ísim/A o/G
+riquísimo|adj|derivada|riqu/L ísim/A o/G
+larguísimo|adj|derivada|largu/L ísim/A o/G
+blanquísimo|adj|derivada|blanqu/L ísim/A o/G
+felicísimo|adj|derivada|felic/L ísim/A o/G
+carísimo|adj|derivada|car/L ísim/A o/G
+lentísimo|adj|derivada|lent/L ísim/A o/G
+listísimo|adj|derivada|list/L ísim/A o/G
+grandísimo|adj|derivada|grand/L ísim/A o/G
+contentísimo|adj|derivada|content/L ísim/A o/G
+cortísimo|adj|derivada|cort/L ísim/A o/G
+malísimo|adj|derivada|mal/L ísim/A o/G
+injusto|adj|derivada|in/P just/L o/G
+incapaz|adj|derivada|in/P capaz/L
+incómodo|adj|derivada|in/P cómod/L o/G
+incorrecto|adj|derivada|in/P correct/L o/G
+inmaduro|adj|derivada|in/P madur/L o/G
+inseguro|adj|derivada|in/P segur/L o/G
+intranquilo|adj|derivada|in/P tranquil/L o/G
+imperfecto|adj|derivada|im/P perfect/L o/G
+impaciente|adj|derivada|im/P pacient/L e/V
+impuro|adj|derivada|im/P pur/L o/G
+imprudente|adj|derivada|im/P prudent/L e/V
+ilegal|adj|derivada|i/P leg/L al/S
+ilógico|adj|derivada|i/P lóg/L ic/S o/G
+desleal|adj|derivada|des/P leal/L
+desigual|adj|derivada|des/P igual/L
+descortés|adj|derivada|des/P cortés/L
+antinatural|adj|derivada|anti/P natur/L al/S
+prehistórico|adj|derivada|pre/P histór/L ic/S o/G
+posmoderno|adj|derivada|pos/P modern/L o/G
+ultramoderno|adj|derivada|ultra/P modern/L o/G
+sobrehumano|adj|derivada|sobre/P human/L o/G
+infrahumano|adj|derivada|infra/P human/L o/G
+extraoficial|adj|derivada|extra/P ofici/L al/S
+internacional|adj|derivada|inter/P nacion/L al/S
+multicolor|adj|derivada|multi/P color/L
+bicolor|adj|derivada|bi/P color/L
+tricolor|adj|derivada|tri/P color/L
+amoral|adj|derivada|a/P mor/L al/S
+apolítico|adj|derivada|a/P polít/L ic/S o/G
+desdichado|adj|parasintética|des/P dich/L ad/S o/G
+atigrado|adj|parasintética|a/P tigr/L ad/S o/G
+verdiblanco|adj|compuesta|verd/L i/I blanc/L o/G
+rojiblanco|adj|compuesta|roj/L i/I blanc/L o/G
+manirroto|adj|compuesta|man/L i/I rrot/L o/G
+barbilampiño|adj|compuesta|barb/L i/I lampiñ/L o/G
+ojinegro|adj|compuesta|oj/L i/I negr/L o/G
+pelirrubio|adj|compuesta|pel/L i/I rrubi/L o/G
+sordociego|adj|compuesta|sord/L o/I cieg/L o/G
+hispanoamericano|adj|compuesta|hispan/L o/I americ/L an/S o/G
 `;
 
   // ───────── Formas verbales generadas (verbos simples y regulares) ─────────
@@ -352,10 +918,12 @@ abotonar|ver|parasintética|a/P boton/L a/V r/R
   const ITEMS = [];
   for (const linea of DATOS.split('\n')) {
     if (!linea.trim()) continue;
-    const [palabra, cat, form, segTxt, altTxt = '', nota = ''] = linea.split('|');
+    const [palabra, cat, form, segTxt, altTxt = '', ...resto] = linea.split('|');
+    const nota = resto.filter(Boolean).join(' '); // la nota es el último campo (se admite «||» o «|||» antes)
     const segs = segTxt.trim().split(/\s+/).map(s => { const i = s.lastIndexOf('/'); return [s.slice(0, i), s.slice(i + 1)]; });
     let n = nota;
     if (!n && form === 'parasintética') n = NOTA_PARA;
+    if (!n && segs.some(s => s[0] === 'ísim')) n = NOTA_ISIM;
     if (!n && cat === 'adv' && segs.some(s => s[0] === 'mente')) n = NOTA_MENTE;
     if (!n && segs.some(s => s[1] === 'V') && cat !== 'ver' && form !== 'compuesta') n = NOTA_V;
     ITEMS.push({ palabra, cat, form, segs, alts: altTxt ? altTxt.split(';').map(a => a.trim()).filter(Boolean) : [], nota: n });
@@ -412,32 +980,47 @@ abotonar|ver|parasintética|a/P boton/L a/V r/R
     des: 'negación o inversión de lo que indica la base', in: 'negación', im: 'negación', ir: 'negación (in‑ se escribe ir‑ ante r)',
     re: 'repetición', pre: 'anterioridad', sub: 'posición inferior («debajo de»)', ante: 'anterioridad o posición delantera',
     sobre: 'posición superior («por encima de»)', contra: 'oposición', super: 'superioridad', mini: 'tamaño pequeño',
-    bis: '«dos veces»: un grado más de parentesco', pos: 'posterioridad', ex: '«que ha dejado de ser»', a: 'negación'
+    bis: '«dos veces»: un grado más de parentesco', pos: 'posterioridad', ex: '«que ha dejado de ser»', a: 'negación',
+    hiper: 'superioridad o exceso', entre: 'posición intermedia («entre»)', tatar: 'parentesco aún más lejano (abuelo → bisabuelo → tatarabuelo)',
+    co: 'compañía o participación conjunta', semi: '«medio» o «casi»', multi: '«muchos»', bi: '«dos»', tri: '«tres»',
+    anti: 'oposición («contra»)', ultra: '«más allá de», en grado extremo', extra: '«fuera de»', inter: '«entre» varios',
+    infra: '«por debajo de»', i: 'negación (in‑ se escribe i‑ ante l)'
   };
-  const APREC = { it: 'diminutivo', ill: 'diminutivo', uch: 'despectivo', az: 'aumentativo', ot: 'aumentativo', 'ón': 'aumentativo', 'ísim': 'superlativo' };
+  const APREC = { it: 'diminutivo', ill: 'diminutivo', uch: 'despectivo', az: 'aumentativo', ot: 'aumentativo', 'ón': 'aumentativo', on: 'aumentativo', 'úch': 'despectivo', 'ísim': 'superlativo' };
+  const GENTILICIOS = new Set('americano africano colombiano italiano sevillano valenciano mexicano peruano cubano venezolano malagueño panameño brasileño hondureño caribeño francés portugués japonés holandés cordobés aragonés canadiense ateniense nicaragüense hispanoamericano'.split(' '));
+  const PLANTAS = new Set('naranjal olivar pinar trigal maizal arrozal manzanar melonar castañar encinar robledal'.split(' '));
   // valor de cada sufijo derivativo según la categoría de la palabra
   function valorSufijo(it, i) {
     const s = it.segs[i][0], sig = it.segs[i + 1] && it.segs[i + 1][0], ant = it.segs[i - 1] && it.segs[i - 1][0];
-    const nombre = it.cat === 'sus', verbo = it.cat === 'ver';
+    const nombre = it.cat === 'sus', verbo = it.cat === 'ver', adj = it.cat === 'adj', p = it.palabra;
     switch (s) {
-      case 'er': return sig === 'ía' ? 'junto con ‑ía forma el sufijo ‑ería' : it.palabra === 'quinceañero' ? 'persona caracterizada por lo que indica la base: «que tiene quince años»' : 'oficio, objeto o lugar relacionado con el lexema';
+      case 'er': return adj && sig !== 'ía' ? 'relación o pertenencia: «propio de lo que indica el lexema»' : sig === 'ía' ? 'junto con ‑ía forma el sufijo ‑ería' : it.palabra === 'quinceañero' ? 'persona caracterizada por lo que indica la base: «que tiene quince años»' : 'oficio, objeto o lugar relacionado con el lexema';
       case 'ía': return ant === 'er' ? 'lugar o establecimiento' : 'cualidad';
       case 'dor': return 'agente, lugar o instrumento de la acción del verbo';
       case 'nte': return 'agente: quien realiza la acción del verbo';
-      case 'der': return 'lugar donde se realiza la acción';
-      case 'ción': case 'nz': case 'ur': return 'acción o efecto del verbo';
+      case 'der': return sig === 'a' ? 'instrumento con el que se realiza la acción' : 'lugar donde se realiza la acción';
+      case 'ción': case 'nz': case 'mient': return 'acción o efecto del verbo';
+      case 'ur': return p === 'pintura' ? 'acción o efecto del verbo' : 'cualidad';
+      case 'dur': return p === 'cerradura' ? 'instrumento de la acción del verbo' : 'acción o efecto del verbo';
+      case 'aj': return ['plumaje', 'ramaje'].includes(p) ? 'conjunto: forma un sustantivo colectivo' : 'acción o efecto del verbo';
+      case 'idad': case 'edad': return 'cualidad (variante de ‑dad)';
+      case 'ism': case 'ísm': return 'doctrina, actitud o actividad';
+      case 'íst': return 'persona que tiene esa actitud';
+      case 'ient': return 'que tiene o padece lo que indica el lexema';
+      case 'ic': case 'ial': case 'iv': return 'relación o pertenencia';
+      case 'an': case 'eñ': case 'és': case 'iense': case 'ense': return GENTILICIOS.has(p) ? 'gentilicio: indica el lugar de origen' : 'relación o pertenencia';
       case 'ez': case 'dad': return 'cualidad';
       case 'az': return 'golpe dado con lo que indica el lexema';
-      case 'al': case 'ar': return nombre ? 'lugar donde abunda la planta que indica el lexema' : 'relación o pertenencia';
+      case 'al': case 'ar': return nombre && PLANTAS.has(p) ? 'lugar donde abunda la planta que indica el lexema' : 'relación o pertenencia';
       case 'ed': return 'conjunto o lugar donde abunda lo que indica el lexema';
-      case 'ist': return 'oficio o actividad';
-      case 'iz': return verbo || (it.segs[i + 1] && it.segs[i + 1][1] === 'V') ? 'verbalizador: «hacer o convertir en»' : 'semejanza o tendencia de color';
+      case 'ist': return ['optimista', 'pesimista'].includes(p) ? 'persona que tiene esa actitud' : 'oficio o actividad';
+      case 'iz': return verbo || (it.segs[i + 1] && it.segs[i + 1][1] === 'V') ? 'verbalizador: «hacer o convertir en»' : p === 'enfermizo' ? 'propensión o tendencia' : 'semejanza o tendencia de color';
       case 'ific': return 'verbalizador: «hacer o convertir en»';
       case 'ent': case 'áce': return 'semejanza o tendencia';
       case 'os': return 'abundancia o cualidad';
       case 'ud': return 'abundancia o tamaño grande';
       case 'ad': return 'que tiene o se parece a lo que indica el lexema';
-      case 'in': return ant === 'ec' ? 'semejanza: «que tira a»' : 'relación o pertenencia';
+      case 'in': return ant === 'ec' ? 'semejanza: «que tira a»' : p === 'cristalino' ? 'semejanza: «como el cristal»' : 'relación o pertenencia';
       case 'áne': case 'ieg': case 'il': return 'relación o pertenencia';
       case 'ble': return 'posibilidad o merecimiento';
       case 'tiv': return 'tendencia o capacidad';
@@ -452,7 +1035,8 @@ abotonar|ver|parasintética|a/P boton/L a/V r/R
   const conjDe = it => { const v = it.verbo || it.palabra; return { ar: '1.ª conjugación (‑ar)', er: '2.ª conjugación (‑er)', ir: '3.ª conjugación (‑ir)' }[v.slice(-2)]; };
 
   // familias léxicas: palabras analizadas a mano (e infinitivos generados) con el mismo lexema
-  const HOMONIMOS = new Set(['mes', 'libr', 'mal']); // mesa/mes, libro/libre, malo/mal: mismo segmento, distinto lexema
+  // mesa/mes, libro/libre, malo/mal, sal/sala, cara/caro, pelo/pelar, puerta/portar…: mismo segmento, distinto lexema
+  const HOMONIMOS = new Set(['mes', 'libr', 'mal', 'sal', 'car', 'sed', 'port', 'pic', 'cre', 'vent', 'jug', 'pel', 'mud', 'fin', 'cos', 'cort']);
   const FAMILIA = {};
   for (const it of ITEMS) {
     if (it.tiempo && it.tiempo !== 'inf') continue;
