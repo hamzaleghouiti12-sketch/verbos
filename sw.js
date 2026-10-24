@@ -1,7 +1,7 @@
 // Funciona sin conexión: la app se guarda al instalarse y se actualiza cuando hay red.
 // Al cambiar cualquier archivo, sube VERSION para que los móviles descarguen la nueva.
-const VERSION = 'lengua-v13';
-const APP = ['./', 'index.html', 'morfemas.html', 'estilo.css', 'motor.js', 'morfemas-datos.js', 'comun.js',
+const VERSION = 'lengua-v14';
+const APP = ['./', 'index.html', 'morfemas.html', 'maestro.html', 'estilo.css', 'motor.js', 'morfemas-datos.js', 'comun.js',
   'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png'];
 
 self.addEventListener('install', e => {

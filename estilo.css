@@ -266,3 +266,4 @@ button,a,summary,select,label,.switch{touch-action:manipulation}
 }
 
 .plantilla{font-size:14px;font-weight:600;margin:8px 2px 4px}
+details.fallo .ver-mas{display:inline-block;font-size:14px;font-weight:600;margin-top:8px;text-decoration:none}

@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#F2F2F7">
+<meta name="color-scheme" content="light only">
+<title>Modo maestro</title>
+<link rel="stylesheet" href="estilo.css">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Lengua">
+<style>
+.t-L{--c:var(--blue)}.t-P{--c:var(--purple)}.t-S{--c:var(--orange)}.t-A{--c:var(--pink)}.t-I{--c:var(--teal)}
+.t-G{--c:var(--green)}.t-N{--c:var(--indigo)}.t-V{--c:var(--gray)}.t-T,.t-X,.t-R,.t-E,.t-D{--c:var(--red)}
+
+.leccion{padding:20px 18px 18px}
+.lec-top{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.escenario{min-height:190px;display:flex;flex-direction:column;align-items:center;justify-content:center;margin:18px 0 6px}
+/* la palabra: cada morfema es un bloque que se separa y se colorea */
+.palabra{display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-start;font-size:clamp(36px,10.5vw,64px);font-weight:700;letter-spacing:-.03em;line-height:1;padding-bottom:46px;row-gap:46px}
+.mm{--c:var(--label);position:relative;display:flex;flex-direction:column;align-items:center;margin:0;transition:margin .6s var(--ease)}
+.mm .txt{color:var(--label);padding:6px 2px;border-radius:14px;transition:color .5s,background .5s,transform .5s var(--ease)}
+.mm .rot{position:absolute;top:100%;left:50%;width:84px;margin-left:-42px;font-size:12px;font-weight:600;letter-spacing:0;color:var(--c);margin-top:6px;text-align:center;line-height:1.15;opacity:0;transform:translateY(-6px);transition:opacity .4s,transform .5s var(--ease)}
+.mm .guion{position:absolute;right:-.42em;top:.18em;color:var(--label3);opacity:0;transition:opacity .4s}
+.separado .mm{margin:0 .22em}
+.separado .mm:not(:last-child) .guion{opacity:1}
+.mm.on .txt{color:var(--c);background:color-mix(in srgb,var(--c) 13%,transparent);transform:translateY(-4px)}
+.mm.apagado .txt{color:var(--label3)}
+.rotulado .mm.visto .rot,.mm.on .rot{opacity:1;transform:none}
+.mm.visto .txt{color:var(--c)}
+/* formación: derivativos / flexivos subrayados */
+.grupos .mm.deriv .txt{box-shadow:inset 0 -5px 0 color-mix(in srgb,var(--orange) 55%,transparent)}
+.grupos .mm.flex .txt{box-shadow:inset 0 -5px 0 color-mix(in srgb,var(--green) 55%,transparent)}
+.leyenda-g{display:none;gap:14px;justify-content:center;font-size:13px;font-weight:600;color:var(--label2);margin-top:14px}
+.grupos + .leyenda-g{display:flex}
+.leyenda-g span::before{content:"";display:inline-block;width:18px;height:5px;border-radius:3px;margin-right:6px;vertical-align:middle;background:var(--c)}
+
+.explica{min-height:118px;border-top:1px solid var(--sep);padding-top:14px;margin-top:10px}
+.explica h3{font-size:19px;font-weight:700;letter-spacing:-.02em}
+.explica p{font-size:16px;line-height:1.5;color:var(--label);margin-top:6px}
+.explica p.sec{font-size:14px;color:var(--label2)}
+.explica .modelo-txt{font-size:15px;line-height:1.55;background:var(--fill);border-radius:12px;padding:12px 14px;margin-top:10px;white-space:pre-wrap}
+.explica .cursor::after{content:"▍";color:var(--blue);animation:parpadeo 1s steps(1) infinite}
+@keyframes parpadeo{50%{opacity:0}}
+.explica.cambia{animation:sube .45s var(--ease)}
+@keyframes sube{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+.puntos{display:flex;gap:6px;justify-content:center;margin:16px 0 4px}
+.puntos button{width:8px;height:8px;border-radius:50%;background:var(--fill-strong);padding:0;transition:background .3s,width .3s var(--ease)}
+.puntos button.act{background:var(--blue);width:22px;border-radius:99px}
+.controles{display:grid;grid-template-columns:1fr 1.3fr 1fr;gap:10px;margin-top:12px}
+.controles button{height:46px;border-radius:13px;font-size:16px;font-weight:600;background:var(--fill);color:var(--blue);display:flex;align-items:center;justify-content:center;gap:6px;transition:transform .14s var(--ease),opacity .2s}
+.controles button:active{transform:scale(.97)}
+.controles button:disabled{opacity:.35}
+.controles .play{background:var(--blue);color:#fff}
+
+.buscador{padding:16px}
+.buscador form{display:flex;gap:10px}
+.buscador .search{flex:1}
+.buscador .wide{width:auto;padding:0 18px;margin:0;height:44px}
+.sugerencias{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.sugerencias button{font-size:14px;font-weight:600;padding:6px 12px;border-radius:99px;background:var(--fill);color:var(--blue)}
+.aviso{font-size:14px;color:var(--label2);margin-top:10px;line-height:1.45}
+.aviso b{color:var(--label)}
+.ej-fila .row-title b{font-weight:600}
+@media (max-width:520px){.escenario{min-height:170px}.mm .rot{width:70px;margin-left:-35px;font-size:11px}}
+</style>
+</head>
+<body>
+
+<div class="topbar" id="topbar">
+  <div class="topbar-inner">
+    <span><a class="link" href="morfemas.html" style="text-decoration:none"><i data-i="left" data-s="22" data-w="2.4"></i>Morfemas</a></span>
+    <span class="topbar-title">Modo maestro</span>
+    <span></span>
+  </div>
+</div>
+
+<div id="vInicio">
+  <header class="large"><p class="date">Modo maestro</p><h1>Análisis morfológico</h1></header>
+  <main class="layout">
+    <div class="section-head"><h2>¿Qué palabra analizamos?</h2></div>
+    <div class="card buscador">
+      <form id="buscaForm" autocomplete="off">
+        <label class="search"><i data-i="pencil" data-s="18" data-w="2.2"></i>
+          <input id="busca" placeholder="ej.: panadero" autocapitalize="off" spellcheck="false" aria-label="Palabra"></label>
+        <button class="wide" type="submit">Explicar</button>
+      </form>
+      <div class="sugerencias" id="sugerencias"></div>
+      <p class="aviso" id="aviso"></p>
+    </div>
+
+    <div id="zonaLeccion" hidden>
+      <div class="section-head"><h2 id="lecTitulo">Lección</h2><span class="row-trail num" id="lecPaso"></span></div>
+      <div class="card leccion">
+        <div class="lec-top"><span class="q-person" id="lecCat"></span><span class="pill" id="lecForm"></span></div>
+        <div class="escenario">
+          <div class="palabra" id="palabra" aria-hidden="true"></div>
+          <div class="leyenda-g"><span style="--c:color-mix(in srgb,var(--orange) 70%,transparent)">derivativos</span><span style="--c:color-mix(in srgb,var(--green) 70%,transparent)">flexivos</span></div>
+        </div>
+        <div class="explica" id="explica" aria-live="polite"></div>
+        <div class="puntos" id="puntos"></div>
+        <div class="controles">
+          <button id="antBtn" aria-label="Paso anterior"><i data-i="left" data-s="18" data-w="2.6"></i>Atrás</button>
+          <button class="play" id="playBtn">Reproducir</button>
+          <button id="sigBtn" aria-label="Paso siguiente">Siguiente<i data-i="right" data-s="18" data-w="2.6"></i></button>
+        </div>
+      </div>
+      <div class="section-head"><h2>Ejemplos parecidos</h2></div>
+      <div class="list" id="ejemplos"></div>
+      <p class="foot">Cada ejemplo comparte un afijo con la palabra de la lección. Para practicar con nota, ve al <a class="link" href="morfemas.html" style="font-size:13px">juego de Morfemas</a>.</p>
+    </div>
+  </main>
+</div>
+
+<div class="toast" id="toast" role="status"><span class="ic"></span><span class="tx"></span></div>
+
+<script src="morfemas-datos.js"></script>
+<script src="comun.js"></script>
+<script>
+const { ITEMS, TIPOS, CATS, TIEMPOS_V, sinTilde, explicarMorfema, porQueFormacion, redaccionModelo } = Morfemas;
+const POR_PALABRA = new Map();
+for (const it of ITEMS) if (!POR_PALABRA.has(sinTilde(it.palabra))) POR_PALABRA.set(sinTilde(it.palabra), it);
+const DERIV = ['P', 'S', 'A', 'I'], FLEX = ['G', 'N', 'T', 'X', 'R', 'E', 'D'];
+
+// ───────── Cargar la palabra: de la base (#p=) o un análisis enviado desde el chat (#d=) ─────────
+function desdeHash() {
+  const h = new URLSearchParams(location.hash.slice(1));
+  if (h.get('p')) return POR_PALABRA.get(sinTilde(h.get('p'))) || { noEncontrada: h.get('p') };
+  if (h.get('d')) {
+    try {
+      const d = JSON.parse(h.get('d'));
+      const segs = d.s.trim().split(/\s+/).map(x => { const i = x.lastIndexOf('/'); return [x.slice(0, i), x.slice(i + 1)]; });
+      return { palabra: segs.map(x => x[0]).join(''), cat: d.c, form: d.f, segs, tiempo: d.t, verbo: d.v, persona: d.n,
+        nota: d.nota || '', exp: d.e || {}, forma: d.fx || '' };
+    } catch { return null; }
+  }
+  return null;
+}
+const etiquetaCat = it => it.tiempo ? `verbo · ${TIEMPOS_V[it.tiempo] || it.tiempo}` : (CATS[it.cat] || it.cat);
+const g = (it, i) => (i > 0 && it.segs[i][1] !== 'L' ? '‑' : '') + it.segs[i][0] + (i < it.segs.length - 1 ? '‑' : '');
+const explicacion = (it, i) => (it.exp && it.exp[i]) || explicarMorfema(it, i);
+
+// ───────── Los pasos de la lección ─────────
+function construirPasos(it) {
+  const pasos = [], L = it.segs.map((s, i) => s[1] === 'L' ? i : -1).filter(i => i >= 0);
+  pasos.push({ titulo: 'La palabra', on: [], sep: false,
+    txt: `«${it.palabra}» es un ${etiquetaCat(it)}. Vamos a descomponerla en morfemas: primero la raíz, luego los cortes y después qué es cada pieza.` });
+  pasos.push({ titulo: L.length > 1 ? 'Busca las raíces' : 'Busca la raíz', on: L, sep: false,
+    txt: L.map(i => explicacion(it, i)).join(' '),
+    sec: L.length > 1 ? 'Tiene más de un lexema: es una palabra compuesta.' : 'Truco: piensa en palabras de la misma familia y quédate con lo que se repite.' });
+  pasos.push({ titulo: 'Separa los morfemas', on: [], sep: true,
+    txt: `Se corta entre piezas que tienen forma y función propias: ${it.segs.map(s => s[0]).join(' ‑ ')}.`,
+    sec: 'Nunca se deja el lexema pegado a una terminación ni se parte un morfema por la mitad.' });
+  it.segs.forEach(([s, t], i) => {
+    if (t === 'L') return;
+    pasos.push({ titulo: `${g(it, i)} · ${TIPOS[t]}`, on: [i], sep: true, ver: i, txt: explicacion(it, i) });
+  });
+  pasos.push({ titulo: '¿Cómo está formada?', on: [], sep: true, todo: true, grupos: true,
+    txt: porQueFormacion(it), sec: it.nota || '' });
+  pasos.push({ titulo: 'Así se escribe en el examen', on: [], sep: true, todo: true, modelo: redaccionModelo(it) });
+  return pasos;
+}
+
+// ───────── Pintar ─────────
+let it = null, pasos = [], paso = 0, reproduciendo = false, temporizador = 0, tecleo = 0;
+function pintarPalabra() {
+  $('#palabra').innerHTML = it.segs.map(([s, t], i) => `<span class="mm t-${t}" data-i="${i}"><span class="txt">${esc(s)}</span><span class="guion">‑</span><span class="rot">${esc(TIPOS[t])}</span></span>`).join('');
+}
+function mostrar(n) {
+  paso = Math.max(0, Math.min(pasos.length - 1, n));
+  const p = pasos[paso], pal = $('#palabra');
+  pal.classList.toggle('separado', p.sep);
+  pal.classList.toggle('rotulado', !!p.todo);
+  pal.classList.toggle('grupos', !!p.grupos);
+  pal.querySelectorAll('.mm').forEach(el => {
+    const i = +el.dataset.i, t = it.segs[i][1];
+    el.classList.toggle('on', p.on.includes(i));
+    el.classList.toggle('visto', !!p.todo || (p.ver !== undefined && i < p.ver && it.segs[i][1] !== 'L') || (paso > 1 && t === 'L' && !p.on.includes(i) && p.sep));
+    el.classList.toggle('apagado', p.on.length > 0 && !p.on.includes(i) && !p.todo);
+    el.classList.toggle('deriv', DERIV.includes(t)); el.classList.toggle('flex', FLEX.includes(t));
+  });
+  const ex = $('#explica'); ex.classList.remove('cambia'); void ex.offsetWidth; ex.classList.add('cambia');
+  clearInterval(tecleo);
+  ex.innerHTML = `<h3>${esc(p.titulo)}</h3>${p.txt ? `<p>${esc(p.txt)}</p>` : ''}${p.sec ? `<p class="sec">${esc(p.sec)}</p>` : ''}${p.modelo ? '<div class="modelo-txt cursor" id="modeloTxt"></div>' : ''}`;
+  if (p.modelo) escribir($('#modeloTxt'), p.modelo);
+  $('#lecPaso').textContent = `Paso ${paso + 1} de ${pasos.length}`;
+  $('#puntos').innerHTML = pasos.map((_, k) => `<button class="${k === paso ? 'act' : ''}" data-k="${k}" aria-label="Paso ${k + 1}"></button>`).join('');
+  $('#antBtn').disabled = paso === 0;
+  $('#sigBtn').disabled = paso === pasos.length - 1;
+  if (reproduciendo) programar();
+}
+// la redacción modelo aparece como si se escribiera
+function escribir(el, texto) {
+  let k = 0; el.textContent = '';
+  tecleo = setInterval(() => { k += 2; el.textContent = texto.slice(0, k); if (k >= texto.length) { clearInterval(tecleo); el.classList.remove('cursor'); } }, 22);
+}
+function programar() {
+  clearTimeout(temporizador);
+  if (paso >= pasos.length - 1) { parar(); return; }
+  const p = pasos[paso], largo = (p.txt || '').length + (p.sec || '').length + (p.modelo || '').length;
+  temporizador = setTimeout(() => mostrar(paso + 1), Math.max(3200, largo * 55));
+}
+function parar() { reproduciendo = false; clearTimeout(temporizador); $('#playBtn').textContent = 'Reproducir'; }
+$('#playBtn').onclick = () => {
+  if (reproduciendo) return parar();
+  reproduciendo = true; $('#playBtn').textContent = 'Pausa';
+  if (paso >= pasos.length - 1) mostrar(0); else programar();
+};
+$('#antBtn').onclick = () => { parar(); mostrar(paso - 1); };
+$('#sigBtn').onclick = () => { parar(); mostrar(paso + 1); };
+$('#puntos').onclick = e => { const b = e.target.closest('[data-k]'); if (b) { parar(); mostrar(+b.dataset.k); } };
+addEventListener('keydown', e => {
+  if ($('#zonaLeccion').hidden || e.target.closest('input')) return;
+  if (e.key === 'ArrowRight') { parar(); mostrar(paso + 1); }
+  else if (e.key === 'ArrowLeft') { parar(); mostrar(paso - 1); }
+  else if (e.key === ' ') { e.preventDefault(); $('#playBtn').click(); }
+});
+// deslizar el dedo sobre la lección, como pasar páginas
+let x0 = null;
+$('#zonaLeccion').addEventListener('touchstart', e => { x0 = e.touches[0].clientX; }, { passive: true });
+$('#zonaLeccion').addEventListener('touchend', e => {
+  if (x0 === null) return; const dx = e.changedTouches[0].clientX - x0; x0 = null;
+  if (Math.abs(dx) > 60) { parar(); mostrar(paso + (dx < 0 ? 1 : -1)); }
+});
+
+// ───────── Ejemplos parecidos: palabras de la base que comparten un afijo ─────────
+function ejemplos(it) {
+  const vistos = new Set([sinTilde(it.palabra)]), out = [];
+  for (const [s, t] of it.segs) {
+    if (!DERIV.includes(t)) continue;
+    for (const o of ITEMS) {
+      if (o.tiempo || vistos.has(sinTilde(o.palabra))) continue;
+      if (o.segs.some(([s2, t2]) => s2 === s && t2 === t)) { vistos.add(sinTilde(o.palabra)); out.push({ o, por: `${t === 'P' ? s + '‑' : '‑' + s + '‑'} (${TIPOS[t]})` }); }
+      if (out.length >= 5) break;
+    }
+  }
+  if (out.length < 3) for (const o of ITEMS) { // si no hay afijos, misma formación y categoría
+    if (out.length >= 4) break;
+    if (!o.tiempo && o.form === it.form && o.cat === it.cat && !vistos.has(sinTilde(o.palabra))) { vistos.add(sinTilde(o.palabra)); out.push({ o, por: `también ${o.form}` }); }
+  }
+  return out;
+}
+function pintarEjemplos() {
+  const ej = ejemplos(it);
+  $('#ejemplos').innerHTML = ej.length ? ej.map(({ o, por }) => `
+    <a class="row tap ej-fila" href="#p=${encodeURIComponent(o.palabra)}" style="text-decoration:none;color:inherit">
+      <span class="app-icon" style="--c:var(--teal)">${svg('book', 16, 2.2)}</span>
+      <span class="row-main"><span class="row-text"><span class="row-title" style="display:block"><b>${esc(o.segs.map(s => s[0]).join('-'))}</b></span>
+      <span class="row-sub" style="display:block">comparte ${esc(por)}</span></span><span class="row-trail">Ver lección ${svg('right', 14, 2.6)}</span></span></a>`).join('')
+    : '<div class="placeholder">No hay ejemplos parecidos en la base.</div>';
+}
+
+// ───────── Arranque ─────────
+function cargar() {
+  parar();
+  const r = desdeHash();
+  if (!r) { $('#zonaLeccion').hidden = true; $('#aviso').textContent = ''; return; }
+  if (r.noEncontrada) {
+    $('#zonaLeccion').hidden = true;
+    $('#aviso').innerHTML = `«<b>${esc(r.noEncontrada)}</b>» no está en la base del juego. Pídemela en el chat con <b>«modo maestro: ${esc(r.noEncontrada)}»</b> y te preparo su lección.`;
+    return;
+  }
+  it = r; pasos = construirPasos(it);
+  $('#aviso').textContent = '';
+  $('#busca').value = it.palabra;
+  $('#zonaLeccion').hidden = false;
+  $('#lecTitulo').textContent = `«${it.palabra}»`;
+  $('#lecCat').textContent = etiquetaCat(it);
+  $('#lecForm').textContent = 'palabra ' + it.form;
+  document.title = `Modo maestro · ${it.palabra}`;
+  pintarPalabra(); pintarEjemplos(); mostrar(0);
+  $('#zonaLeccion').scrollIntoView({ block: 'start', behavior: 'smooth' });
+}
+$('#buscaForm').onsubmit = e => {
+  e.preventDefault();
+  const w = $('#busca').value.trim().toLowerCase();
+  if (w) location.hash = 'p=' + encodeURIComponent(w);
+};
+$('#sugerencias').onclick = e => { const b = e.target.closest('[data-w]'); if (b) location.hash = 'p=' + encodeURIComponent(b.dataset.w); };
+$('#sugerencias').innerHTML = barajar(ITEMS.filter(x => !x.tiempo && x.form !== 'simple')).slice(0, 6).map(x => `<button data-w="${esc(x.palabra)}">${esc(x.palabra)}</button>`).join('');
+addEventListener('hashchange', cargar);
+function pintarInicio() { location.href = 'morfemas.html'; } // lo usa comun.js al volver atrás
+pintarIconos();
+cargar();
+if ('serviceWorker' in navigator && location.protocol !== 'file:') navigator.serviceWorker.register('sw.js').catch(() => {});
+</script>
+</body>
+</html>

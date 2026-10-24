@@ -117,6 +117,8 @@
         <div class="row-main"><div class="row-text"><div class="row-title">Identificar raíz y afijos</div><div class="row-sub">Paso 2: el tipo de cada morfema y la formación</div></div><button class="switch" role="switch" data-ajuste="identificar" aria-label="Identificar raíz y afijos"></button></div></div>
       <div class="row"><span class="app-icon" style="--c:var(--green)"><i data-i="pencil" data-s="18" data-w="2.4"></i></span>
         <div class="row-main"><div class="row-text"><div class="row-title">Redactar el análisis</div><div class="row-sub">Paso 3: escribirlo como en el examen</div></div><button class="switch" role="switch" data-ajuste="redactar" aria-label="Redactar el análisis"></button></div></div>
+      <a class="row tap" href="maestro.html" style="text-decoration:none;color:inherit"><span class="app-icon" style="--c:var(--pink)"><i data-i="star" data-s="18" data-w="2.2"></i></span>
+        <span class="row-main"><span class="row-text"><span class="row-title" style="display:block">Modo maestro</span><span class="row-sub" style="display:block">Lección animada, paso a paso, de cualquier palabra</span></span><span class="row-trail"><i data-i="right" data-s="14" data-w="2.6"></i></span></span></a>
       <button class="row tap" data-open="ayuda"><span class="app-icon" style="--c:var(--teal)"><i data-i="table" data-s="18" data-w="2.2"></i></span>
         <span class="row-main"><span class="row-text"><span class="row-title" style="display:block">Tipos de morfema y criterios</span><span class="row-sub" style="display:block">Qué se separa y qué variantes se aceptan</span></span><span class="row-trail"><i data-i="right" data-s="14" data-w="2.6"></i></span></span></button>
     </div>
@@ -735,7 +737,7 @@ function resultado() {
       <span class="row-title" style="display:block"><b style="font-weight:600">${esc(it.segs.map(s => s[0]).join('-'))}</b> <span style="color:var(--label2)">· ${esc(etiquetaCat(it))}</span></span>
       <span class="row-sub" style="display:block">${resumenFallo(it, r)}</span>
     </span><span class="chev">${svg('right', 14, 2.6)}</span></span></summary>
-    <div class="det analisis">${analisisHTML(it, true)}<ul>${sinRepetir([...(r.porque || []), ...(r.id ? r.id.porque : []), ...(r.red ? r.red.porque : [])]).map(l => `<li>${esc(l)}</li>`).join('')}</ul>${r.red ? `<p class="det-modelo"><b>Modelo:</b> ${esc(redaccionModelo(it))}</p>` : ''}</div></details>`).join('') : `<div class="placeholder">${svg('star', 34, 1.8)}Ni un fallo. Perfecto.</div>`;
+    <div class="det analisis">${analisisHTML(it, true)}<ul>${sinRepetir([...(r.porque || []), ...(r.id ? r.id.porque : []), ...(r.red ? r.red.porque : [])]).map(l => `<li>${esc(l)}</li>`).join('')}</ul>${r.red ? `<p class="det-modelo"><b>Modelo:</b> ${esc(redaccionModelo(it))}</p>` : ''}<a class="link ver-mas" href="maestro.html#p=${encodeURIComponent(it.palabra)}">Ver la lección animada ›</a></div></details>`).join('') : `<div class="placeholder">${svg('star', 34, 1.8)}Ni un fallo. Perfecto.</div>`;
   if (fin) {
     const notas = Array.from({ length: estado.tandas }, (_, t) => estado.resp.slice(t * T, (t + 1) * T).reduce((s, r) => s + (r.puntos ?? (r.ok ? 1 : 0)), 0) / T * 10);
     $('#rTiles').innerHTML = notas.map((x, t) => `<div class="tile" style="--c:${colorNota(x)}"><div class="tile-head">${miniRing(x / 10, colorNota(x), 18, 3.5)}Tanda ${t + 1}</div><div class="tile-val num">${fmt(x)}</div></div>`).join('');

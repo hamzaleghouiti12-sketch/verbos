@@ -9,7 +9,7 @@ const compilar = (nombre, codigo) => {
   try { new Function(codigo); console.log(`✓ sintaxis ${nombre}`); }
   catch (e) { fallos++; console.log(`✗ sintaxis ${nombre}: ${e.message}`); }
 };
-for (const f of ['index.html', 'morfemas.html']) {
+for (const f of ['index.html', 'morfemas.html', 'maestro.html']) {
   const html = fs.readFileSync(__dirname + '/' + f, 'utf8');
   const bloques = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(m => m[1]);
   bloques.forEach((b, i) => compilar(`${f} (script ${i + 1})`, b));
