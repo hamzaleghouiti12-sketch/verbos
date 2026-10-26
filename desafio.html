@@ -179,7 +179,7 @@ const { clasificar, dificultad, MINUTOS, NIVELES, PREGUNTAS } = Clasificacion;
 const LS = crearAlmacen('desafio.');
 const POR_RONDA = 10;
 // categorías con desafío (se van añadiendo a medida que tienen clasificación)
-const CATEGORIAS = [['sus', 'Sustantivos', 'sustantivo']].filter(([c]) => PREGUNTAS[c]);
+const CATEGORIAS = [['sus', 'Sustantivos', 'el sustantivo'], ['adj', 'Adjetivos', 'el adjetivo'], ['ver', 'Verbos', 'la forma verbal'], ['adv', 'Adverbios', 'el adverbio']].filter(([c]) => PREGUNTAS[c]);
 let cat = LS.get('cat', 'sus'); if (!CATEGORIAS.some(c => c[0] === cat)) cat = CATEGORIAS[0][0];
 const nombreCat = c => (CATEGORIAS.find(x => x[0] === c) || [])[1] || c;
 const singular = c => (CATEGORIAS.find(x => x[0] === c) || [])[2] || c;
@@ -231,7 +231,7 @@ function pintarInicio() {
   const hist = LS.get('historial', []).filter(h => h.cat === cat);
   const mejor = hist.length ? Math.max(...hist.map(h => h.nota)) : null;
   $('#hTitulo').textContent = `Ronda de ${nombreCat(cat).toLowerCase()}`;
-  $('#hName').textContent = `${POR_RONDA} ${nombreCat(cat).toLowerCase()}`;
+  $('#hName').textContent = `${POR_RONDA} ${cat === 'ver' ? 'formas verbales' : nombreCat(cat).toLowerCase()}`;
   $('#hSub').textContent = `${delaCat(cat).length} en la base · de menos a más difícil`;
   $('#hNum').textContent = mejor === null ? '–' : fmt(mejor);
   $('#hRingSub').textContent = mejor === null ? 'aún sin rondas' : 'mejor nota';
@@ -242,7 +242,7 @@ function pintarInicio() {
   $('#pasosInfo').innerHTML = `
     <div><span>1</span><p><b>Separa</b> la palabra en morfemas con guiones.</p></div>
     <div><span>2</span><p><b>Redacta</b> el análisis: qué es cada morfema y cómo está formada.</p></div>
-    <div><span>3</span><p><b>Clasifica</b> el ${singular(cat)}: ${PREGUNTAS[cat].map(p => p.titulo.toLowerCase()).join(', ')}.</p></div>`;
+    <div><span>3</span><p><b>Clasifica</b> ${singular(cat)}: ${PREGUNTAS[cat].map(p => p.titulo.toLowerCase()).join(', ')}.</p></div>`;
   $('#hist').innerHTML = hist.length ? hist.slice(-8).reverse().map(h => `
     <div class="row"><span class="app-icon" style="--c:${colorNota(h.nota)}">${svg('flame', 17, 2.2)}</span>
       <div class="row-main"><div class="row-text"><div class="row-title">${fmt(h.nota)} · ${calif(h.nota)}</div><div class="row-sub">${esc(h.fecha)} · ${h.palabras.map(p => esc(p.p)).slice(0, 4).join(', ')}…</div></div></div></div>`).join('')
@@ -268,7 +268,7 @@ function pregunta() {
   $('#prog').innerHTML = ronda.items.map((_, k) => `<span class="${k < ronda.i ? (ronda.res[k].nota >= 5 ? 'ok' : 'ko') : k === ronda.i ? 'now' : ''}"></span>`).join('');
   $('#qNivel').textContent = `Nivel ${niv} · ${NIVELES[niv]}`;
   $('#qWord').textContent = it.palabra;
-  $('#claTit').textContent = `Clasifica el ${singular(ronda.cat)}`;
+  $('#claTit').textContent = `Clasifica ${singular(ronda.cat)}`;
   $('#qCard').classList.remove('entregado');
   $('#sep').value = ''; $('#sep').readOnly = false; $('#red').value = ''; $('#red').readOnly = false;
   $('#sepBox').classList.remove('ok', 'ko');
@@ -356,7 +356,8 @@ function corregirClasificacion(w) {
     });
     if (!ok) {
       const correcta = p.opciones.filter(([v]) => buenas.includes(v)).map(o => o[1]).join(' o ');
-      const rasgo = c.rasgos.find(r => r.k === (p.k === 'tg' ? 'gen' : p.k));
+      const clave = p.k === 'tg' ? 'gen' : p.k === 'num' && !c.rasgos.some(r => r.k === 'num') ? 'pers' : p.k;
+      const rasgo = c.rasgos.find(r => r.k === clave);
       porque.push(`${p.titulo}: ${puesta ? 'no es «' + p.opciones.find(o => o[0] === puesta)[1].toLowerCase() + '», ' : 'sin responder; '}es «${correcta.toLowerCase()}». ${rasgo ? rasgo.txt : ''}`);
     }
   }
