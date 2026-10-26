@@ -299,6 +299,44 @@ Mi madre trabaja en un hospital e Irene estudia Derecho. | EA | CC:e | [Mi madre
     return { lineas, redaccion };
   }
 
+  // ───────── Respuesta escrita (modo Identificar) ─────────
+  // Reconoce lo que escribe el alumno: cada código tiene sus palabras clave; «incompleta» avisa
+  // cuando falta precisar (p. ej. «pasiva» sin decir cuál) y no cuenta como fallo.
+  const sinTildes = s => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9ñ ]/g, ' ').replace(/\s+/g, ' ').trim();
+  const CLAVES = {
+    est: { S: n => /\bsimple/.test(n), Y: n => /yuxtapuest/.test(n), CC: n => /copulativ/.test(n) && !/semi/.test(n), CD: n => /disyuntiv/.test(n), CA: n => /adversativ/.test(n) },
+    mod: {
+      EA: n => /afirmativ/.test(n), EN: n => /negativ/.test(n) && !/interrog|exclam/.test(n),
+      IT: n => /interrogativ/.test(n) && /total/.test(n), IP: n => /interrogativ/.test(n) && /parcial/.test(n),
+      EX: n => /exclamativ/.test(n), EH: n => /exhortativ|imperativ|apelativ/.test(n), DS: n => /desiderativ|optativ/.test(n), DB: n => /dubitativ/.test(n)
+    },
+    suj: {
+      E: n => /explicit|expres/.test(n), O: n => /omitid|tacit|elipti/.test(n),
+      I3: n => /plural|eventual|tercera|\b3/.test(n), IR: n => /reflej/.test(n) && !/pasiv/.test(n),
+      IG: n => /gramatical|haber|hacer/.test(n), IA: n => /atmosferic|unipersonal|meteorolog|fenomeno|natural/.test(n)
+    },
+    pred: { C: n => /copulativ/.test(n) && !/semi/.test(n), SC: n => /semi ?copulativ/.test(n), PT: n => /transitiv/.test(n) && !/intransitiv/.test(n), PI: n => /intransitiv/.test(n), PP: n => /pasiv/.test(n) },
+    diat: { A: n => /activ/.test(n), PF: n => /perifrastic/.test(n), PR: n => /reflej/.test(n) },
+    modo: { i: n => /indicativ/.test(n), s: n => /subjuntiv/.test(n), m: n => /imperativ/.test(n) }
+  };
+  const INCOMPLETA = {
+    est: [/compuest|coordinad/, '¿Yuxtapuesta o coordinada? Y si es coordinada, ¿de qué tipo?'],
+    mod: [/enunciativ|interrogativ/, 'Precisa más: enunciativa afirmativa o negativa; interrogativa total o parcial.'],
+    suj: [/impersonal/, '¿Qué tipo de impersonal?'],
+    pred: [/predicativ/, '¿Transitiva o intransitiva?'],
+    diat: [/pasiv/, '¿Pasiva perifrástica o pasiva refleja?'],
+    modo: [/$^/, '']
+  };
+  function interpretar(asp, texto) {
+    const n = sinTildes(texto);
+    if (!n) return { estado: 'vacia' };
+    const codigos = Object.entries(CLAVES[asp]).filter(([, f]) => f(n)).map(([c]) => c);
+    if (codigos.length === 1) return { estado: 'ok', codigo: codigos[0] };
+    if (codigos.length > 1) return { estado: 'varias', codigos };
+    const [re, pista] = INCOMPLETA[asp];
+    return re.test(n) ? { estado: 'incompleta', pista } : { estado: 'desconocida' };
+  }
+
   // ───────── Dificultad ─────────
   function puntuacion(o) {
     let p = { EA: 0, EN: 0.3, IT: 0.5, IP: 1, EX: 1, EH: 0.6, DS: 0.8, DB: 0.8 }[o.mod];
@@ -314,7 +352,7 @@ Mi madre trabaja en un hospital e Irene estudia Derecho. | EA | CC:e | [Mi madre
     return Math.round(p * 10) / 10;
   }
 
-  const API = { ORACIONES, MODALIDAD, ESTRUCTURA, SUJETO, PREDICADO, DIATESIS, MODO, correccion, puntuacion };
+  const API = { ORACIONES, MODALIDAD, ESTRUCTURA, SUJETO, PREDICADO, DIATESIS, MODO, correccion, puntuacion, interpretar };
   if (typeof module !== 'undefined' && module.exports) module.exports = API;
   else global.Sintaxis = API;
 })(typeof window !== 'undefined' ? window : globalThis);

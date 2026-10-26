@@ -47,6 +47,23 @@ for (const o of S.ORACIONES) {
   if (/undefined|NaN/.test(JSON.stringify(c))) mal(o, 'corrección con huecos');
 }
 
+// la respuesta escrita: cada nombre oficial se reconoce como su propio código, y las ambiguas no
+{
+  const NOMBRES = { est: S.ESTRUCTURA, mod: S.MODALIDAD, suj: S.SUJETO, pred: S.PREDICADO, diat: S.DIATESIS, modo: S.MODO };
+  for (const [asp, obj] of Object.entries(NOMBRES)) for (const [cod, v] of Object.entries(obj)) {
+    const r = S.interpretar(asp, Array.isArray(v) ? v[0] : v);
+    if (r.estado !== 'ok' || r.codigo !== cod) { errores++; console.log(`✗ interpretar ${asp} «${Array.isArray(v) ? v[0] : v}» → ${JSON.stringify(r)}`); }
+  }
+  const CASOS = [['est', 'coordinada copulativa', 'CC'], ['est', 'compuesta coordinada adversativa', 'CA'], ['mod', 'Enunciativa negativa', 'EN'], ['mod', 'interrogativa parcial', 'IP'],
+    ['suj', 'tácito', 'O'], ['suj', 'sujeto elíptico', 'O'], ['suj', 'impersonal de 3ª persona del plural', 'I3'], ['suj', 'impersonal refleja', 'IR'], ['suj', 'atmosferica', 'IA'],
+    ['pred', 'predicativa intransitiva', 'PI'], ['pred', 'transitiva', 'PT'], ['pred', 'semi copulativa', 'SC'], ['pred', 'copulativa', 'C'], ['pred', 'pasiva', 'PP'],
+    ['diat', 'pasiva refleja', 'PR'], ['diat', 'voz activa', 'A'], ['diat', 'perifrastica', 'PF'], ['modo', 'Subjuntivo', 's']];
+  for (const [asp, t, cod] of CASOS) { const r = S.interpretar(asp, t); if (r.codigo !== cod) { errores++; console.log(`✗ interpretar ${asp} «${t}» → ${JSON.stringify(r)}`); } }
+  for (const [asp, t, est] of [['diat', 'pasiva', 'incompleta'], ['suj', 'impersonal', 'incompleta'], ['pred', 'predicativa', 'incompleta'], ['mod', 'interrogativa', 'incompleta'], ['pred', 'blablá', 'desconocida'], ['diat', 'activa o pasiva refleja', 'varias']]) {
+    const r = S.interpretar(asp, t); if (r.estado !== est) { errores++; console.log(`✗ interpretar ${asp} «${t}» → ${JSON.stringify(r)} (esperaba ${est})`); }
+  }
+}
+
 const cuenta = k => S.ORACIONES.reduce((m, o) => { for (const v of (k === 'est' || k === 'mod' ? [o[k]] : o.props.map(p => p[k]))) m[v] = (m[v] || 0) + 1; return m; }, {});
 console.log(`${S.ORACIONES.length} oraciones`, cuenta('est'), cuenta('suj'), cuenta('pred'), cuenta('diat'), cuenta('mod'));
 console.log(errores ? `${errores} problemas` : 'Sin problemas');

@@ -103,6 +103,11 @@
 .q-oracion mark{background:none;color:inherit;text-decoration:underline;text-decoration-thickness:3px;text-decoration-color:var(--c,var(--blue));text-underline-offset:6px}
 .i-preg{font-size:15px;font-weight:600;color:var(--label2);text-align:left;margin:-10px 0 12px}
 .opciones{display:grid;gap:7px}
+.opciones[hidden],.i-form[hidden],.i-aviso[hidden]{display:none}
+.i-form .wide{margin-top:12px}
+.i-form.hecha .search{opacity:.6}
+.i-aviso{text-align:left;font-size:14px;line-height:1.4;margin-top:10px;padding:9px 12px;border-radius:12px;background:color-mix(in srgb,var(--orange) 12%,transparent)}
+.tu-resp{display:block;font-size:13.5px;color:var(--label2);margin-bottom:6px}
 .opc{display:flex;align-items:center;gap:11px;width:100%;text-align:left;padding:12px 13px;border-radius:13px;background:var(--fill);font-size:15.5px;font-weight:600;color:var(--label);transition:background .15s,opacity .15s}
 .opc kbd{flex:none;min-width:22px;text-align:center}
 .opc.ok{background:color-mix(in srgb,var(--green) 18%,transparent)}
@@ -195,10 +200,12 @@
       <button class="wide" id="iStartBtn">Empezar ronda <kbd>Enter</kbd></button>
       <div class="mini-tit">Qué quieres practicar</div>
       <div class="grupos" id="aspectos"></div>
+      <div class="mini-tit">Cómo respondes</div>
+      <div class="minutos" id="formaResp"></div>
     </div>
     <div class="section-head"><h2>Historial</h2></div>
     <div class="list" id="iHist"></div>
-    <p class="foot">Rondas de 10 oraciones. Cada vez se pregunta solo por una cosa: eliges la respuesta y se comprueba al momento, con la explicación. Las respuestas salen repartidas para que practiques también los casos raros. En las compuestas se pregunta por la proposición subrayada.</p>
+    <p class="foot">Rondas de 10 oraciones. Cada vez se pregunta solo por una cosa: escribes la respuesta (o la eliges, si activas las opciones) y se comprueba al momento, con la explicación. Las respuestas salen repartidas para que practiques también los casos raros. En las compuestas se pregunta por la proposición subrayada.</p>
   </main>
 </div>
 
@@ -212,6 +219,12 @@
       <div class="q-oracion" id="iOracion"></div>
       <p class="i-preg" id="iPreg"></p>
       <div class="opciones" id="iOpc"></div>
+      <form class="i-form" id="iForm" autocomplete="off">
+        <label class="search"><i data-i="pencil" data-s="18" data-w="2.2"></i>
+          <input id="iAns" placeholder="Escribe la respuesta" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Respuesta"></label>
+        <p class="i-aviso" id="iAviso" hidden role="status"></p>
+        <button class="wide" id="iComp" type="submit">Comprobar <kbd>Enter</kbd></button>
+      </form>
       <div id="iVer"></div>
     </div>
   </main>
@@ -506,37 +519,39 @@ const may = s => s[0].toUpperCase() + s.slice(1);
 const opciones = (obj, f = v => v) => Object.entries(obj).map(([k, v]) => [k, may(f(v))]);
 // linea: posición en las líneas de correccion(); en las de proposición, 2 + 4 × proposición + desfase
 const ASPECTOS = {
-  est: { nombre: 'Estructura', c: 'var(--indigo)', preg: '¿Es simple o compuesta? Si es compuesta, ¿de qué tipo?', ops: opciones(ESTRUCTURA, v => v[0]), val: o => o.est, linea: 1 },
-  mod: { nombre: 'Modalidad', c: 'var(--teal)', preg: '¿Qué modalidad tiene la oración?', ops: opciones(MODALIDAD, v => v[0]), val: o => o.mod, linea: 0 },
-  suj: { nombre: 'Sujeto', c: 'var(--green)', preg: '¿Qué tipo de sujeto tiene?', ops: opciones(SUJETO), campo: 'suj', off: 0 },
-  pred: { nombre: 'Predicado', c: 'var(--orange)', preg: '¿Qué tipo de predicado tiene?', ops: opciones(PREDICADO), campo: 'pred', off: 1 },
-  diat: { nombre: 'Diátesis', c: 'var(--red)', preg: '¿En qué voz está?', ops: opciones(DIATESIS), campo: 'diat', off: 2 },
-  modo: { nombre: 'Modo del verbo', c: 'var(--blue)', preg: '¿En qué modo está el verbo?', ops: opciones(MODO), campo: 'modo', off: 3 }
+  est: { nombre: 'Estructura', c: 'var(--indigo)', preg: '¿Es simple o compuesta? Si es compuesta, ¿de qué tipo?', ops: opciones(ESTRUCTURA, v => v[0]), val: o => o.est, linea: 1, desc: 'simple o compuesta, y de qué tipo' },
+  mod: { nombre: 'Modalidad', c: 'var(--teal)', preg: '¿Qué modalidad tiene la oración?', ops: opciones(MODALIDAD, v => v[0]), val: o => o.mod, linea: 0, desc: 'actitud del hablante' },
+  suj: { nombre: 'Sujeto', c: 'var(--green)', preg: '¿Qué tipo de sujeto tiene?', ops: opciones(SUJETO), campo: 'suj', off: 0, desc: 'personal o impersonal, y cuál' },
+  pred: { nombre: 'Predicado', c: 'var(--orange)', preg: '¿Qué tipo de predicado tiene?', ops: opciones(PREDICADO), campo: 'pred', off: 1, desc: 'qué tipo de predicado' },
+  diat: { nombre: 'Diátesis', c: 'var(--red)', preg: '¿En qué voz está?', ops: opciones(DIATESIS), campo: 'diat', off: 2, desc: 'activa o pasiva, y cuál' },
+  modo: { nombre: 'Modo del verbo', c: 'var(--blue)', preg: '¿En qué modo está el verbo?', ops: opciones(MODO), campo: 'modo', off: 3, desc: 'el modo de cada verbo' }
 };
 const ORDEN_ASP = [...Object.keys(ASPECTOS), 'mix'];
 const nombreAsp = id => id === 'mix' ? 'Todo mezclado' : ASPECTOS[id].nombre;
 const unidades = a => a.campo
   ? ORACIONES.flatMap(o => o.props.map((p, k) => ({ o, k, r: p[a.campo] })))
   : ORACIONES.map(o => ({ o, k: -1, r: a.val(o) }));
-let aspecto = LS.get('aspecto', 'est');
+let aspecto = LS.get('aspecto', 'est'), conOpciones = LS.get('ident.opciones', false);
 if (!ORDEN_ASP.includes(aspecto)) aspecto = 'est';
 function pintarIdent() {
   const hist = LS.get('ident.historial', []).filter(h => h.asp === aspecto);
   const mejor = hist.length ? Math.max(...hist.map(h => h.nota)) : null;
   $('#iName').textContent = nombreAsp(aspecto);
-  $('#iSub').textContent = aspecto === 'mix' ? 'Cada pregunta, un aspecto distinto' : `${ASPECTOS[aspecto].ops.length} respuestas posibles`;
+  $('#iSub').textContent = aspecto === 'mix' ? 'Cada pregunta, un aspecto distinto' : (conOpciones ? 'Eliges entre las opciones' : 'Escribes la respuesta');
   $('#iNum').textContent = mejor === null ? '–' : fmt(mejor);
   $('#iRingSub').textContent = mejor === null ? 'aún sin rondas' : 'mejor nota';
   $('#iPill').textContent = hist.length ? `${hist.length} ronda${hist.length > 1 ? 's' : ''}` : 'Nueva';
   $('#iPill').className = 'pill num' + (mejor === null ? '' : ' ' + clasePill(mejor));
   anillo($('#iRing'), mejor === null ? 0 : mejor / 10, mejor === null ? 'var(--blue)' : colorNota(mejor));
-  $('#aspectos').innerHTML = ORDEN_ASP.map(id => `<button data-a="${id}" class="${id === 'mix' ? 'mix' : ''}" aria-pressed="${id === aspecto}"><b>${nombreAsp(id)}</b><small>${id === 'mix' ? 'estructura, modalidad, sujeto, predicado…' : ASPECTOS[id].ops.map(x => x[1].toLowerCase()).join(' · ')}</small></button>`).join('');
+  $('#aspectos').innerHTML = ORDEN_ASP.map(id => `<button data-a="${id}" class="${id === 'mix' ? 'mix' : ''}" aria-pressed="${id === aspecto}"><b>${nombreAsp(id)}</b><small>${id === 'mix' ? 'un aspecto distinto en cada oración' : ASPECTOS[id].desc}</small></button>`).join('');
   const todos = LS.get('ident.historial', []).filter(h => h.asp === aspecto);
   $('#iHist').innerHTML = todos.length ? todos.slice(-8).reverse().map(h => `
     <div class="row"><span class="app-icon" style="--c:${colorNota(h.nota)}">${svg('target', 17, 2.2)}</span>
       <div class="row-main"><div class="row-text"><div class="row-title">${fmt(h.nota)} · ${calif(h.nota)}</div><div class="row-sub">${esc(h.fecha)} · ${nombreAsp(h.asp)}</div></div></div></div>`).join('')
     : '<div class="placeholder">Aquí aparecerán tus rondas.</div>';
+  $('#formaResp').innerHTML = [[false, 'Escribir'], [true, 'Con opciones']].map(([v, t]) => `<button data-o="${v}" aria-pressed="${v === conOpciones}">${t}</button>`).join('');
 }
+$('#formaResp').onclick = e => { const b = e.target.closest('[data-o]'); if (b) { conOpciones = b.dataset.o === 'true'; LS.set('ident.opciones', conOpciones); pintarIdent(); } };
 $('#aspectos').onclick = e => { const b = e.target.closest('[data-a]'); if (b) { aspecto = b.dataset.a; LS.set('aspecto', aspecto); pintarIdent(); } };
 
 // las respuestas se reparten: cada pregunta pide una respuesta distinta hasta agotarlas todas
@@ -584,26 +599,46 @@ function preguntaId() {
   $('#iOracion').innerHTML = conSubrayado(u.o, u.k);
   const sub = a.campo && u.o.props.length > 1;
   $('#iPreg').textContent = (sub ? 'En la proposición subrayada: ' : '') + (sub ? a.preg.replace(/^(¿?)(.)/, (_, s, l) => s + l.toLowerCase()) : a.preg);
-  $('#iOpc').innerHTML = a.ops.map(([cod, txt], n) => `<button class="opc" data-c="${cod}"><kbd>${n + 1}</kbd>${esc(txt)}</button>`).join('');
+  $('#iOpc').hidden = !conOpciones; $('#iForm').hidden = conOpciones;
+  $('#iOpc').innerHTML = conOpciones ? a.ops.map(([cod, txt], n) => `<button class="opc" data-c="${cod}"><kbd>${n + 1}</kbd>${esc(txt)}</button>`).join('') : '';
+  $('#iForm').classList.remove('hecha'); $('#iComp').hidden = false;
+  $('#iAns').value = ''; $('#iAns').disabled = false; $('#iAviso').hidden = true;
   $('#iVer').innerHTML = '';
+  if (!conOpciones) setTimeout(() => $('#iAns').focus(), 50);
 }
+const { interpretar } = Sintaxis;
+function avisoId(txt) { $('#iAviso').textContent = txt; $('#iAviso').hidden = false; $('#iAns').focus(); }
+// cod: la opción tocada; sin cod, se interpreta lo escrito
 function responderId(cod) {
   if (!iq || iq.resp) return;
-  const { u, a } = iq, bien = cod === u.r;
-  iq.resp = cod;
+  const { u, a } = iq;
+  let escrito, r;
+  if (cod) { escrito = a.ops.find(x => x[0] === cod)[1]; r = { estado: 'ok', codigo: cod }; }
+  else {
+    escrito = $('#iAns').value.trim(); r = interpretar(u.id, escrito);
+    // lo que no se entiende o está a medias no cuenta como fallo: se avisa y se puede seguir escribiendo
+    if (r.estado === 'vacia') return avisoId('Escribe tu respuesta.');
+    if (r.estado === 'desconocida') return avisoId('No reconozco esa respuesta. Revisa cómo se escribe el nombre.');
+    if (r.estado === 'incompleta') return avisoId(r.pista);
+  }
+  const bien = r.estado === 'ok' && r.codigo === u.r;
+  iq.resp = escrito;
   $('#iOpc').querySelectorAll('.opc').forEach(b => {
     b.disabled = true;
     b.classList.toggle('ok', b.dataset.c === u.r);
     b.classList.toggle('ko', b.dataset.c === cod && !bien);
     b.classList.toggle('apagada', b.dataset.c !== u.r && b.dataset.c !== cod);
   });
+  $('#iAns').disabled = true; $('#iForm').classList.add('hecha'); $('#iAviso').hidden = true; $('#iComp').hidden = true;
   const lineas = correccion(u.o).lineas, l = lineas[a.campo ? 2 + 4 * u.k + a.off : a.linea];
   const correcta = a.ops.find(x => x[0] === u.r)[1];
-  $('#iVer').innerHTML = `<div class="veredicto ${bien ? 'ok' : 'ko'}"><b>${bien ? '¡Bien!' : `No: es ${esc(correcta.toLowerCase())}`}</b>${esc(l.txt)}</div>
+  const titulo = bien ? '¡Bien!' : r.estado === 'varias' ? `Has puesto varias: es ${correcta.toLowerCase()}` : `No: es ${correcta.toLowerCase()}`;
+  $('#iVer').innerHTML = `<div class="veredicto ${bien ? 'ok' : 'ko'}">${cod ? '' : `<span class="tu-resp">Tu respuesta: «${esc(escrito)}»</span>`}<b>${esc(titulo)}</b>${esc(l.txt)}</div>
     ${u.o.nota ? `<p class="nota-aviso"><b>Ojo:</b> ${esc(u.o.nota)}</p>` : ''}
     <button class="wide" id="iSig" style="margin-top:14px">${idr.i + 1 >= idr.items.length ? 'Ver la nota' : 'Siguiente oración'} <kbd>Enter</kbd></button>`;
-  idr.res.push({ texto: u.o.texto, id: u.id, k: u.k, compuesta: u.o.props.length > 1, bien, resp: a.ops.find(x => x[0] === cod)[1], correcta });
+  idr.res.push({ texto: u.o.texto, id: u.id, k: u.k, compuesta: u.o.props.length > 1, bien, resp: escrito, correcta });
   try { navigator.vibrate && navigator.vibrate(bien ? 15 : [40, 60, 40]); } catch {}
+  $('#iSig').focus({ preventScroll: true });
   $('#iSig').scrollIntoView({ block: 'nearest', behavior: 'smooth' });
 }
 function siguienteId() {
@@ -612,12 +647,14 @@ function siguienteId() {
   if (idr.i >= idr.items.length) resultadoId(); else preguntaId();
 }
 $('#iOpc').onclick = e => { const b = e.target.closest('.opc'); if (b) responderId(b.dataset.c); };
+$('#iForm').onsubmit = e => { e.preventDefault(); responderId(); };
+$('#iAns').oninput = () => { $('#iAviso').hidden = true; };
 $('#iVer').onclick = e => { if (e.target.closest('#iSig')) siguienteId(); };
 addEventListener('keydown', e => {
-  if ($('#vIdent').hidden || e.target.closest('input,textarea')) return;
+  if ($('#vIdent').hidden || e.target.closest('input,textarea') || !iq) return;
   if (e.key === 'Enter') { e.preventDefault(); siguienteId(); return; }
   const n = +e.key;
-  if (n >= 1 && n <= iq.a.ops.length) responderId(iq.a.ops[n - 1][0]);
+  if (conOpciones && n >= 1 && n <= iq.a.ops.length) responderId(iq.a.ops[n - 1][0]);
 });
 function resultadoId() {
   iq = null;
@@ -639,7 +676,7 @@ function resultadoId() {
   $('#rLista').innerHTML = idr.res.map(r => `
     <div class="row res-fila"><span class="app-icon" style="--c:${r.bien ? 'var(--green)' : 'var(--red)'}">${svg(r.bien ? 'check' : 'x', 16, 2.6)}</span>
       <div class="row-main"><div class="row-text"><div class="row-title"><b>${esc(r.texto)}</b></div>
-      <div class="row-sub">${ASPECTOS[r.id].nombre}${r.compuesta && r.k >= 0 ? ` (${r.k + 1}.ª prop.)` : ''}: ${r.bien ? esc(r.correcta.toLowerCase()) : `pusiste ${esc(r.resp.toLowerCase())} → ${esc(r.correcta.toLowerCase())}`}</div></div></div></div>`).join('');
+      <div class="row-sub">${ASPECTOS[r.id].nombre}${r.compuesta && r.k >= 0 ? ` (${r.k + 1}.ª prop.)` : ''}: ${r.bien ? esc(r.correcta.toLowerCase()) : `pusiste «${esc(r.resp.toLowerCase())}» → ${esc(r.correcta.toLowerCase())}`}</div></div></div></div>`).join('');
 }
 $('#iStartBtn').onclick = empezarId;
 function otra() { ultimaRonda === 'ident' ? empezarId() : empezar(); }
