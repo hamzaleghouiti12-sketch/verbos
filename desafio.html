@@ -20,6 +20,12 @@
 .minutos{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:8px}
 .minutos button{font-size:14px;font-weight:600;padding:8px 12px;border-radius:11px;background:var(--fill);color:var(--label);font-variant-numeric:tabular-nums;transition:background .15s,color .15s}
 .minutos button[aria-pressed="true"]{background:var(--blue);color:#fff}
+.grupos{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.grupos button{min-width:0;text-align:left;padding:10px 12px;border-radius:13px;background:var(--fill);transition:background .15s,color .15s}
+.grupos button b{display:block;font-size:15px;font-weight:700;color:var(--label)}
+.grupos button small{display:block;font-size:12px;color:var(--label2);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.grupos button[aria-pressed="true"]{background:var(--blue)}
+.grupos button[aria-pressed="true"] b,.grupos button[aria-pressed="true"] small{color:#fff}
 .minutos-tit{font-size:13px;font-weight:600;color:var(--label2);text-align:center;margin-top:18px}
 .pasos-info{display:grid;gap:10px;margin-top:18px;text-align:left}
 .pasos-info div{display:flex;gap:10px;align-items:flex-start;font-size:14px;line-height:1.4;color:var(--label2)}
@@ -106,6 +112,8 @@
         <div class="ring-center"><div class="ring-num num" id="hNum">–</div><div class="ring-sub" id="hRingSub">mejor nota</div></div>
       </div>
       <button class="wide" id="startBtn">Empezar ronda <kbd>Enter</kbd></button>
+      <div class="minutos-tit">Dificultad</div>
+      <div class="grupos" id="grupos"></div>
       <div class="minutos-tit">Tiempo por palabra</div>
       <div class="minutos" id="minutos"></div>
       <div class="pasos-info" id="pasosInfo"></div>
@@ -170,7 +178,7 @@
 <script src="comun.js"></script>
 <script>
 const { ITEMS, CATS, porQueFormacion } = Morfemas;
-const { clasificar, separacion, dificultad, NIVELES } = Clasificacion;
+const { clasificar, separacion, puntuacion, agrupar, GRUPOS } = Clasificacion;
 const LS = crearAlmacen('desafio.');
 const POR_RONDA = 10;
 const CATEGORIAS = [['sus', 'Sustantivos', 'el sustantivo'], ['adj', 'Adjetivos', 'el adjetivo'], ['ver', 'Verbos', 'la forma verbal'], ['adv', 'Adverbios', 'el adverbio']];
@@ -186,23 +194,21 @@ const BANCO = {};
 for (const it of ITEMS) if (!BANCO[it.palabra] && clasificar(it)) BANCO[it.palabra] = it;
 const delaCat = c => Object.values(BANCO).filter(it => it.cat === c);
 
-// Ronda: 2 palabras de cada nivel (si un nivel no llega, se completa con los vecinos), sin repetir
-// las últimas que han salido, y ordenada de menos a más difícil.
-function generarRonda(c) {
-  const vistos = new Set(LS.get('vistos', []));
-  const porNivel = {};
-  for (const it of delaCat(c)) (porNivel[dificultad(it)] = porNivel[dificultad(it)] || []).push(it);
-  for (const k in porNivel) {
-    const nuevos = barajar(porNivel[k].filter(it => !vistos.has(it.palabra)));
-    porNivel[k] = nuevos.length >= 2 ? nuevos : barajar(porNivel[k]); // si ya salieron todas, vuelven a entrar
-  }
-  const elegidas = [], usadas = new Set();
-  const tomar = n => { const l = (porNivel[n] || []).find(it => !usadas.has(it.palabra)); if (l) { usadas.add(l.palabra); elegidas.push(l); } return !!l; };
-  for (let n = 1; n <= 5; n++) for (let k = 0; k < 2; k++) {
-    if (tomar(n)) continue;
-    for (const d of [1, -1, 2, -2, 3, -3, 4, -4]) if (n + d >= 1 && n + d <= 5 && tomar(n + d)) break;
-  }
-  return elegidas.slice(0, POR_RONDA).sort((a, b) => dificultad(a) - dificultad(b) || a.segs.length - b.segs.length).map(it => it.palabra);
+// Cada categoría, repartida en 4 grupos de dificultad (Fácil, Medio, Alto, Estás loco) según la puntuación de cada palabra
+const GRUPOS_CAT = {}, GRUPO_DE = {};
+const gruposDe = c => {
+  if (!GRUPOS_CAT[c]) { GRUPOS_CAT[c] = agrupar(delaCat(c)); GRUPOS_CAT[c].forEach((l, g) => l.forEach(it => GRUPO_DE[it.palabra] = g)); }
+  return GRUPOS_CAT[c];
+};
+const grupoSel = LS.get('grupo', {});
+const grupoActual = () => grupoSel[cat] || 0;
+
+// Ronda: 10 palabras del grupo elegido, sin repetir las últimas que han salido, de menos a más difícil
+function generarRonda(c, g) {
+  const lista = gruposDe(c)[g], vistos = new Set(LS.get('vistos', []));
+  const nuevas = barajar(lista.filter(it => !vistos.has(it.palabra)));
+  const elegidas = (nuevas.length >= POR_RONDA ? nuevas : [...nuevas, ...barajar(lista.filter(it => vistos.has(it.palabra)))]).slice(0, POR_RONDA);
+  return elegidas.sort((a, b) => puntuacion(a) - puntuacion(b)).map(it => it.palabra);
 }
 
 // ───────── Vistas ─────────
@@ -222,11 +228,13 @@ function pintarInicio() {
   ver('vInicio');
   const i = CATEGORIAS.findIndex(c => c[0] === cat);
   $('#cats').innerHTML = `<div class="seg" style="--n:${CATEGORIAS.length};--i:${i}"><span class="seg-thumb"></span>${CATEGORIAS.map(([c, t]) => `<button role="radio" aria-checked="${c === cat}" data-c="${c}">${t}</button>`).join('')}</div>`;
-  const hist = LS.get('historial', []).filter(h => h.cat === cat);
+  const g = grupoActual(), grupos = gruposDe(cat);
+  const hist = LS.get('historial', []).filter(h => h.cat === cat && (h.grupo || 0) === g);
   const mejor = hist.length ? Math.max(...hist.map(h => h.nota)) : null;
   $('#hTitulo').textContent = `Ronda de ${nombreCat(cat).toLowerCase()}`;
-  $('#hName').textContent = `${POR_RONDA} ${cat === 'ver' ? 'formas verbales' : nombreCat(cat).toLowerCase()}`;
-  $('#hSub').textContent = `${delaCat(cat).length} en la base · de menos a más difícil`;
+  $('#hName').textContent = GRUPOS[g];
+  $('#hSub').textContent = `${Math.min(POR_RONDA, grupos[g].length)} ${cat === 'ver' ? 'formas verbales' : nombreCat(cat).toLowerCase()} de ${grupos[g].length} en este grupo`;
+  $('#grupos').innerHTML = grupos.map((l, k) => `<button data-g="${k}" aria-pressed="${k === g}"><b>${GRUPOS[k]}</b><small>${l.length} · ${l.filter((_, j) => j % Math.max(1, Math.floor(l.length / 3)) === 1).slice(0, 3).map(it => esc(it.palabra)).join(', ')}…</small></button>`).join('');
   $('#hNum').textContent = mejor === null ? '–' : fmt(mejor);
   $('#hRingSub').textContent = mejor === null ? 'aún sin rondas' : 'mejor nota';
   $('#hPill').textContent = hist.length ? `${hist.length} ronda${hist.length > 1 ? 's' : ''}` : 'Nueva';
@@ -243,6 +251,7 @@ function pintarInicio() {
     : '<div class="placeholder">Aquí aparecerán tus rondas.</div>';
 }
 $('#cats').onclick = e => { const b = e.target.closest('[data-c]'); if (b) { cat = b.dataset.c; LS.set('cat', cat); pintarInicio(); } };
+$('#grupos').onclick = e => { const b = e.target.closest('[data-g]'); if (b) { grupoSel[cat] = +b.dataset.g; LS.set('grupo', grupoSel); pintarInicio(); } };
 $('#minutos').onclick = e => {
   const b = e.target.closest('[data-m]'); if (!b) return;
   minutos = +b.dataset.m; LS.set('minutos', minutos);
@@ -252,19 +261,18 @@ $('#minutos').onclick = e => {
 // ───────── Ronda ─────────
 let ronda = null, it = null, fin = 0, reloj = 0, corregida = false, marcas = [];
 function empezar() {
-  ronda = { cat, minutos, items: generarRonda(cat), i: 0, res: [] };
+  ronda = { cat, grupo: grupoActual(), minutos, items: generarRonda(cat, grupoActual()), i: 0, res: [] };
   LS.set('vistos', [...LS.get('vistos', []), ...ronda.items].slice(-200));
   pregunta();
 }
 function pregunta() {
   it = BANCO[ronda.items[ronda.i]]; corregida = false;
-  const niv = dificultad(it);
   ver('vPregunta', `Desafío · ${nombreCat(ronda.cat)}`);
   $('#counter').textContent = `${ronda.i + 1}/${ronda.items.length}`;
   $('#qMeta').textContent = `${nombreCat(ronda.cat)} · ${fmtMin(ronda.minutos)} por palabra`;
   $('#qTitle').textContent = `Palabra ${ronda.i + 1}`;
   $('#prog').innerHTML = ronda.items.map((_, k) => `<span class="${k < ronda.i ? (ronda.res[k].nota >= 5 ? 'ok' : 'ko') : k === ronda.i ? 'now' : ''}"></span>`).join('');
-  $('#qNivel').textContent = `Nivel ${niv} · ${NIVELES[niv]}`;
+  $('#qNivel').textContent = GRUPOS[ronda.grupo];
   $('#qWord').textContent = it.palabra;
   $('#qCat').textContent = it.tiempo ? `forma del verbo «${it.verbo}»` : CATS[it.cat];
   $('#enPapel').innerHTML = `Analízala en papel: separación con sus <b>ausencias</b>, qué es cada morfema, formación y clasificación de ${esc(singular(ronda.cat))}.`;
@@ -362,10 +370,10 @@ function resultado() {
   const nota = r1(ronda.res.reduce((a, r) => a + r.nota, 0) / ronda.res.length);
   const pct = k => { const b = ronda.res.reduce((a, r) => a + r[k][0], 0), t = ronda.res.reduce((a, r) => a + r[k][1], 0); return t ? Math.round(100 * b / t) + ' %' : '–'; };
   const fecha = new Date().toLocaleString('es-ES', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
-  const hist = LS.get('historial', []); hist.push({ cat: ronda.cat, nota, fecha, palabras: ronda.res.map(r => ({ p: r.p, n: r.nota })) });
+  const hist = LS.get('historial', []); hist.push({ cat: ronda.cat, grupo: ronda.grupo, nota, fecha, palabras: ronda.res.map(r => ({ p: r.p, n: r.nota })) });
   LS.set('historial', hist.slice(-60));
   ver('vResultado', 'Resultado');
-  $('#rMeta').textContent = `${nombreCat(ronda.cat)} · ${fecha}`;
+  $('#rMeta').textContent = `${nombreCat(ronda.cat)} · ${GRUPOS[ronda.grupo]} · ${fecha}`;
   $('#rTitle').textContent = calif(nota);
   $('#rName').textContent = `${ronda.res.filter(r => r.nota >= 5).length} de ${ronda.res.length} aprobadas`;
   $('#rSub').textContent = `${fmtMin(ronda.minutos)} por palabra${ronda.res.some(r => r.agotado) ? ` · ${ronda.res.filter(r => r.agotado).length} sin tiempo` : ''}`;
@@ -377,7 +385,7 @@ function resultado() {
   $('#rLista').innerHTML = ronda.res.map(r => `
     <a class="row tap res-fila" href="maestro.html#p=${encodeURIComponent(r.p)}" style="text-decoration:none;color:inherit">
       <span class="app-icon" style="--c:${colorNota(r.nota)}">${svg(r.nota >= 5 ? 'check' : 'x', 16, 2.6)}</span>
-      <span class="row-main"><span class="row-text"><span class="row-title" style="display:block"><b>${esc(r.p)}</b> · nivel ${dificultad(BANCO[r.p])}</span>
+      <span class="row-main"><span class="row-text"><span class="row-title" style="display:block"><b>${esc(r.p)}</b></span>
       <span class="row-sub" style="display:block">separación ${r.sep[0]}/${r.sep[1]} · formación ${r.form[0]}/${r.form[1]} · clasificación ${r.cla[0]}/${r.cla[1]}${r.agotado ? ' · sin tiempo' : ''}</span></span>
       <span class="row-trail num" style="color:${colorNota(r.nota)};font-weight:700">${fmt(r.nota)}</span></span></a>`).join('');
 }

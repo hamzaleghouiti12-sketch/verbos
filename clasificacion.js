@@ -326,6 +326,34 @@ medianoche CIKffs|sinvergüenza CIKxcs|centrocampista CIKxcs|mileurista CIKxcs
     return af >= 2 || deverbal || t.includes('I') || raro ? 3 : 2;
   }
   const MINUTOS = { 1: 2, 2: 2.5, 3: 3, 4: 3.5, 5: 4 }; // separar + redactar + clasificar
+
+  // ───────── Puntuación de dificultad (para los grupos del desafío) ─────────
+  // Suma lo que complica el análisis (formación, nº de morfemas, ausencias, interfijos, alomorfos,
+  // vocal temática ante sufijo) y la clasificación (géneros con trampa, subjuntivo, irregulares, formas que coinciden).
+  function puntuacion(it) {
+    const t = it.segs.map(s => s[1]), c = clasificar(it), sep = separacion(it);
+    let p = { simple: 0, derivada: 2, compuesta: 4.5, 'parasintética': 6 }[it.form] || 0;
+    p += it.segs.length * 0.5 + sep.ausencias.length * 0.6 + t.filter(x => 'PSA'.includes(x)).length * 0.5;
+    if (t.includes('I')) p += 1.5;
+    if (RARO.test(it.nota || '')) p += 1.5;
+    if (t.some((x, i) => x === 'V' && t[i + 1] === 'S' && it.segs[i + 1][0] !== 'mente')) p += 1; // mov-i-mient-o, no trist-e-mente
+    if (c) {
+      if (it.cat === 'sus') p += ('ecah'.includes(c.tg) ? 1 : 0) + (c.k === 'B' ? 0.5 : 0) + (c.il === 'L' ? 0.5 : 0) + (c.ca === 'A' ? 0.3 : 0) + (c.n === 'i' ? 0.5 : 0);
+      if (it.cat === 'adj') p += (c.tipo !== 'Q' ? 0.7 : 0) + (c.grado === 'S' ? 0.3 : 0);
+      if (it.cat === 'ver') p += (c.modo === 'sub' ? 1 : 0) + (c.reg === 'irr' ? 1 : 0) + (c.personas.length > 1 || c.tiempos.length > 1 ? 0.5 : 0) - (c.modo === 'np' ? 0.3 : 0);
+      if (it.cat === 'adv') p += (c.tipos.length > 1 ? 1 : 0) + (c.aprec ? 0.3 : 0);
+    }
+    return Math.round(p * 10) / 10;
+  }
+  const GRUPOS = ['Fácil', 'Medio', 'Alto', 'Estás loco'];
+  // reparte una lista de palabras en 4 grupos, de menos a más puntuación
+  function agrupar(lista) {
+    const orden = lista.map(it => [it, puntuacion(it)]).sort((a, b) => a[1] - b[1] || a[0].palabra.localeCompare(b[0].palabra, 'es'));
+    const grupos = [[], [], [], []];
+    const cortes = [0.3, 0.6, 0.85]; // 30 % fácil, 30 % medio, 25 % alto, 15 % «estás loco»
+    orden.forEach(([it], i) => grupos[cortes.filter(c => i >= c * orden.length).length].push(it));
+    return grupos;
+  }
   const NIVELES = { 1: 'Muy fácil', 2: 'Fácil', 3: 'Media', 4: 'Difícil', 5: 'Muy difícil' };
 
   // ───────── Preguntas de clasificación del desafío ─────────
@@ -362,7 +390,7 @@ medianoche CIKffs|sinvergüenza CIKxcs|centrocampista CIKxcs|mileurista CIKxcs
     ]
   };
 
-  const API = { clasificar, separacion, sustantivo, adjetivo, adverbio, verbo, CLAS, NOMBRES, TIPO_GEN, dificultad, MINUTOS, NIVELES, PREGUNTAS };
+  const API = { clasificar, separacion, puntuacion, agrupar, GRUPOS, sustantivo, adjetivo, adverbio, verbo, CLAS, NOMBRES, TIPO_GEN, dificultad, MINUTOS, NIVELES, PREGUNTAS };
   if (typeof module !== 'undefined' && module.exports) module.exports = API;
   else global.Clasificacion = API;
 })(typeof window !== 'undefined' ? window : globalThis);
