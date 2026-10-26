@@ -9,7 +9,7 @@ const compilar = (nombre, codigo) => {
   try { new Function(codigo); console.log(`✓ sintaxis ${nombre}`); }
   catch (e) { fallos++; console.log(`✗ sintaxis ${nombre}: ${e.message}`); }
 };
-for (const f of ['index.html', 'morfemas.html', 'maestro.html', 'desafio.html']) {
+for (const f of ['index.html', 'morfemas.html', 'maestro.html', 'desafio.html', 'sintaxis.html']) {
   const html = fs.readFileSync(__dirname + '/' + f, 'utf8');
   const bloques = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(m => m[1]);
   bloques.forEach((b, i) => compilar(`${f} (script ${i + 1})`, b));
@@ -20,9 +20,9 @@ for (const f of ['index.html', 'morfemas.html', 'maestro.html', 'desafio.html'])
     if (!sw.includes(`'${src}'`)) { fallos++; console.log(`✗ ${src} no está en la caché de sw.js`); }
   }
 }
-for (const f of ['comun.js', 'motor.js', 'morfemas-datos.js', 'lecciones.js', 'clasificacion.js', 'sw.js']) compilar(f, fs.readFileSync(__dirname + '/' + f, 'utf8'));
+for (const f of ['comun.js', 'motor.js', 'morfemas-datos.js', 'lecciones.js', 'clasificacion.js', 'sintaxis-datos.js', 'sw.js']) compilar(f, fs.readFileSync(__dirname + '/' + f, 'utf8'));
 
-for (const p of ['pruebas.js', 'pruebas-morfemas.js', 'pruebas-redaccion.js', 'pruebas-respuestas.js', 'maestro.js --lecciones']) {
+for (const p of ['pruebas.js', 'pruebas-morfemas.js', 'pruebas-redaccion.js', 'pruebas-respuestas.js', 'pruebas-sintaxis.js', 'maestro.js --lecciones']) {
   const [archivo, ...arg] = p.split(' ');
   let salida;
   try { salida = execFileSync(process.execPath, [__dirname + '/' + archivo, ...arg], { encoding: 'utf8' }); } catch (e) { salida = e.stdout || '✗ no se pudo ejecutar'; }

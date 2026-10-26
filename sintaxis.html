@@ -1,0 +1,479 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#F2F2F7">
+<meta name="color-scheme" content="light only">
+<title>Sintaxis</title>
+<link rel="stylesheet" href="estilo.css">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Lengua">
+<style>
+.vista-seg{max-width:720px;margin:18px auto 0;padding:0 20px}
+.vista-seg .seg{margin:0;--n:2}
+@media (max-width:600px){.vista-seg{padding:0 16px}}
+
+/* ───────── Orden de análisis ───────── */
+.pasos{padding:6px 16px 14px}
+.paso{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--sep)}
+.paso:last-child{border-bottom:0}
+.paso .n{width:28px;height:28px;border-radius:50%;background:var(--c);color:#fff;font-size:14px;font-weight:700;display:grid;place-items:center;flex:none;margin-top:1px}
+.paso h3{font-size:16px;font-weight:700;letter-spacing:-.01em}
+.paso p{font-size:14px;line-height:1.45;color:var(--label2);margin-top:3px}
+.paso .prueba{display:inline-block;font-size:12.5px;font-weight:600;color:var(--c);background:color-mix(in srgb,var(--c) 12%,transparent);border-radius:8px;padding:3px 8px;margin-top:6px}
+
+/* ───────── Árbol ───────── */
+.arbol{padding:16px 14px 18px}
+.raiz{display:inline-block;font-size:17px;font-weight:800;padding:8px 14px;border-radius:12px;background:var(--label);color:#fff}
+.arbol ul{list-style:none;margin:0;padding:0 0 0 18px;position:relative}
+.arbol > ul{margin-top:6px;padding-left:12px}
+.arbol li{position:relative;padding:6px 0 0 16px}
+/* líneas del árbol */
+.arbol li::before{content:"";position:absolute;left:0;top:0;bottom:0;border-left:2px solid var(--c,var(--sep))}
+.arbol li:last-child::before{bottom:auto;height:24px}
+.arbol li::after{content:"";position:absolute;left:0;top:24px;width:13px;border-top:2px solid var(--c,var(--sep))}
+.rama{display:inline-flex;align-items:center;gap:8px;font-size:15px;font-weight:700;padding:7px 12px;border-radius:11px;background:color-mix(in srgb,var(--c) 14%,transparent);color:var(--c)}
+.rama .num{width:20px;height:20px;border-radius:50%;background:var(--c);color:#fff;font-size:12px;display:grid;place-items:center}
+.sub{display:inline-block;font-size:14px;font-weight:700;padding:5px 10px;border-radius:9px;border:1.5px solid color-mix(in srgb,var(--c) 45%,transparent);color:var(--label)}
+.hoja{display:block;background:var(--fill);border-radius:11px;padding:8px 11px;max-width:520px}
+.hoja b{font-size:14.5px;font-weight:700;color:var(--label)}
+.hoja .pista{display:block;font-size:13px;color:var(--label2);margin-top:2px;line-height:1.35}
+.hoja .ej{display:block;font-size:13px;color:var(--c);font-style:italic;margin-top:3px;font-weight:600}
+.fuera{display:block;font-size:12.5px;color:var(--label3);padding:6px 0 0}
+
+/* ───────── Plantilla y trampas ───────── */
+.plantilla-red{padding:14px 16px;font-size:15px;line-height:1.6}
+.plantilla-red span{font-weight:700;color:var(--blue)}
+.trampas{padding:4px 16px 10px}
+.trampa{padding:11px 0;border-bottom:1px solid var(--sep);font-size:14px;line-height:1.45}
+.trampa:last-child{border-bottom:0}
+.trampa b{font-weight:700}
+.trampa i{color:var(--label2)}
+
+/* ───────── Práctica (como el desafío) ───────── */
+.grupos{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.grupos button{min-width:0;text-align:left;padding:10px 12px;border-radius:13px;background:var(--fill);transition:background .15s}
+.grupos button b{display:block;font-size:15px;font-weight:700;color:var(--label)}
+.grupos button small{display:block;font-size:12px;color:var(--label2);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.grupos button[aria-pressed="true"]{background:var(--blue)}
+.grupos button[aria-pressed="true"] b,.grupos button[aria-pressed="true"] small{color:#fff}
+.minutos{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:8px}
+.minutos button{font-size:14px;font-weight:600;padding:8px 12px;border-radius:11px;background:var(--fill);color:var(--label);font-variant-numeric:tabular-nums}
+.minutos button[aria-pressed="true"]{background:var(--blue);color:#fff}
+.mini-tit{font-size:13px;font-weight:600;color:var(--label2);text-align:center;margin-top:18px}
+.reloj{font-variant-numeric:tabular-nums;font-size:15px;font-weight:700;padding:5px 11px;border-radius:99px;background:var(--fill);color:var(--label)}
+.reloj[hidden],.barra[hidden]{display:none}
+.reloj.poco{background:color-mix(in srgb,var(--orange) 18%,transparent);color:var(--orange-ink)}
+.reloj.nada{background:color-mix(in srgb,var(--red) 16%,transparent);color:var(--red-ink)}
+.barra{height:4px;border-radius:99px;background:var(--fill-strong);margin-top:12px;overflow:hidden}
+.barra i{display:block;height:100%;background:var(--blue);border-radius:99px;transform-origin:left;transition:transform .25s linear}
+.barra.poco i{background:var(--orange)}.barra.nada i{background:var(--red)}
+.q-oracion{font-size:clamp(24px,6.4vw,34px);font-weight:700;letter-spacing:-.02em;line-height:1.25;margin:36px 0 30px;word-break:break-word}
+.en-papel{font-size:14px;color:var(--label2);line-height:1.45;margin-bottom:16px}
+.en-papel b{color:var(--label);font-weight:600}
+.corr{text-align:left}
+.corr-tit{font-size:13px;font-weight:700;color:var(--label2);text-transform:uppercase;letter-spacing:.03em;margin:20px 0 6px}
+.modelo-red{font-size:16px;line-height:1.5;padding:12px 14px;border-radius:13px;border:1px dashed var(--sep)}
+.linea{display:flex;align-items:flex-start;gap:12px;width:100%;text-align:left;padding:11px 12px;border-radius:13px;background:var(--fill);margin-top:6px;transition:background .15s}
+.linea .marca{width:24px;height:24px;border-radius:50%;flex:none;display:grid;place-items:center;box-shadow:inset 0 0 0 2px var(--label3);color:#fff;margin-top:1px}
+.linea .marca svg{opacity:0}
+.linea.ok{background:color-mix(in srgb,var(--green) 13%,transparent)}
+.linea.ok .marca{background:var(--green);box-shadow:none}
+.linea.ko{background:color-mix(in srgb,var(--red) 11%,transparent)}
+.linea.ko .marca{background:var(--red);box-shadow:none}
+.linea.ok .marca svg,.linea.ko .marca svg{opacity:1}
+.linea .txt{font-size:15px;line-height:1.4}
+.linea .txt b{display:block;font-size:12.5px;font-weight:700;color:var(--label2);text-transform:uppercase;letter-spacing:.02em;margin-bottom:2px}
+.nota-aviso{font-size:14px;line-height:1.45;margin-top:12px;padding:10px 12px;border-radius:12px;background:color-mix(in srgb,var(--orange) 12%,transparent);color:var(--label)}
+.nota-aviso b{font-weight:700;color:var(--orange-ink)}
+.corr-nota{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:20px;padding-top:16px;border-top:1px solid var(--sep)}
+.corr-nota .grande{font-size:36px;font-weight:700;letter-spacing:-.04em;line-height:1}
+.corr-nota small{display:block;font-size:13px;color:var(--label2);margin-top:4px}
+.todo-bien{flex:none;font-size:14px;font-weight:600;padding:9px 14px;border-radius:11px;background:var(--fill);color:var(--blue)}
+.tiempo-fin{font-size:15px;font-weight:600;color:var(--red-ink);margin:0 0 6px}
+.res-fila .row-title b{font-weight:600}
+</style>
+</head>
+<body>
+
+<div class="topbar" id="topbar">
+  <div class="topbar-inner">
+    <span><button class="link" id="backBtn" hidden><i data-i="left" data-s="22" data-w="2.4"></i>Salir</button></span>
+    <span class="topbar-title" id="topTitle">Sintaxis</span>
+    <span class="counter num" id="counter" hidden></span>
+  </div>
+</div>
+
+<!-- ───────── Inicio: esquema y práctica ───────── -->
+<div id="vInicio">
+  <header class="large"><p class="date">Oración simple y compuesta</p><h1>Sintaxis</h1></header>
+  <nav class="games" aria-label="Juego"><div class="seg" style="--i:2;--n:3"><span class="seg-thumb"></span><a href="index.html" aria-current="false">Verbos</a><a href="morfemas.html" aria-current="false">Morfemas</a><a href="sintaxis.html" aria-current="page">Sintaxis</a></div></nav>
+  <div class="vista-seg"><div class="seg" id="vistaSeg"><span class="seg-thumb"></span><button role="radio" data-v="esquema">Esquema</button><button role="radio" data-v="practica">Práctica</button></div></div>
+
+  <!-- Esquema -->
+  <main class="layout" id="zEsquema">
+    <div class="section-head"><h2>Orden de análisis</h2></div>
+    <div class="card pasos" id="pasos"></div>
+
+    <div class="section-head"><h2>Esquema de clasificación</h2></div>
+    <div class="card arbol" id="arbol"></div>
+
+    <div class="section-head"><h2>Cómo se redacta</h2></div>
+    <div class="card plantilla-red">Oración <span>[simple / compuesta + tipo y nexo]</span>, <span>[modalidad]</span>, <span>[sujeto]</span>, <span>[copulativa / semicopulativa / predicativa transitiva o intransitiva]</span>, en voz <span>[activa / pasiva perifrástica / pasiva refleja]</span> y con el verbo en <span>[indicativo / subjuntivo / imperativo]</span>.<br><br>
+      <i style="color:var(--label2)">Ej.: Oración simple, enunciativa afirmativa, con sujeto explícito («Mi hermano»), copulativa (atributo: «muy alto»), en voz activa y con el verbo en indicativo.</i></div>
+
+    <div class="section-head"><h2>Trampas típicas</h2></div>
+    <div class="card trampas" id="trampas"></div>
+    <p class="foot">Este apartado trabaja la oración simple y la compuesta por yuxtaposición y coordinación. Las subordinadas quedan fuera.</p>
+  </main>
+
+  <!-- Práctica -->
+  <main class="layout" id="zPractica" hidden>
+    <div class="section-head"><h2>Práctica en papel</h2></div>
+    <div class="card hero">
+      <div class="hero-head">
+        <div class="hero-id"><div class="hero-name" id="hName"></div><div class="hero-sub" id="hSub"></div></div>
+        <span class="pill num" id="hPill"></span>
+      </div>
+      <div class="ring-wrap">
+        <svg class="ring" viewBox="0 0 240 240" aria-hidden="true">
+          <defs><linearGradient id="rg1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" class="s1"/><stop offset="1" class="s2"/></linearGradient></defs>
+          <circle class="t" cx="120" cy="120" r="100"/>
+          <circle class="p" id="hRing" cx="120" cy="120" r="100" stroke="url(#rg1)"/>
+        </svg>
+        <div class="ring-center"><div class="ring-num num" id="hNum">–</div><div class="ring-sub" id="hRingSub">mejor nota</div></div>
+      </div>
+      <button class="wide" id="startBtn">Empezar ronda <kbd>Enter</kbd></button>
+      <div class="mini-tit">Dificultad</div>
+      <div class="grupos" id="grupos"></div>
+      <div class="mini-tit">Tiempo por oración</div>
+      <div class="minutos" id="minutos"></div>
+    </div>
+    <div class="section-head"><h2>Historial</h2></div>
+    <div class="list" id="hist"></div>
+    <p class="foot">Analiza cada oración en papel siguiendo el orden de análisis. En la corrección, marca cada línea que tengas bien: la nota sale de lo que marques.</p>
+  </main>
+</div>
+
+<!-- ───────── Oración ───────── -->
+<div id="vPregunta" hidden>
+  <header class="large"><p class="date num" id="qMeta"></p><h1 id="qTitle">Oración 1</h1></header>
+  <main class="layout">
+    <div class="progress" id="prog" role="img"></div>
+    <div class="card q">
+      <div class="q-top"><span class="q-person" id="qNivel"></span><span class="reloj" id="reloj">0:00</span></div>
+      <div class="barra" id="barra"><i id="barraIn"></i></div>
+      <div class="q-oracion" id="qOracion"></div>
+      <div id="zonaPapel">
+        <p class="en-papel">Analízala en papel: <b>verbos</b> (simple o compuesta), <b>modalidad</b>, <b>sujeto</b>, <b>predicado</b>, <b>diátesis</b> y <b>modo</b>.</p>
+        <button class="wide" id="verBtn">Ver la corrección <kbd>Enter</kbd></button>
+      </div>
+      <div class="corr" id="corr" hidden></div>
+    </div>
+  </main>
+</div>
+
+<!-- ───────── Resultado ───────── -->
+<div id="vResultado" hidden>
+  <header class="large"><p class="date" id="rMeta"></p><h1 id="rTitle"></h1></header>
+  <main class="layout">
+    <div class="section-head"><h2>Nota de la ronda</h2></div>
+    <div class="card hero">
+      <div class="hero-head">
+        <div class="hero-id"><div class="hero-name" id="rName"></div><div class="hero-sub" id="rSub"></div></div>
+        <span class="pill num" id="rPill"></span>
+      </div>
+      <div class="ring-wrap">
+        <svg class="ring" viewBox="0 0 240 240" aria-hidden="true">
+          <defs><linearGradient id="rg2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" class="s1"/><stop offset="1" class="s2"/></linearGradient></defs>
+          <circle class="t" cx="120" cy="120" r="100"/>
+          <circle class="p" id="rRing" cx="120" cy="120" r="100" stroke="url(#rg2)"/>
+        </svg>
+        <div class="ring-center"><div class="ring-num num" id="rNum"></div><div class="ring-sub">sobre 10</div></div>
+      </div>
+      <button class="wide" id="otraBtn">Otra ronda <kbd>Enter</kbd></button>
+      <button class="wide soft" id="inicioBtn">Volver</button>
+    </div>
+    <div class="tiles" id="rTiles" style="margin-top:18px"></div>
+    <div class="section-head"><h2>Oración a oración</h2></div>
+    <div class="list" id="rLista"></div>
+  </main>
+</div>
+
+<div class="toast" id="toast" role="status"><span class="ic"></span><span class="tx"></span></div>
+
+<script src="sintaxis-datos.js"></script>
+<script src="comun.js"></script>
+<script>
+const { ORACIONES, correccion, puntuacion } = Sintaxis;
+const LS = crearAlmacen('sintaxis.');
+
+// ───────── Esquema: orden de análisis, árbol y trampas ─────────
+const PASOS = [
+  ['var(--indigo)', 'Localiza los verbos', 'Cuenta las formas verbales conjugadas. Una perífrasis (tengo que estudiar, está lloviendo, ha sido construido) cuenta como un solo verbo.', 'Un verbo → simple · dos o más → compuesta'],
+  ['var(--purple)', 'Si es compuesta, mira cómo se unen', 'Separa las proposiciones y fíjate en lo que hay entre ellas: si solo hay un signo de puntuación es yuxtapuesta; si hay un nexo, coordinada.', 'y, e, ni → copulativa · o, u → disyuntiva · pero, mas, sino → adversativa'],
+  ['var(--teal)', 'Modalidad', 'Mira los signos (¿? ¡!), el modo del verbo y palabras como no, nunca, ojalá, quizá.', 'Enunciativa · interrogativa · exclamativa · exhortativa · desiderativa · dubitativa'],
+  ['var(--green)', 'Sujeto (en cada verbo)', 'Cambia el verbo de número y mira qué palabra cambia con él: ese es el sujeto. Si no está escrito pero se deduce de la desinencia, es omitido. Si no puede haber sujeto, es impersonal.', 'Prueba de concordancia: «El perro ladra» → «Los perros ladran»'],
+  ['var(--orange)', 'Predicado', 'Con ser, estar o parecer + atributo (lo es, lo está), es copulativa. Con quedarse, ponerse, volverse, hacerse, resultar, seguir… + complemento predicativo, es semicopulativa. Si no, es predicativa: con CD es transitiva y sin CD, intransitiva.', 'El CD se sustituye por lo, la, los, las'],
+  ['var(--red)', 'Diátesis', 'Con ser + participio es pasiva perifrástica. Con se + verbo en 3.ª persona que concuerda con un sujeto de cosa (se venden pisos), es pasiva refleja. Si no, activa.', 'Pasiva: el sujeto recibe la acción'],
+  ['var(--blue)', 'Modo y redacción', 'Di el modo del verbo (indicativo, subjuntivo o imperativo) y redacta la clasificación completa en una frase.', 'Usa la plantilla de abajo']
+];
+const HOJA = (nombre, pista, ej) => `<span class="hoja"><b>${nombre}</b>${pista ? `<span class="pista">${pista}</span>` : ''}${ej ? `<span class="ej">${ej}</span>` : ''}</span>`;
+const ARBOL = [
+  ['var(--indigo)', 'Número de verbos', [
+    ['Simple', 'un solo núcleo verbal (también con perífrasis)', 'El tren llega a las ocho.'],
+    ['Compuesta', null, null, [
+      ['Yuxtapuesta', 'sin nexo: solo coma, punto y coma o dos puntos', 'Llegué, vi, vencí.'],
+      ['Coordinada', null, null, [
+        ['Copulativa', 'suma: y, e, ni', 'Juan estudia y María trabaja.'],
+        ['Disyuntiva', 'alternativa: o, u', '¿Vienes o te quedas?'],
+        ['Adversativa', 'oposición: pero, mas, sino, sin embargo', 'Es pobre, pero es feliz.']
+      ]]
+    ], 'Subordinadas: en otro apartado']
+  ]],
+  ['var(--teal)', 'Modalidad', [
+    ['Enunciativa', 'afirmativa o negativa', 'No encuentro mis llaves.'],
+    ['Interrogativa', 'total (sí/no) o parcial (qué, quién, dónde…)', '¿Dónde vives?'],
+    ['Exclamativa', 'emoción, entre ¡!', '¡Qué frío hace!'],
+    ['Exhortativa', 'orden, ruego o prohibición', 'Cierra la ventana.'],
+    ['Desiderativa', 'deseo: ojalá, que + subjuntivo', 'Ojalá apruebes.'],
+    ['Dubitativa', 'duda: quizá, tal vez, acaso', 'Quizá venga mañana.']
+  ]],
+  ['var(--green)', 'Sujeto', [
+    ['Personal', null, null, [
+      ['Explícito', 'aparece escrito y concuerda con el verbo', 'Los niños juegan.'],
+      ['Omitido (tácito o elíptico)', 'no está escrito, se deduce de la desinencia', 'Compré pan. (yo)']
+    ]],
+    ['Impersonal', 'no hay sujeto posible', null, [
+      ['Eventual de 3.ª plural', 'no se sabe quién', 'Llaman a la puerta.'],
+      ['Refleja', 'se + 3.ª singular sin sujeto', 'Se vive bien aquí.'],
+      ['Gramaticalizada', 'haber, hacer, ser', 'Hay pan. · Hace frío. · Es tarde.'],
+      ['Atmosférica (unipersonal)', 'fenómenos naturales', 'Llueve. · Nieva. · Amanece.']
+    ]]
+  ]],
+  ['var(--orange)', 'Predicado', [
+    ['Copulativa', 'ser, estar, parecer + atributo', 'Mi hermano es alto.'],
+    ['Semicopulativa', 'quedarse, ponerse, volverse, hacerse, resultar, seguir… + complemento predicativo', 'Juan se puso nervioso.'],
+    ['Predicativa', null, null, [
+      ['Transitiva', 'con complemento directo (lo, la, los, las)', 'Mi madre lee el periódico.'],
+      ['Intransitiva', 'sin complemento directo', 'El perro duerme.']
+    ]]
+  ]],
+  ['var(--red)', 'Diátesis (voz)', [
+    ['Activa', 'el sujeto hace la acción', 'Los romanos construyeron el puente.'],
+    ['Pasiva', 'el sujeto recibe la acción', null, [
+      ['Perifrástica', 'ser + participio (+ complemento agente)', 'El puente fue construido por los romanos.'],
+      ['Refleja', 'se + 3.ª persona que concuerda con un sujeto de cosa', 'Se venden pisos.']
+    ]]
+  ]],
+  ['var(--blue)', 'Modo del verbo', [
+    ['Indicativo', 'la acción como real', 'Vivimos cerca del mar.'],
+    ['Subjuntivo', 'deseo, duda, prohibición', 'No toques el horno.'],
+    ['Imperativo', 'orden (solo afirmativa)', 'Venid aquí.']
+  ]]
+];
+function pintarRamas(lista) {
+  return `<ul>${lista.map(([nombre, pista, ej, hijos, fuera]) => `<li>${hijos ? `<span class="sub">${nombre}</span>${pista ? `<span class="fuera" style="color:var(--label2)">${pista}</span>` : ''}${pintarRamas(hijos)}` : HOJA(nombre, pista, ej)}${fuera ? `<span class="fuera">${fuera}</span>` : ''}</li>`).join('')}</ul>`;
+}
+const TRAMPAS = [
+  ['estar + participio no es pasiva', '<i>La puerta está cerrada</i> es copulativa (atributo «cerrada»). La pasiva perifrástica se forma con <b>ser</b>: <i>La puerta fue cerrada</i>.'],
+  ['estar + lugar no es copulativa', '<i>Mi hermano está en casa</i> es predicativa intransitiva: «estar» significa «encontrarse» y «en casa» es CC de lugar.'],
+  ['El sujeto puede ir detrás', '<i>Me duelen los pies</i>, <i>A mi hermana le encanta el chocolate</i>: el sujeto es lo que concuerda con el verbo («los pies», «el chocolate»).'],
+  ['Con haber impersonal no hay sujeto', '<i>Hay mucha gente</i>: «mucha gente» es CD (la hay). Por eso se dice «había muchas personas», nunca «habían».'],
+  ['Pasiva refleja o impersonal refleja', '<i>Se venden pisos</i>: el verbo concuerda con «pisos» (sujeto) → pasiva refleja. <i>Se busca a los culpables</i>: hay «a» + persona y no concuerda → impersonal refleja.'],
+  ['Semicopulativa o complemento predicativo', '<i>Juan se puso nervioso</i> es semicopulativa. Pero <i>Los alumnos llegaron cansados</i> es predicativa: sin «cansados» la oración sigue completa.'],
+  ['Verbo transitivo sin CD', '<i>Mi abuela cocina muy bien</i>: «cocinar» es transitivo, pero aquí no hay CD → intransitiva.'],
+  ['Una perífrasis es un solo verbo', '<i>Tengo que estudiar más</i> y <i>Está lloviendo</i> son oraciones simples.']
+];
+$('#pasos').innerHTML = PASOS.map(([c, t, p, pr], i) => `<div class="paso" style="--c:${c}"><span class="n">${i + 1}</span><div><h3>${t}</h3><p>${p}</p><span class="prueba">${pr}</span></div></div>`).join('');
+$('#arbol').innerHTML = `<span class="raiz">Oración</span><ul>${ARBOL.map(([c, nombre, hijos], i) => `<li style="--c:${c}"><span class="rama" style="--c:${c}"><span class="num">${i + 1}</span>${nombre}</span>${pintarRamas(hijos)}</li>`).join('')}</ul>`;
+$('#trampas').innerHTML = TRAMPAS.map(([t, d]) => `<div class="trampa"><b>${t}.</b> ${d}</div>`).join('');
+
+// ───────── Vistas ─────────
+const vistas = ['vInicio', 'vPregunta', 'vResultado'];
+function ver(id, titulo) {
+  vistas.forEach(v => $('#' + v).hidden = v !== id);
+  $('#backBtn').hidden = id === 'vInicio';
+  $('#counter').hidden = id !== 'vPregunta';
+  $('#topTitle').textContent = titulo || 'Sintaxis';
+  window.scrollTo(0, 0);
+  if (id !== 'vInicio' && !(history.state && history.state.juego)) history.pushState({ juego: 1 }, '');
+}
+let vista = LS.get('vista', 'esquema');
+function pintarVista() {
+  const i = vista === 'practica' ? 1 : 0;
+  $('#vistaSeg').style.setProperty('--i', i);
+  $('#vistaSeg').querySelectorAll('[data-v]').forEach(b => b.setAttribute('aria-checked', b.dataset.v === vista));
+  $('#zEsquema').hidden = vista !== 'esquema'; $('#zPractica').hidden = vista !== 'practica';
+}
+$('#vistaSeg').onclick = e => { const b = e.target.closest('[data-v]'); if (b) { vista = b.dataset.v; LS.set('vista', vista); pintarVista(); } };
+
+// ───────── Práctica: grupos de dificultad ─────────
+const GRUPOS = ['Fácil', 'Medio', 'Alto', 'Estás loco'];
+const ordenadas = ORACIONES.map(o => [o, puntuacion(o)]).sort((a, b) => a[1] - b[1] || a[0].texto.localeCompare(b[0].texto, 'es'));
+const POR_GRUPO = [[], [], [], []];
+ordenadas.forEach(([o], i) => POR_GRUPO[[0.3, 0.6, 0.85].filter(c => i >= c * ordenadas.length).length].push(o));
+const POR_RONDA = 10, OPC_MIN = [1, 2, 3, 4, 5, 7, 10, 0];
+let grupo = LS.get('grupo', 0), minutos = LS.get('minutos', 3);
+const fmtMin = m => m ? `${m} min` : 'Sin límite';
+function pintarInicio() {
+  parar();
+  ver('vInicio');
+  pintarVista();
+  const hist = LS.get('historial', []).filter(h => h.grupo === grupo);
+  const mejor = hist.length ? Math.max(...hist.map(h => h.nota)) : null;
+  $('#hName').textContent = GRUPOS[grupo];
+  $('#hSub').textContent = `${Math.min(POR_RONDA, POR_GRUPO[grupo].length)} oraciones de ${POR_GRUPO[grupo].length} en este grupo`;
+  $('#hNum').textContent = mejor === null ? '–' : fmt(mejor);
+  $('#hRingSub').textContent = mejor === null ? 'aún sin rondas' : 'mejor nota';
+  $('#hPill').textContent = hist.length ? `${hist.length} ronda${hist.length > 1 ? 's' : ''}` : 'Nueva';
+  $('#hPill').className = 'pill num' + (mejor === null ? '' : ' ' + clasePill(mejor));
+  anillo($('#hRing'), mejor === null ? 0 : mejor / 10, mejor === null ? 'var(--blue)' : colorNota(mejor));
+  $('#grupos').innerHTML = POR_GRUPO.map((l, k) => `<button data-g="${k}" aria-pressed="${k === grupo}"><b>${GRUPOS[k]}</b><small>${l.length} · ${esc(l[Math.floor(l.length / 2)].texto)}</small></button>`).join('');
+  $('#minutos').innerHTML = OPC_MIN.map(m => `<button data-m="${m}" aria-pressed="${m === minutos}">${fmtMin(m)}</button>`).join('');
+  $('#hist').innerHTML = hist.length ? hist.slice(-8).reverse().map(h => `
+    <div class="row"><span class="app-icon" style="--c:${colorNota(h.nota)}">${svg('flame', 17, 2.2)}</span>
+      <div class="row-main"><div class="row-text"><div class="row-title">${fmt(h.nota)} · ${calif(h.nota)}</div><div class="row-sub">${esc(h.fecha)} · ${GRUPOS[h.grupo]}</div></div></div></div>`).join('')
+    : '<div class="placeholder">Aquí aparecerán tus rondas.</div>';
+}
+$('#grupos').onclick = e => { const b = e.target.closest('[data-g]'); if (b) { grupo = +b.dataset.g; LS.set('grupo', grupo); pintarInicio(); } };
+$('#minutos').onclick = e => {
+  const b = e.target.closest('[data-m]'); if (!b) return;
+  minutos = +b.dataset.m; LS.set('minutos', minutos);
+  $('#minutos').querySelectorAll('[data-m]').forEach(x => x.setAttribute('aria-pressed', x === b));
+};
+
+// ───────── Ronda ─────────
+let ronda = null, o = null, fin = 0, reloj = 0, corregida = false, marcas = [];
+function empezar() {
+  const lista = POR_GRUPO[grupo], vistos = new Set(LS.get('vistos', []));
+  const nuevas = barajar(lista.filter(x => !vistos.has(x.texto)));
+  const elegidas = (nuevas.length >= POR_RONDA ? nuevas : [...nuevas, ...barajar(lista.filter(x => vistos.has(x.texto)))]).slice(0, POR_RONDA);
+  ronda = { grupo, minutos, items: elegidas.sort((a, b) => puntuacion(a) - puntuacion(b)), i: 0, res: [] };
+  LS.set('vistos', [...LS.get('vistos', []), ...ronda.items.map(x => x.texto)].slice(-100));
+  pregunta();
+}
+function pregunta() {
+  o = ronda.items[ronda.i]; corregida = false;
+  ver('vPregunta', 'Sintaxis · práctica');
+  $('#counter').textContent = `${ronda.i + 1}/${ronda.items.length}`;
+  $('#qMeta').textContent = `${GRUPOS[ronda.grupo]} · ${fmtMin(ronda.minutos)} por oración`;
+  $('#qTitle').textContent = `Oración ${ronda.i + 1}`;
+  $('#prog').innerHTML = ronda.items.map((_, k) => `<span class="${k < ronda.i ? (ronda.res[k].nota >= 5 ? 'ok' : 'ko') : k === ronda.i ? 'now' : ''}"></span>`).join('');
+  $('#qNivel').textContent = GRUPOS[ronda.grupo];
+  $('#qOracion').textContent = o.texto;
+  $('#zonaPapel').hidden = false; $('#corr').hidden = true; $('#corr').innerHTML = '';
+  $('#barra').hidden = !ronda.minutos; $('#reloj').hidden = !ronda.minutos;
+  parar();
+  if (ronda.minutos) { fin = Date.now() + ronda.minutos * 60000; reloj = setInterval(tic, 250); tic(); }
+}
+function tic() {
+  const quedan = Math.max(0, fin - Date.now()), s = Math.ceil(quedan / 1000);
+  $('#reloj').textContent = `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+  const estado = quedan <= 10000 ? 'nada' : quedan <= 30000 ? 'poco' : '';
+  $('#reloj').className = 'reloj ' + estado; $('#barra').className = 'barra ' + estado;
+  $('#barraIn').style.transform = `scaleX(${quedan / (ronda.minutos * 60000)})`;
+  if (quedan <= 0) { parar(); try { navigator.vibrate && navigator.vibrate([200, 100, 200]); } catch {} corregir(true); }
+}
+function parar() { clearInterval(reloj); reloj = 0; }
+
+// ───────── Corrección redactada y líneas para marcar ─────────
+const r1 = x => Math.round(x * 10) / 10;
+function corregir(agotado) {
+  if (corregida) return;
+  corregida = true; parar();
+  const c = correccion(o);
+  marcas = c.lineas.map(() => null);
+  $('#zonaPapel').hidden = true; $('#corr').hidden = false;
+  $('#corr').innerHTML = `${agotado ? '<p class="tiempo-fin">Se acabó el tiempo.</p>' : ''}
+    <div class="corr-tit" style="margin-top:4px">Clasificación redactada</div>
+    <div class="modelo-red">${esc(c.redaccion)}</div>
+    <div class="corr-tit">Marca lo que tengas bien</div>
+    ${c.lineas.map((l, k) => `<button class="linea" data-k="${k}"><span class="marca">${svg('check', 14, 3.4)}</span><span class="txt"><b>${esc(l.titulo)}</b>${esc(l.txt)}</span></button>`).join('')}
+    ${o.nota ? `<p class="nota-aviso"><b>Ojo:</b> ${esc(o.nota)}</p>` : ''}
+    <div class="corr-nota"><div><div class="grande num" id="notaO">–</div><small id="notaDet"></small></div><button class="todo-bien" id="todoBien">Marcar el resto bien</button></div>
+    <button class="wide" id="sigBtn" style="margin-top:14px">${ronda.i + 1 >= ronda.items.length ? 'Ver la nota' : 'Siguiente oración'} <kbd>Enter</kbd></button>`;
+  ronda.actual = { lineas: c.lineas, agotado };
+  pintarNota();
+}
+$('#corr').onclick = e => {
+  const l = e.target.closest('.linea');
+  if (l) { const k = +l.dataset.k; marcas[k] = marcas[k] === 'ok' ? 'ko' : 'ok'; return pintarMarcas(); }
+  if (e.target.closest('#todoBien')) { marcas = marcas.map(m => m || 'ok'); return pintarMarcas(); }
+  if (e.target.closest('#sigBtn')) siguiente();
+};
+function pintarMarcas() {
+  $('#corr').querySelectorAll('.linea').forEach((el, k) => { el.classList.toggle('ok', marcas[k] === 'ok'); el.classList.toggle('ko', marcas[k] === 'ko'); });
+  pintarNota();
+}
+// la nota de la oración: lo marcado bien sobre el total; y por apartados para el resumen
+const APARTADOS = ['Modalidad', 'Estructura', 'Sujeto', 'Predicado', 'Diátesis', 'Modo'];
+const apartadoDe = t => APARTADOS.find(a => t.endsWith(a));
+function notaActual() {
+  const ls = ronda.actual.lineas, por = {};
+  for (const a of APARTADOS) por[a] = [0, 0];
+  ls.forEach((l, k) => { const a = apartadoDe(l.titulo); por[a][1]++; if (marcas[k] === 'ok') por[a][0]++; });
+  return { nota: r1(10 * marcas.filter(m => m === 'ok').length / marcas.length), por };
+}
+function pintarNota() {
+  const n = notaActual(), sin = marcas.filter(m => !m).length;
+  $('#notaO').textContent = fmt(n.nota); $('#notaO').style.color = colorNota(n.nota);
+  $('#notaDet').textContent = sin ? `Toca cada línea que tengas bien (quedan ${sin} sin marcar)` : `${marcas.filter(m => m === 'ok').length} de ${marcas.length} bien`;
+  $('#todoBien').hidden = !sin;
+}
+function siguiente() {
+  const n = notaActual();
+  ronda.res.push({ texto: o.texto, nota: n.nota, por: n.por, agotado: ronda.actual.agotado });
+  ronda.i++;
+  if (ronda.i >= ronda.items.length) resultado(); else pregunta();
+}
+$('#verBtn').onclick = () => corregir(false);
+addEventListener('keydown', e => {
+  if (e.key !== 'Enter' || e.target.closest('input,textarea')) return;
+  if (!$('#vPregunta').hidden) { e.preventDefault(); corregida ? siguiente() : corregir(false); }
+  else if (!$('#vResultado').hidden && !e.target.closest('button,a')) empezar();
+  else if (!$('#vInicio').hidden && vista === 'practica' && !e.target.closest('button,a')) empezar();
+});
+
+// ───────── Resultado ─────────
+function resultado() {
+  parar();
+  const nota = r1(ronda.res.reduce((a, r) => a + r.nota, 0) / ronda.res.length);
+  const pct = a => { const b = ronda.res.reduce((s, r) => s + r.por[a][0], 0), t = ronda.res.reduce((s, r) => s + r.por[a][1], 0); return t ? Math.round(100 * b / t) + ' %' : '–'; };
+  const fecha = new Date().toLocaleString('es-ES', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+  const hist = LS.get('historial', []); hist.push({ grupo: ronda.grupo, nota, fecha }); LS.set('historial', hist.slice(-60));
+  ver('vResultado', 'Resultado');
+  $('#rMeta').textContent = `Sintaxis · ${GRUPOS[ronda.grupo]} · ${fecha}`;
+  $('#rTitle').textContent = calif(nota);
+  $('#rName').textContent = `${ronda.res.filter(r => r.nota >= 5).length} de ${ronda.res.length} aprobadas`;
+  $('#rSub').textContent = `${fmtMin(ronda.minutos)} por oración`;
+  $('#rNum').textContent = fmt(nota);
+  $('#rPill').textContent = calif(nota); $('#rPill').className = 'pill num ' + clasePill(nota);
+  anillo($('#rRing'), nota / 10, colorNota(nota));
+  $('#rTiles').innerHTML = tile('list', 'var(--indigo)', 'Estructura', pct('Estructura')) + tile('target', 'var(--green)', 'Sujeto', pct('Sujeto'))
+    + tile('book', 'var(--orange)', 'Predicado', pct('Predicado')) + tile('flame', 'var(--red)', 'Diátesis', pct('Diátesis'))
+    + tile('text', 'var(--teal)', 'Modalidad', pct('Modalidad')) + tile('pencil', 'var(--blue)', 'Modo', pct('Modo'));
+  $('#rLista').innerHTML = ronda.res.map(r => `
+    <div class="row res-fila"><span class="app-icon" style="--c:${colorNota(r.nota)}">${svg(r.nota >= 5 ? 'check' : 'x', 16, 2.6)}</span>
+      <div class="row-main"><div class="row-text"><div class="row-title"><b>${esc(r.texto)}</b></div>
+      <div class="row-sub">${APARTADOS.map(a => `${a.toLowerCase()} ${r.por[a][0]}/${r.por[a][1]}`).join(' · ')}${r.agotado ? ' · sin tiempo' : ''}</div></div>
+      <span class="row-trail num" style="color:${colorNota(r.nota)};font-weight:700">${fmt(r.nota)}</span></div></div>`).join('');
+}
+$('#startBtn').onclick = empezar;
+$('#otraBtn').onclick = empezar;
+$('#inicioBtn').onclick = () => volverAlInicio();
+$('#backBtn').onclick = () => {
+  if (!$('#vPregunta').hidden && !confirm('¿Salir de la ronda? Se pierde lo que llevas.')) return;
+  volverAlInicio();
+};
+pintarIconos();
+pintarInicio();
+if ('serviceWorker' in navigator && location.protocol !== 'file:') navigator.serviceWorker.register('sw.js').catch(() => {});
+</script>
+</body>
+</html>
