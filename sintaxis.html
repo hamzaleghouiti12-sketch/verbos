@@ -367,11 +367,13 @@ $('#trampas').innerHTML = TRAMPAS.map(([t, d]) => `<div class="trampa"><b>${t}.<
 // ───────── Vistas ─────────
 const vistas = ['vInicio', 'vPregunta', 'vIdent', 'vResultado'];
 function ver(id, titulo) {
+  // al repintar el inicio (al elegir grupo, categoría…) no se salta arriba: el toque no se pierde
+  const repinta = id === 'vInicio' && !$('#vInicio').hidden;
   vistas.forEach(v => $('#' + v).hidden = v !== id);
   $('#backBtn').hidden = id === 'vInicio';
   $('#counter').hidden = id !== 'vPregunta' && id !== 'vIdent';
   $('#topTitle').textContent = titulo || 'Sintaxis';
-  window.scrollTo(0, 0);
+  if (!repinta) window.scrollTo(0, 0);
   if (id !== 'vInicio' && !(history.state && history.state.juego)) history.pushState({ juego: 1 }, '');
 }
 let vista = LS.get('vista', 'esquema');
@@ -639,7 +641,7 @@ function responderId(cod) {
   idr.res.push({ texto: u.o.texto, id: u.id, k: u.k, compuesta: u.o.props.length > 1, bien, resp: escrito, correcta });
   try { navigator.vibrate && navigator.vibrate(bien ? 15 : [40, 60, 40]); } catch {}
   $('#iSig').focus({ preventScroll: true });
-  $('#iSig').scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  $('#iSig').scrollIntoView({ block: 'nearest' }); // sin animación: un toque durante el desplazamiento se perdería
 }
 function siguienteId() {
   if (!iq.resp) return;

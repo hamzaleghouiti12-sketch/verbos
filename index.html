@@ -352,13 +352,15 @@ function interpretar(txt) {
 // ───────── Utilidades de vista ─────────
 const vistas = ['vInicio', 'vPregunta', 'vResultado'];
 function ver(id, titulo) {
+  // al repintar el inicio (al elegir grupo, categoría…) no se salta arriba: el toque no se pierde
+  const repinta = id === 'vInicio' && !$('#vInicio').hidden;
   const antes = vistas.find(v => !$('#' + v).hidden);
   vistas.forEach(v => $('#' + v).hidden = v !== id);
   $('#backBtn').hidden = id === 'vInicio';
   $('#setBtn').hidden = id !== 'vInicio';
   $('#counter').hidden = id !== 'vPregunta';
   $('#topTitle').textContent = titulo || 'Verbos';
-  window.scrollTo(0, 0);
+  if (!repinta) window.scrollTo(0, 0);
   $('#topbar').classList.remove('scrolled');
   if (antes && antes !== id) {
     // transición tipo iOS: hacia delante al entrar en el examen, hacia atrás al volver al inicio

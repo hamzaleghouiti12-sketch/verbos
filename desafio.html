@@ -214,11 +214,13 @@ function generarRonda(c, g) {
 // ───────── Vistas ─────────
 const vistas = ['vInicio', 'vPregunta', 'vResultado'];
 function ver(id, titulo) {
+  // al repintar el inicio (al elegir grupo, categoría…) no se salta arriba: el toque no se pierde
+  const repinta = id === 'vInicio' && !$('#vInicio').hidden;
   vistas.forEach(v => $('#' + v).hidden = v !== id);
   $('#backLink').hidden = id !== 'vInicio'; $('#backBtn').hidden = id === 'vInicio';
   $('#counter').hidden = id !== 'vPregunta';
   $('#topTitle').textContent = titulo || 'Desafío';
-  window.scrollTo(0, 0);
+  if (!repinta) window.scrollTo(0, 0);
   if (id !== 'vInicio' && !(history.state && history.state.juego)) history.pushState({ juego: 1 }, '');
 }
 
