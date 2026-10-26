@@ -47,6 +47,9 @@
 .explica{min-height:118px;border-top:1px solid var(--sep);padding-top:14px;margin-top:10px}
 .explica h3{font-size:19px;font-weight:700;letter-spacing:-.02em}
 .explica p{font-size:16px;line-height:1.5;color:var(--label);margin-top:6px}
+.explica .rasgos{margin:8px 0 0;padding-left:18px}
+.explica .rasgos li{font-size:15px;line-height:1.45;margin-top:4px}
+.explica .rasgos li::marker{color:var(--label3)}
 .explica p.sec{font-size:14px;color:var(--label2)}
 .explica .modelo-txt{font-size:15px;line-height:1.55;background:var(--fill);border-radius:12px;padding:12px 14px;margin-top:10px;white-space:pre-wrap}
 .explica .cursor::after{content:"▍";color:var(--blue);animation:parpadeo 1s steps(1) infinite}
@@ -104,6 +107,9 @@
 <div id="vInicio">
   <header class="large"><p class="date">Modo maestro</p><h1>Análisis morfológico</h1></header>
   <main class="layout">
+    <a class="row tap card" href="desafio.html" style="text-decoration:none;color:inherit;margin-top:6px">
+      <span class="app-icon" style="--c:var(--pink)"><i data-i="flame" data-s="18" data-w="2.2"></i></span>
+      <span class="row-main"><span class="row-text"><span class="row-title" style="display:block">Desafío</span><span class="row-sub" style="display:block">Rondas de 10 palabras con tiempo y nota: separar, redactar y clasificar</span></span><span class="row-trail"><i data-i="right" data-s="14" data-w="2.6"></i></span></span></a>
     <div class="section-head"><h2>¿Qué palabra analizamos?</h2></div>
     <div class="card buscador">
       <form id="buscaForm" autocomplete="off">
@@ -155,10 +161,12 @@
 
 <script src="morfemas-datos.js"></script>
 <script src="lecciones.js"></script>
+<script src="clasificacion.js"></script>
 <script src="comun.js"></script>
 <script>
 const { ITEMS, TIPOS, CATS, TIEMPOS_V, PERS, sinTilde, explicarMorfema, porQueFormacion, redaccionModelo } = Morfemas;
 const { LECCIONES, palabrasDe } = Lecciones;
+const { clasificar } = Clasificacion;
 const POR_PALABRA = new Map();
 for (const it of ITEMS) if (!POR_PALABRA.has(sinTilde(it.palabra))) POR_PALABRA.set(sinTilde(it.palabra), it);
 const nombreDe = l => palabrasDe(l).map(p => p.palabra).join(' ');
@@ -230,8 +238,11 @@ function construirPasos() {
   });
   paso({ titulo: '¿Cómo está formada?', todo: true, grupos: true,
     txt: varias ? pals.map(it => `${it.palabra}: ${porQueFormacion(it)}`).join(' ') : porQueFormacion(pals[0]), sec: lec.nota });
+  // clasificación gramatical de la palabra (sustantivo: común, concreto…, género y número)
+  const cla = !varias && clasificar(pals[0]);
+  if (cla) paso({ titulo: `Clasifícala como ${CATS[pals[0].cat]}`, todo: true, lista: cla.rasgos.map(r => r.txt), sec: cla.nota });
   paso({ titulo: 'Así se escribe en el examen', todo: true,
-    modelo: varias ? `«${lec.palabra}» es el ${lec.tt} de «${pals.at(-1).verbo}»: forma verbal compuesta (auxiliar haber + participio). Se analiza cada palabra por separado.\n\n${pals.map(redaccionModelo).join('\n\n')}` : redaccionModelo(pals[0]) });
+    modelo: varias ? `«${lec.palabra}» es el ${lec.tt} de «${pals.at(-1).verbo}»: forma verbal compuesta (auxiliar haber + participio). Se analiza cada palabra por separado.\n\n${pals.map(redaccionModelo).join('\n\n')}` : redaccionModelo(pals[0]) + (cla ? '\n\n' + cla.resumen : '') });
   return pasos;
 }
 
@@ -256,7 +267,7 @@ function mostrar(n) {
   });
   const ex = $('#explica'); ex.classList.remove('cambia'); void ex.offsetWidth; ex.classList.add('cambia');
   clearInterval(tecleo);
-  ex.innerHTML = `<h3>${esc(p.titulo)}</h3>${p.txt ? `<p>${esc(p.txt)}</p>` : ''}${p.sec ? `<p class="sec">${esc(p.sec)}</p>` : ''}${p.modelo ? '<div class="modelo-txt cursor" id="modeloTxt"></div>' : ''}`;
+  ex.innerHTML = `<h3>${esc(p.titulo)}</h3>${p.txt ? `<p>${esc(p.txt)}</p>` : ''}${p.lista ? `<ul class="rasgos">${p.lista.map(l => `<li>${esc(l)}</li>`).join('')}</ul>` : ''}${p.sec ? `<p class="sec">${esc(p.sec)}</p>` : ''}${p.modelo ? '<div class="modelo-txt cursor" id="modeloTxt"></div>' : ''}`;
   if (p.modelo) escribir($('#modeloTxt'), p.modelo);
   clearTimeout(escalonado); escalonado = setTimeout(escalonar, p.todo ? 700 : 0); // se mide cuando ya ha terminado de separarse
   $('#lecPaso').textContent = `Paso ${paso + 1} de ${pasos.length}`;

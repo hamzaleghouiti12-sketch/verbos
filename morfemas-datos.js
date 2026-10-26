@@ -55,7 +55,7 @@ hormiguero|sus|derivada|hormigu/L er/S o/V
 enfermería|sus|derivada|enferm/L er/S ía/S
 organización|sus|derivada|organ/L iz/S a/V ción/S
 alimentación|sus|derivada|aliment/L a/V ción/S
-lavadora|sus|derivada|lav/L a/V dor/S a/G
+lavadora|sus|derivada|lav/L a/V dor/S a/V
 nadador|sus|derivada|nad/L a/V dor/S
 jugador|sus|derivada|jug/L a/V dor/S
 comedor|sus|derivada|com/L e/V dor/S
