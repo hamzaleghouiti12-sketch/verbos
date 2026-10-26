@@ -163,6 +163,46 @@ La comida estaba rica y el postre estaba delicioso. | EA | CC:y | [La comida est
 La carta fue escrita por Ana y Pedro la envió. | EA | CC:y | [La carta fue escrita por Ana] fue escrita; E:La carta; PP:por Ana; PF; i || [Pedro la envió] envió; E:Pedro; PT:la; A; i | En la segunda proposición, «la» es el CD (sustituye a «la carta»).
 Truena, llueve, hace viento. | EA | Y | [Truena] truena; IA; PI; A; i || [llueve] llueve; IA; PI; A; i || [hace viento] hace; IG; PT:viento; A; i
 Marta canta bien, pero Lucía canta mejor. | EA | CA:pero | [Marta canta bien] canta; E:Marta; PI; A; i || [Lucía canta mejor] canta; E:Lucía; PI; A; i
+¿Qué estás leyendo? | IP | S | estás leyendo; O:tú; PT:Qué; A; i | «Estás leyendo» es una perífrasis (un solo verbo). El interrogativo «qué» es el CD: «lo estás leyendo».
+¿Por qué llora el bebé? | IP | S | llora; E:el bebé; PI; A; i
+¿Cuántos años tiene tu abuelo? | IP | S | tiene; E:tu abuelo; PT:Cuántos años; A; i
+¿Dónde está la biblioteca? | IP | S | está; E:la biblioteca; PI; A; i | «Estar» + lugar no es copulativa: significa «encontrarse», y «dónde» es CC de lugar.
+¡Qué cansado estoy! | EX | S | estoy; O:yo; C:qué cansado; A; i
+¡Cuánta gente hay aquí! | EX | S | hay; IG; PT:Cuánta gente; A; i | «Cuánta gente» es el CD de «haber» impersonal (la hay), no el sujeto.
+¡Qué rápido corre ese caballo! | EX | S | corre; E:ese caballo; PI; A; i
+Haz los deberes ahora. | EH | S | haz; O:tú; PT:los deberes; A; m
+No salgáis de casa. | EH | S | salgáis; O:vosotros; PI; A; s | Prohibición: «no» + subjuntivo. Es exhortativa, no enunciativa negativa.
+Escuchad con atención. | EH | S | escuchad; O:vosotros; PI; A; m
+No me mientas nunca. | EH | S | mientas; O:tú; PI; A; s
+Ojalá nos toque la lotería. | DS | S | toque; E:la lotería; PI; A; s | «La lotería» es el sujeto: concuerda con «toque». «Nos» es CI.
+Que os divirtáis en la fiesta. | DS | S | os divirtáis; O:vosotros; PI; A; s
+Quizás estén en el parque. | DB | S | estén; O:ellos/ellas; PI; A; s
+Posiblemente Ana conozca la respuesta. | DB | S | conozca; E:Ana; PT:la respuesta; A; s
+Nadie ha llamado esta mañana. | EN | S | ha llamado; E:Nadie; PI; A; i | «Nadie» es el sujeto (concuerda con «ha llamado») y hace negativa la oración.
+Nunca he estado en París. | EN | S | he estado; O:yo; PI; A; i
+Mi hermano no es nada simpático. | EN | S | es; E:Mi hermano; C:nada simpático; A; i
+¿Habéis cenado ya? | IT | S | habéis cenado; O:vosotros; PI; A; i
+¿Está abierta la farmacia? | IT | S | está; E:la farmacia; C:abierta; A; i | El sujeto va al final: «la farmacia está abierta».
+Se alquilan bicicletas. | EA | S | se alquilan; E:bicicletas; PP; PR; i
+Se necesita camarero. | EA | S | se necesita; E:camarero; PP; PR; i | Aunque es de persona, «camarero» va sin «a» y concuerda con el verbo (se necesitan camareros): es sujeto paciente.
+En verano se venden muchos helados. | EA | S | se venden; E:muchos helados; PP; PR; i
+¿Se arreglan relojes aquí? | IT | S | se arreglan; E:relojes; PP; PR; i
+Los alumnos fueron castigados por el director. | EA | S | fueron castigados; E:Los alumnos; PP:por el director; PF; i
+La novela fue escrita en 1605. | EA | S | fue escrita; E:La novela; PP; PF; i
+Mi abuelo se ha quedado sordo. | EA | S | se ha quedado; E:Mi abuelo; SC:sordo; A; i
+Los niños siguen dormidos. | EA | S | siguen; E:Los niños; SC:dormidos; A; i
+La reunión resultó muy aburrida. | EA | S | resultó; E:La reunión; SC:muy aburrida; A; i
+Te llaman por teléfono. | EA | S | llaman; I3; PT:Te; A; i | «Te» es el CD (llamar a alguien → te llaman).
+En ese restaurante cocinan muy bien. | EA | S | cocinan; I3; PI; A; i
+Se habla demasiado en clase. | EA | S | se habla; IR; PI; A; i
+Está nevando en la sierra. | EA | S | está nevando; IA; PI; A; i
+Hubo un accidente en la autopista. | EA | S | hubo; IG; PT:un accidente; A; i | «Un accidente» es CD, no sujeto: con haber impersonal no hay sujeto (lo hubo).
+Estoy cansado: necesito un descanso. | EA | Y | [Estoy cansado] estoy; O:yo; C:cansado; A; i || [necesito un descanso] necesito; O:yo; PT:un descanso; A; i
+Pedro friega, Luis barre, yo cocino. | EA | Y | [Pedro friega] friega; E:Pedro; PI; A; i || [Luis barre] barre; E:Luis; PI; A; i || [yo cocino] cocino; E:yo; PI; A; i
+¿Estudias o trabajas? | IT | CD:o | [Estudias] estudias; O:tú; PI; A; i || [trabajas] trabajas; O:tú; PI; A; i
+Apruebas el examen o repites el curso. | EA | CD:o | [Apruebas el examen] apruebas; O:tú; PT:el examen; A; i || [repites el curso] repites; O:tú; PT:el curso; A; i
+El coche es viejo, pero funciona perfectamente. | EA | CA:pero | [El coche es viejo] es; E:El coche; C:viejo; A; i || [funciona perfectamente] funciona; O:él/ella; PI; A; i
+Mi madre trabaja en un hospital e Irene estudia Derecho. | EA | CC:e | [Mi madre trabaja en un hospital] trabaja; E:Mi madre; PI; A; i || [Irene estudia Derecho] estudia; E:Irene; PT:Derecho; A; i | Se usa «e» en lugar de «y» porque la palabra siguiente empieza por i-.
 `;
 
   const MODALIDAD = {

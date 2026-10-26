@@ -15,7 +15,7 @@
 <meta name="apple-mobile-web-app-title" content="Lengua">
 <style>
 .vista-seg{max-width:720px;margin:18px auto 0;padding:0 20px}
-.vista-seg .seg{margin:0;--n:2}
+.vista-seg .seg{margin:0;--n:3}
 @media (max-width:600px){.vista-seg{padding:0 16px}}
 
 /* ───────── Orden de análisis ───────── */
@@ -97,6 +97,23 @@
 .todo-bien{flex:none;font-size:14px;font-weight:600;padding:9px 14px;border-radius:11px;background:var(--fill);color:var(--blue)}
 .tiempo-fin{font-size:15px;font-weight:600;color:var(--red-ink);margin:0 0 6px}
 .res-fila .row-title b{font-weight:600}
+
+/* ───────── Identificar (una respuesta y verificación) ───────── */
+.grupos button.mix{grid-column:1/-1}
+.q-oracion mark{background:none;color:inherit;text-decoration:underline;text-decoration-thickness:3px;text-decoration-color:var(--c,var(--blue));text-underline-offset:6px}
+.i-preg{font-size:15px;font-weight:600;color:var(--label2);text-align:left;margin:-10px 0 12px}
+.opciones{display:grid;gap:7px}
+.opc{display:flex;align-items:center;gap:11px;width:100%;text-align:left;padding:12px 13px;border-radius:13px;background:var(--fill);font-size:15.5px;font-weight:600;color:var(--label);transition:background .15s,opacity .15s}
+.opc kbd{flex:none;min-width:22px;text-align:center}
+.opc.ok{background:color-mix(in srgb,var(--green) 18%,transparent)}
+.opc.ko{background:color-mix(in srgb,var(--red) 15%,transparent)}
+.opc.apagada{opacity:.45}
+.opc:disabled{cursor:default}
+.veredicto{text-align:left;margin-top:16px;padding:12px 14px;border-radius:13px;font-size:15px;line-height:1.45}
+.veredicto.ok{background:color-mix(in srgb,var(--green) 13%,transparent)}
+.veredicto.ko{background:color-mix(in srgb,var(--red) 11%,transparent)}
+.veredicto b{display:block;font-size:16px;margin-bottom:3px}
+.veredicto.ok b{color:var(--green-ink)}.veredicto.ko b{color:var(--red-ink)}
 </style>
 </head>
 <body>
@@ -113,7 +130,7 @@
 <div id="vInicio">
   <header class="large"><p class="date">Oración simple y compuesta</p><h1>Sintaxis</h1></header>
   <nav class="games" aria-label="Juego"><div class="seg" style="--i:2;--n:3"><span class="seg-thumb"></span><a href="index.html" aria-current="false">Verbos</a><a href="morfemas.html" aria-current="false">Morfemas</a><a href="sintaxis.html" aria-current="page">Sintaxis</a></div></nav>
-  <div class="vista-seg"><div class="seg" id="vistaSeg"><span class="seg-thumb"></span><button role="radio" data-v="esquema">Esquema</button><button role="radio" data-v="practica">Práctica</button></div></div>
+  <div class="vista-seg"><div class="seg" id="vistaSeg"><span class="seg-thumb"></span><button role="radio" data-v="esquema">Esquema</button><button role="radio" data-v="identificar">Identificar</button><button role="radio" data-v="practica">En papel</button></div></div>
 
   <!-- Esquema -->
   <main class="layout" id="zEsquema">
@@ -157,6 +174,46 @@
     <div class="section-head"><h2>Historial</h2></div>
     <div class="list" id="hist"></div>
     <p class="foot">Analiza cada oración en papel siguiendo el orden de análisis. En la corrección, marca cada línea que tengas bien: la nota sale de lo que marques.</p>
+  </main>
+
+  <!-- Identificar -->
+  <main class="layout" id="zIdent" hidden>
+    <div class="section-head"><h2>Identificar por partes</h2></div>
+    <div class="card hero">
+      <div class="hero-head">
+        <div class="hero-id"><div class="hero-name" id="iName"></div><div class="hero-sub" id="iSub"></div></div>
+        <span class="pill num" id="iPill"></span>
+      </div>
+      <div class="ring-wrap">
+        <svg class="ring" viewBox="0 0 240 240" aria-hidden="true">
+          <defs><linearGradient id="rg3" x1="0" y1="0" x2="1" y2="1"><stop offset="0" class="s1"/><stop offset="1" class="s2"/></linearGradient></defs>
+          <circle class="t" cx="120" cy="120" r="100"/>
+          <circle class="p" id="iRing" cx="120" cy="120" r="100" stroke="url(#rg3)"/>
+        </svg>
+        <div class="ring-center"><div class="ring-num num" id="iNum">–</div><div class="ring-sub" id="iRingSub">mejor nota</div></div>
+      </div>
+      <button class="wide" id="iStartBtn">Empezar ronda <kbd>Enter</kbd></button>
+      <div class="mini-tit">Qué quieres practicar</div>
+      <div class="grupos" id="aspectos"></div>
+    </div>
+    <div class="section-head"><h2>Historial</h2></div>
+    <div class="list" id="iHist"></div>
+    <p class="foot">Rondas de 10 oraciones. Cada vez se pregunta solo por una cosa: eliges la respuesta y se comprueba al momento, con la explicación. Las respuestas salen repartidas para que practiques también los casos raros. En las compuestas se pregunta por la proposición subrayada.</p>
+  </main>
+</div>
+
+<!-- ───────── Identificar: pregunta ───────── -->
+<div id="vIdent" hidden>
+  <header class="large"><p class="date num" id="iMeta"></p><h1 id="iTitle"></h1></header>
+  <main class="layout">
+    <div class="progress" id="iProg" role="img"></div>
+    <div class="card q">
+      <div class="q-top"><span class="q-person" id="iAsp"></span></div>
+      <div class="q-oracion" id="iOracion"></div>
+      <p class="i-preg" id="iPreg"></p>
+      <div class="opciones" id="iOpc"></div>
+      <div id="iVer"></div>
+    </div>
   </main>
 </div>
 
@@ -210,7 +267,7 @@
 <script src="sintaxis-datos.js"></script>
 <script src="comun.js"></script>
 <script>
-const { ORACIONES, correccion, puntuacion } = Sintaxis;
+const { ORACIONES, MODALIDAD, ESTRUCTURA, SUJETO, PREDICADO, DIATESIS, MODO, correccion, puntuacion } = Sintaxis;
 const LS = crearAlmacen('sintaxis.');
 
 // ───────── Esquema: orden de análisis, árbol y trampas ─────────
@@ -295,21 +352,22 @@ $('#arbol').innerHTML = `<span class="raiz">Oración</span><ul>${ARBOL.map(([c, 
 $('#trampas').innerHTML = TRAMPAS.map(([t, d]) => `<div class="trampa"><b>${t}.</b> ${d}</div>`).join('');
 
 // ───────── Vistas ─────────
-const vistas = ['vInicio', 'vPregunta', 'vResultado'];
+const vistas = ['vInicio', 'vPregunta', 'vIdent', 'vResultado'];
 function ver(id, titulo) {
   vistas.forEach(v => $('#' + v).hidden = v !== id);
   $('#backBtn').hidden = id === 'vInicio';
-  $('#counter').hidden = id !== 'vPregunta';
+  $('#counter').hidden = id !== 'vPregunta' && id !== 'vIdent';
   $('#topTitle').textContent = titulo || 'Sintaxis';
   window.scrollTo(0, 0);
   if (id !== 'vInicio' && !(history.state && history.state.juego)) history.pushState({ juego: 1 }, '');
 }
 let vista = LS.get('vista', 'esquema');
+const VISTAS = ['esquema', 'identificar', 'practica'];
+if (!VISTAS.includes(vista)) vista = 'esquema';
 function pintarVista() {
-  const i = vista === 'practica' ? 1 : 0;
-  $('#vistaSeg').style.setProperty('--i', i);
+  $('#vistaSeg').style.setProperty('--i', VISTAS.indexOf(vista));
   $('#vistaSeg').querySelectorAll('[data-v]').forEach(b => b.setAttribute('aria-checked', b.dataset.v === vista));
-  $('#zEsquema').hidden = vista !== 'esquema'; $('#zPractica').hidden = vista !== 'practica';
+  $('#zEsquema').hidden = vista !== 'esquema'; $('#zPractica').hidden = vista !== 'practica'; $('#zIdent').hidden = vista !== 'identificar';
 }
 $('#vistaSeg').onclick = e => { const b = e.target.closest('[data-v]'); if (b) { vista = b.dataset.v; LS.set('vista', vista); pintarVista(); } };
 
@@ -340,6 +398,7 @@ function pintarInicio() {
     <div class="row"><span class="app-icon" style="--c:${colorNota(h.nota)}">${svg('flame', 17, 2.2)}</span>
       <div class="row-main"><div class="row-text"><div class="row-title">${fmt(h.nota)} · ${calif(h.nota)}</div><div class="row-sub">${esc(h.fecha)} · ${GRUPOS[h.grupo]}</div></div></div></div>`).join('')
     : '<div class="placeholder">Aquí aparecerán tus rondas.</div>';
+  pintarIdent();
 }
 $('#grupos').onclick = e => { const b = e.target.closest('[data-g]'); if (b) { grupo = +b.dataset.g; LS.set('grupo', grupo); pintarInicio(); } };
 $('#minutos').onclick = e => {
@@ -354,6 +413,7 @@ function empezar() {
   const lista = POR_GRUPO[grupo], vistos = new Set(LS.get('vistos', []));
   const nuevas = barajar(lista.filter(x => !vistos.has(x.texto)));
   const elegidas = (nuevas.length >= POR_RONDA ? nuevas : [...nuevas, ...barajar(lista.filter(x => vistos.has(x.texto)))]).slice(0, POR_RONDA);
+  ultimaRonda = 'papel';
   ronda = { grupo, minutos, items: elegidas.sort((a, b) => puntuacion(a) - puntuacion(b)), i: 0, res: [] };
   LS.set('vistos', [...LS.get('vistos', []), ...ronda.items.map(x => x.texto)].slice(-100));
   pregunta();
@@ -436,9 +496,153 @@ $('#verBtn').onclick = () => corregir(false);
 addEventListener('keydown', e => {
   if (e.key !== 'Enter' || e.target.closest('input,textarea')) return;
   if (!$('#vPregunta').hidden) { e.preventDefault(); corregida ? siguiente() : corregir(false); }
-  else if (!$('#vResultado').hidden && !e.target.closest('button,a')) empezar();
+  else if (!$('#vResultado').hidden && !e.target.closest('button,a')) otra();
   else if (!$('#vInicio').hidden && vista === 'practica' && !e.target.closest('button,a')) empezar();
+  else if (!$('#vInicio').hidden && vista === 'identificar' && !e.target.closest('button,a')) empezarId();
 });
+
+// ───────── Identificar: un aspecto cada vez, una respuesta y su verificación ─────────
+const may = s => s[0].toUpperCase() + s.slice(1);
+const opciones = (obj, f = v => v) => Object.entries(obj).map(([k, v]) => [k, may(f(v))]);
+// linea: posición en las líneas de correccion(); en las de proposición, 2 + 4 × proposición + desfase
+const ASPECTOS = {
+  est: { nombre: 'Estructura', c: 'var(--indigo)', preg: '¿Es simple o compuesta? Si es compuesta, ¿de qué tipo?', ops: opciones(ESTRUCTURA, v => v[0]), val: o => o.est, linea: 1 },
+  mod: { nombre: 'Modalidad', c: 'var(--teal)', preg: '¿Qué modalidad tiene la oración?', ops: opciones(MODALIDAD, v => v[0]), val: o => o.mod, linea: 0 },
+  suj: { nombre: 'Sujeto', c: 'var(--green)', preg: '¿Qué tipo de sujeto tiene?', ops: opciones(SUJETO), campo: 'suj', off: 0 },
+  pred: { nombre: 'Predicado', c: 'var(--orange)', preg: '¿Qué tipo de predicado tiene?', ops: opciones(PREDICADO), campo: 'pred', off: 1 },
+  diat: { nombre: 'Diátesis', c: 'var(--red)', preg: '¿En qué voz está?', ops: opciones(DIATESIS), campo: 'diat', off: 2 },
+  modo: { nombre: 'Modo del verbo', c: 'var(--blue)', preg: '¿En qué modo está el verbo?', ops: opciones(MODO), campo: 'modo', off: 3 }
+};
+const ORDEN_ASP = [...Object.keys(ASPECTOS), 'mix'];
+const nombreAsp = id => id === 'mix' ? 'Todo mezclado' : ASPECTOS[id].nombre;
+const unidades = a => a.campo
+  ? ORACIONES.flatMap(o => o.props.map((p, k) => ({ o, k, r: p[a.campo] })))
+  : ORACIONES.map(o => ({ o, k: -1, r: a.val(o) }));
+let aspecto = LS.get('aspecto', 'est');
+if (!ORDEN_ASP.includes(aspecto)) aspecto = 'est';
+function pintarIdent() {
+  const hist = LS.get('ident.historial', []).filter(h => h.asp === aspecto);
+  const mejor = hist.length ? Math.max(...hist.map(h => h.nota)) : null;
+  $('#iName').textContent = nombreAsp(aspecto);
+  $('#iSub').textContent = aspecto === 'mix' ? 'Cada pregunta, un aspecto distinto' : `${ASPECTOS[aspecto].ops.length} respuestas posibles`;
+  $('#iNum').textContent = mejor === null ? '–' : fmt(mejor);
+  $('#iRingSub').textContent = mejor === null ? 'aún sin rondas' : 'mejor nota';
+  $('#iPill').textContent = hist.length ? `${hist.length} ronda${hist.length > 1 ? 's' : ''}` : 'Nueva';
+  $('#iPill').className = 'pill num' + (mejor === null ? '' : ' ' + clasePill(mejor));
+  anillo($('#iRing'), mejor === null ? 0 : mejor / 10, mejor === null ? 'var(--blue)' : colorNota(mejor));
+  $('#aspectos').innerHTML = ORDEN_ASP.map(id => `<button data-a="${id}" class="${id === 'mix' ? 'mix' : ''}" aria-pressed="${id === aspecto}"><b>${nombreAsp(id)}</b><small>${id === 'mix' ? 'estructura, modalidad, sujeto, predicado…' : ASPECTOS[id].ops.map(x => x[1].toLowerCase()).join(' · ')}</small></button>`).join('');
+  const todos = LS.get('ident.historial', []).filter(h => h.asp === aspecto);
+  $('#iHist').innerHTML = todos.length ? todos.slice(-8).reverse().map(h => `
+    <div class="row"><span class="app-icon" style="--c:${colorNota(h.nota)}">${svg('target', 17, 2.2)}</span>
+      <div class="row-main"><div class="row-text"><div class="row-title">${fmt(h.nota)} · ${calif(h.nota)}</div><div class="row-sub">${esc(h.fecha)} · ${nombreAsp(h.asp)}</div></div></div></div>`).join('')
+    : '<div class="placeholder">Aquí aparecerán tus rondas.</div>';
+}
+$('#aspectos').onclick = e => { const b = e.target.closest('[data-a]'); if (b) { aspecto = b.dataset.a; LS.set('aspecto', aspecto); pintarIdent(); } };
+
+// las respuestas se reparten: cada pregunta pide una respuesta distinta hasta agotarlas todas
+function generarId(asp) {
+  const vistos = new Set(LS.get('ident.vistos', [])), usadas = new Set(), items = [], colas = {};
+  for (let intentos = 0; items.length < POR_RONDA && intentos < 500; intentos++) {
+    const id = asp === 'mix' ? Object.keys(ASPECTOS)[Math.floor(Math.random() * 6)] : asp, a = ASPECTOS[id];
+    const libres = unidades(a).filter(u => !usadas.has(u.o.texto));
+    if (!colas[id] || !colas[id].length) colas[id] = barajar([...new Set(libres.map(u => u.r))]);
+    const r = colas[id].shift(), deR = libres.filter(u => u.r === r);
+    if (!deR.length) continue;
+    const nuevas = deR.filter(u => !vistos.has(`${id}|${u.o.texto}|${u.k}`));
+    const u = barajar(nuevas.length ? nuevas : deR)[0];
+    usadas.add(u.o.texto); items.push({ ...u, id });
+  }
+  return items;
+}
+let idr = null, iq = null, ultimaRonda = 'papel';
+function empezarId() {
+  ultimaRonda = 'ident';
+  idr = { asp: aspecto, items: generarId(aspecto), i: 0, res: [] };
+  LS.set('ident.vistos', [...LS.get('ident.vistos', []), ...idr.items.map(u => `${u.id}|${u.o.texto}|${u.k}`)].slice(-150));
+  preguntaId();
+}
+// subraya la proposición por la que se pregunta (buscando en orden, por si se repiten palabras)
+function conSubrayado(o, k) {
+  if (k < 0 || o.props.length === 1) return esc(o.texto);
+  const bajo = o.texto.toLowerCase();
+  let desde = 0;
+  for (let j = 0; j < k; j++) { const i = bajo.indexOf(o.props[j].texto.toLowerCase(), desde); if (i >= 0) desde = i + o.props[j].texto.length; }
+  const p = o.props[k].texto, i = bajo.indexOf(p.toLowerCase(), desde);
+  if (i < 0) return esc(o.texto);
+  return esc(o.texto.slice(0, i)) + '<mark>' + esc(o.texto.slice(i, i + p.length)) + '</mark>' + esc(o.texto.slice(i + p.length));
+}
+function preguntaId() {
+  const u = idr.items[idr.i], a = ASPECTOS[u.id];
+  iq = { u, a, resp: null };
+  ver('vIdent', 'Sintaxis · identificar');
+  $('#counter').textContent = `${idr.i + 1}/${idr.items.length}`;
+  $('#iMeta').textContent = nombreAsp(idr.asp);
+  $('#iTitle').textContent = `Oración ${idr.i + 1}`;
+  $('#iProg').innerHTML = idr.items.map((_, k) => `<span class="${k < idr.i ? (idr.res[k].bien ? 'ok' : 'ko') : k === idr.i ? 'now' : ''}"></span>`).join('');
+  $('#iAsp').textContent = a.nombre;
+  $('#iOracion').style.setProperty('--c', a.c);
+  $('#iOracion').innerHTML = conSubrayado(u.o, u.k);
+  const sub = a.campo && u.o.props.length > 1;
+  $('#iPreg').textContent = (sub ? 'En la proposición subrayada: ' : '') + (sub ? a.preg.replace(/^(¿?)(.)/, (_, s, l) => s + l.toLowerCase()) : a.preg);
+  $('#iOpc').innerHTML = a.ops.map(([cod, txt], n) => `<button class="opc" data-c="${cod}"><kbd>${n + 1}</kbd>${esc(txt)}</button>`).join('');
+  $('#iVer').innerHTML = '';
+}
+function responderId(cod) {
+  if (!iq || iq.resp) return;
+  const { u, a } = iq, bien = cod === u.r;
+  iq.resp = cod;
+  $('#iOpc').querySelectorAll('.opc').forEach(b => {
+    b.disabled = true;
+    b.classList.toggle('ok', b.dataset.c === u.r);
+    b.classList.toggle('ko', b.dataset.c === cod && !bien);
+    b.classList.toggle('apagada', b.dataset.c !== u.r && b.dataset.c !== cod);
+  });
+  const lineas = correccion(u.o).lineas, l = lineas[a.campo ? 2 + 4 * u.k + a.off : a.linea];
+  const correcta = a.ops.find(x => x[0] === u.r)[1];
+  $('#iVer').innerHTML = `<div class="veredicto ${bien ? 'ok' : 'ko'}"><b>${bien ? '¡Bien!' : `No: es ${esc(correcta.toLowerCase())}`}</b>${esc(l.txt)}</div>
+    ${u.o.nota ? `<p class="nota-aviso"><b>Ojo:</b> ${esc(u.o.nota)}</p>` : ''}
+    <button class="wide" id="iSig" style="margin-top:14px">${idr.i + 1 >= idr.items.length ? 'Ver la nota' : 'Siguiente oración'} <kbd>Enter</kbd></button>`;
+  idr.res.push({ texto: u.o.texto, id: u.id, k: u.k, compuesta: u.o.props.length > 1, bien, resp: a.ops.find(x => x[0] === cod)[1], correcta });
+  try { navigator.vibrate && navigator.vibrate(bien ? 15 : [40, 60, 40]); } catch {}
+  $('#iSig').scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+}
+function siguienteId() {
+  if (!iq.resp) return;
+  idr.i++;
+  if (idr.i >= idr.items.length) resultadoId(); else preguntaId();
+}
+$('#iOpc').onclick = e => { const b = e.target.closest('.opc'); if (b) responderId(b.dataset.c); };
+$('#iVer').onclick = e => { if (e.target.closest('#iSig')) siguienteId(); };
+addEventListener('keydown', e => {
+  if ($('#vIdent').hidden || e.target.closest('input,textarea')) return;
+  if (e.key === 'Enter') { e.preventDefault(); siguienteId(); return; }
+  const n = +e.key;
+  if (n >= 1 && n <= iq.a.ops.length) responderId(iq.a.ops[n - 1][0]);
+});
+function resultadoId() {
+  iq = null;
+  const bien = idr.res.filter(r => r.bien).length, nota = r1(10 * bien / idr.res.length);
+  const fecha = new Date().toLocaleString('es-ES', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+  const hist = LS.get('ident.historial', []); hist.push({ asp: idr.asp, nota, fecha }); LS.set('ident.historial', hist.slice(-80));
+  ver('vResultado', 'Resultado');
+  $('#rMeta').textContent = `Identificar · ${nombreAsp(idr.asp)} · ${fecha}`;
+  $('#rTitle').textContent = calif(nota);
+  $('#rName').textContent = `${bien} de ${idr.res.length} bien`;
+  $('#rSub').textContent = nombreAsp(idr.asp);
+  $('#rNum').textContent = fmt(nota);
+  $('#rPill').textContent = calif(nota); $('#rPill').className = 'pill num ' + clasePill(nota);
+  anillo($('#rRing'), nota / 10, colorNota(nota));
+  // en «todo mezclado», qué aspecto falla más
+  const porAsp = Object.keys(ASPECTOS).map(id => [id, idr.res.filter(r => r.id === id)]).filter(x => x[1].length);
+  $('#rTiles').hidden = idr.asp !== 'mix';
+  $('#rTiles').innerHTML = idr.asp === 'mix' ? porAsp.map(([id, rs]) => tile('target', ASPECTOS[id].c, ASPECTOS[id].nombre, `${rs.filter(r => r.bien).length}/${rs.length}`)).join('') : '';
+  $('#rLista').innerHTML = idr.res.map(r => `
+    <div class="row res-fila"><span class="app-icon" style="--c:${r.bien ? 'var(--green)' : 'var(--red)'}">${svg(r.bien ? 'check' : 'x', 16, 2.6)}</span>
+      <div class="row-main"><div class="row-text"><div class="row-title"><b>${esc(r.texto)}</b></div>
+      <div class="row-sub">${ASPECTOS[r.id].nombre}${r.compuesta && r.k >= 0 ? ` (${r.k + 1}.ª prop.)` : ''}: ${r.bien ? esc(r.correcta.toLowerCase()) : `pusiste ${esc(r.resp.toLowerCase())} → ${esc(r.correcta.toLowerCase())}`}</div></div></div></div>`).join('');
+}
+$('#iStartBtn').onclick = empezarId;
+function otra() { ultimaRonda === 'ident' ? empezarId() : empezar(); }
 
 // ───────── Resultado ─────────
 function resultado() {
@@ -448,6 +652,7 @@ function resultado() {
   const fecha = new Date().toLocaleString('es-ES', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
   const hist = LS.get('historial', []); hist.push({ grupo: ronda.grupo, nota, fecha }); LS.set('historial', hist.slice(-60));
   ver('vResultado', 'Resultado');
+  $('#rTiles').hidden = false;
   $('#rMeta').textContent = `Sintaxis · ${GRUPOS[ronda.grupo]} · ${fecha}`;
   $('#rTitle').textContent = calif(nota);
   $('#rName').textContent = `${ronda.res.filter(r => r.nota >= 5).length} de ${ronda.res.length} aprobadas`;
@@ -465,10 +670,10 @@ function resultado() {
       <span class="row-trail num" style="color:${colorNota(r.nota)};font-weight:700">${fmt(r.nota)}</span></div></div>`).join('');
 }
 $('#startBtn').onclick = empezar;
-$('#otraBtn').onclick = empezar;
+$('#otraBtn').onclick = () => otra();
 $('#inicioBtn').onclick = () => volverAlInicio();
 $('#backBtn').onclick = () => {
-  if (!$('#vPregunta').hidden && !confirm('¿Salir de la ronda? Se pierde lo que llevas.')) return;
+  if ((!$('#vPregunta').hidden || !$('#vIdent').hidden) && !confirm('¿Salir de la ronda? Se pierde lo que llevas.')) return;
   volverAlInicio();
 };
 pintarIconos();
