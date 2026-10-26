@@ -856,6 +856,16 @@ ojinegro|adj|compuesta|oj/L i/I negr/L o/G
 pelirrubio|adj|compuesta|pel/L i/I rrubi/L o/G
 sordociego|adj|compuesta|sord/L o/I cieg/L o/G
 hispanoamericano|adj|compuesta|hispan/L o/I americ/L an/S o/G
+mejor|adj|simple|mejor/L|||Comparativo sintético de bueno: la forma ya expresa el grado (= más bueno).
+peor|adj|simple|peor/L|||Comparativo sintético de malo: la forma ya expresa el grado (= más malo).
+mayor|adj|simple|mayor/L|||Comparativo sintético de grande: la forma ya expresa el grado (= más grande).
+menor|adj|simple|menor/L|||Comparativo sintético de pequeño: la forma ya expresa el grado (= más pequeño).
+mejores|adj|simple|mejor/L es/N|||Comparativo sintético de bueno: la forma ya expresa el grado (= más buenos).
+mayores|adj|simple|mayor/L es/N|||Comparativo sintético de grande: la forma ya expresa el grado (= más grandes).
+óptimo|adj|simple|óptim/L o/G|||Superlativo culto heredado del latín: ‑imo no se separa como sufijo porque en español no forma palabras nuevas. Equivale a buenísimo.
+pésimo|adj|simple|pésim/L o/G|||Superlativo culto heredado del latín: ‑imo no se separa como sufijo porque en español no forma palabras nuevas. Equivale a malísimo.
+máximo|adj|simple|máxim/L o/G|||Superlativo culto heredado del latín: ‑imo no se separa como sufijo porque en español no forma palabras nuevas. Equivale a grandísimo.
+mínima|adj|simple|mínim/L a/G|||Superlativo culto heredado del latín: ‑imo no se separa como sufijo porque en español no forma palabras nuevas. Equivale a pequeñísima.
 `;
 
   // ───────── Formas verbales generadas (verbos simples y regulares) ─────────

@@ -148,17 +148,20 @@ medianoche CIKffs|sinvergüenza CIKxcs|centrocampista CIKxcs|mileurista CIKxcs
   // Tipo: calificativo (cualidad, admite grado) o relacional (relación con un ámbito: «de + sustantivo», sin grado).
   // Los de la lista B funcionan como uno u otro según el uso (música infantil / actitud muy infantil).
   const GENTIL_ADJ = 'americano africano colombiano italiano sevillano valenciano mexicano peruano cubano venezolano malagueño panameño brasileño hondureño caribeño francés portugués japonés holandés cordobés aragonés canadiense ateniense nicaragüense hispanoamericano';
-  const ADJ_R = new Set((GENTIL_ADJ + ' invernal primaveral otoñal cultural nacional lunar solar escolar prenatal submarino subterráneo mundial semanal digital regional tropical ornamental polar muscular atómico volcánico oceánico telefónico deportivo educativo marino navideño playero pesquero aldeano isleño internacional prehistórico hispanohablante').split(' '));
-  const ADJ_B = new Set('musical teatral familiar infantil personal comercial central mortal sentimental emocional profesional tradicional histórico rítmico metálico festivo informativo decorativo veraniego juvenil casero dominguero mañanero posmoderno extraoficial'.split(' '));
+  const ADJ_R = new Set((GENTIL_ADJ + ' invernal primaveral otoñal cultural nacional lunar solar escolar prenatal submarino subterráneo mundial semanal digital regional tropical ornamental polar muscular atómico volcánico oceánico telefónico marino playero pesquero aldeano isleño internacional prehistórico hispanohablante').split(' '));
+  const ADJ_B = new Set('musical teatral familiar infantil personal comercial central deportivo educativo navideño sentimental emocional profesional tradicional histórico rítmico metálico festivo informativo decorativo veraniego juvenil casero dominguero mañanero posmoderno extraoficial'.split(' '));
   const GENTILES = new Set(GENTIL_ADJ.split(' '));
   const DOS_SIN_G = new Set('francés portugués japonés holandés cordobés aragonés cabezón'.split(' ')); // franc‑és / franc‑es‑a
+  // comparativos y superlativos sintéticos (una sola palabra que ya expresa el grado)
+  const GRADO_ORG = { mejor: 'C', peor: 'C', mayor: 'C', menor: 'C', mejores: 'C', mayores: 'C', óptimo: 'S', pésimo: 'S', máximo: 'S', mínima: 'S' };
+  const BASE_ORG = { mejor: 'bueno', mejores: 'bueno', peor: 'malo', mayor: 'grande', mayores: 'grande', menor: 'pequeño', óptimo: 'bueno', pésimo: 'malo', máximo: 'grande', mínima: 'pequeño' };
   function adjetivo(it) {
     const p = it.palabra, segs = it.segs;
     const tipo = ADJ_R.has(p) ? 'R' : ADJ_B.has(p) ? 'B' : 'Q';
     const G = segs.find(s => s[1] === 'G'), dos = !!G || DOS_SIN_G.has(p);
     const g = !dos ? 'x' : G ? (G[0] === 'a' ? 'f' : 'm') : 'm';
     const n = segs.at(-1)[1] === 'N' ? 'p' : 's';
-    const grado = segs.some(s => s[0] === 'ísim') ? 'S' : 'P';
+    const grado = GRADO_ORG[p] || (segs.some(s => s[0] === 'ísim') ? 'S' : 'P');
     const aprec = segs.some(s => s[1] === 'A' && s[0] !== 'ísim');
     const fem = G ? segs.map(([s, t]) => t === 'G' ? (s === 'o' ? 'a' : 'o') : s).join('') : DOS_SIN_G.has(p) ? p.replace(/és$/, 'esa').replace(/ón$/, 'ona') : '';
     const tipoTxt = tipo === 'R' ? (GENTILES.has(p) ? 'Relacional (gentilicio): indica el lugar de origen; no admite grado (*muy ' + p + ') y va detrás del sustantivo.'
@@ -168,14 +171,19 @@ medianoche CIKffs|sinvergüenza CIKxcs|centrocampista CIKxcs|mileurista CIKxcs
     const rasgos = [
       { k: 'tipo', txt: tipoTxt },
       { k: 'term', txt: dos ? `De dos terminaciones: tiene forma de masculino y de femenino (${G && G[0] === 'a' ? fem + ' / ' + p : p + ' / ' + fem}).` : 'De una terminación: la misma forma vale para el masculino y el femenino.' },
-      { k: 'grado', txt: grado === 'S' ? 'Grado superlativo absoluto: ‑ísimo expresa la cualidad en su grado máximo.' : `Grado positivo: expresa la cualidad sin compararla ni intensificarla${aprec ? ' (el sufijo apreciativo añade un matiz afectivo, no grado)' : ''}.` },
+      { k: 'grado', txt: grado === 'C' ? `Grado comparativo de superioridad, sintético: una sola palabra equivale a «más ${BASE_ORG[p]}».`
+          : grado === 'S' ? (GRADO_ORG[p] ? `Grado superlativo absoluto, sintético y culto: equivale a «muy ${BASE_ORG[p]}».` : 'Grado superlativo absoluto: ‑ísimo expresa la cualidad en su grado máximo (= muy …).')
+          : `Grado positivo: expresa la cualidad sin compararla ni intensificarla${aprec ? ' (el sufijo apreciativo añade un matiz afectivo, no grado)' : ''}.` },
       { k: 'num', txt: n === 'p' ? 'Número plural.' : 'Número singular.' },
       { k: 'gen', txt: g === 'x' ? 'Género: invariable (sirve para masculino y femenino; concuerda con el sustantivo).' : `Género ${NOMBRES[g]}.` },
       { k: 'pos', txt: 'Especificativo o explicativo no se decide con la palabra suelta: depende de su posición y sentido en la frase.' }
     ];
     const tipoCorto = tipo === 'R' ? 'relacional' + (GENTILES.has(p) ? ' (gentilicio)' : '') : tipo === 'B' ? 'calificativo o relacional según el uso' : 'calificativo';
-    const redaccion = `«${p}» es un adjetivo ${tipoCorto}, de ${dos ? 'dos terminaciones' : 'una terminación'}, en grado ${grado === 'S' ? 'superlativo' : 'positivo'}, en número ${NOMBRES[n]} y ${g === 'x' ? 'invariable en género' : 'de género ' + NOMBRES[g]}.`;
-    const etiquetas = [tipoCorto, dos ? 'dos terminaciones' : 'una terminación', `grado ${grado === 'S' ? 'superlativo' : 'positivo'}`, NOMBRES[n], g === 'x' ? 'invariable en género' : NOMBRES[g]];
+    const gradoTxt = grado === 'C' ? 'comparativo de superioridad' : grado === 'S' ? 'superlativo absoluto' : 'positivo';
+    // admite grado: el calificativo sí (muy …), el relacional no; los comparativos y superlativos ya lo llevan dentro
+    const admite = grado !== 'P' ? '' : tipo === 'Q' ? ' (admite grado)' : tipo === 'R' ? ' (no admite grado)' : '';
+    const redaccion = `«${p}» es un adjetivo ${admite && tipoCorto.endsWith(')') ? tipoCorto.slice(0, -1) + '; ' + admite.slice(2) : tipoCorto + admite}, de ${dos ? 'dos terminaciones' : 'una terminación'}, en grado ${gradoTxt}, en número ${NOMBRES[n]} y ${g === 'x' ? 'invariable en género' : 'de género ' + NOMBRES[g]}.`;
+    const etiquetas = [tipoCorto, dos ? 'dos terminaciones' : 'una terminación', `grado ${gradoTxt}`, NOMBRES[n], g === 'x' ? 'invariable en género' : NOMBRES[g]];
     return { tipo, term: dos ? '2' : '1', grado, g, n, rasgos, etiquetas, redaccion, resumen: redaccion, nota: GENTILES.has(p) ? 'Los gentilicios son adjetivos relacionales: indican origen.' : '' };
   }
 
@@ -339,7 +347,7 @@ medianoche CIKffs|sinvergüenza CIKxcs|centrocampista CIKxcs|mileurista CIKxcs
     if (t.some((x, i) => x === 'V' && t[i + 1] === 'S' && it.segs[i + 1][0] !== 'mente')) p += 1; // mov-i-mient-o, no trist-e-mente
     if (c) {
       if (it.cat === 'sus') p += ('ecah'.includes(c.tg) ? 1 : 0) + (c.k === 'B' ? 0.5 : 0) + (c.il === 'L' ? 0.5 : 0) + (c.ca === 'A' ? 0.3 : 0) + (c.n === 'i' ? 0.5 : 0);
-      if (it.cat === 'adj') p += (c.tipo !== 'Q' ? 0.7 : 0) + (c.grado === 'S' ? 0.3 : 0);
+      if (it.cat === 'adj') p += (c.tipo !== 'Q' ? 0.7 : 0) + (c.grado === 'S' ? 0.3 : 0) + (GRADO_ORG[it.palabra] ? 4.5 : 0);
       if (it.cat === 'ver') p += (c.modo === 'sub' ? 1 : 0) + (c.reg === 'irr' ? 1 : 0) + (c.personas.length > 1 || c.tiempos.length > 1 ? 0.5 : 0) - (c.modo === 'np' ? 0.3 : 0);
       if (it.cat === 'adv') p += (c.tipos.length > 1 ? 1 : 0) + (c.aprec ? 0.3 : 0);
     }
@@ -371,7 +379,7 @@ medianoche CIKffs|sinvergüenza CIKxcs|centrocampista CIKxcs|mileurista CIKxcs
     adj: [
       { k: 'tipo', titulo: 'Calificativo o relacional', opciones: [['Q', 'Calificativo'], ['R', 'Relacional']], buenas: c => c.tipo === 'B' ? ['Q', 'R'] : [c.tipo] },
       { k: 'term', titulo: 'Terminaciones', opciones: [['1', 'Una'], ['2', 'Dos']], buenas: c => [c.term] },
-      { k: 'grado', titulo: 'Grado', opciones: [['P', 'Positivo'], ['S', 'Superlativo']], buenas: c => [c.grado] },
+      { k: 'grado', titulo: 'Grado', opciones: [['P', 'Positivo'], ['C', 'Comparativo'], ['S', 'Superlativo']], buenas: c => [c.grado] },
       { k: 'gen', titulo: 'Género de esta forma', opciones: [['m', 'Masculino'], ['f', 'Femenino'], ['x', 'Invariable']], buenas: c => [c.g] },
       { k: 'num', titulo: 'Número', opciones: [['s', 'Singular'], ['p', 'Plural']], buenas: c => [c.n] }
     ],
