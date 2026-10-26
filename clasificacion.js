@@ -134,7 +134,7 @@ medianoche CIKffs|sinvergüenza CIKxcs|centrocampista CIKxcs|mileurista CIKxcs
       { k: 'num', valor: NOMBRES[n], txt: n === 'i' ? 'Número invariable: la misma forma en singular y en plural (el/los).' : n === 'p' ? 'Número plural.' : 'Número singular.' }
     ];
     return { codigo: c, ca, il, k, g, tg, n, tipoGenero: TIPO_GEN[tg], rasgos, nota: NOTAS_SUS[it.palabra] || '',
-      resumen: `Sustantivo común, ${NOMBRES[ca]}, ${NOMBRES[il]}, ${NOMBRES[k]}; género ${tg === 'c' ? 'común (el/la)' : tg === 'a' ? 'ambiguo' : NOMBRES[g] + (tg === 'e' ? ' (epiceno)' : tg === 'h' ? ' (heterónimo)' : tg === 'v' ? ' (variable)' : '')}; número ${NOMBRES[n]}.` };
+      resumen: `Sustantivo común, ${NOMBRES[ca]}, ${NOMBRES[il]}, ${NOMBRES[k]}; género ${tg === 'c' ? 'común (el/la)' : tg === 'a' ? 'ambiguo' : NOMBRES[g] + ` (${TIPO_GEN[tg]})`}; número ${n === 'i' ? 'invariable' : NOMBRES[n]}.` };
   }
 
   // ───────── Adjetivos ─────────
