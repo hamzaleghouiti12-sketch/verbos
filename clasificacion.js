@@ -205,16 +205,20 @@ medianoche CIKffs|sinvergüenza CIKxcs|centrocampista CIKxcs|mileurista CIKxcs
     prever: 'como ver: preveo, previsto', enrojecer: 'añade z: enrojezco', envejecer: 'añade z: envejezco', entristecer: 'añade z: entristezco',
     enriquecer: 'añade z: enriquezco', empobrecer: 'añade z: empobrezco', embellecer: 'añade z: embellezco', enloquecer: 'añade z: enloquezco',
     enflaquecer: 'añade z: enflaquezco', endurecer: 'añade z: endurezco', enmudecer: 'añade z: enmudezco', anochecer: 'añade z: anochezca',
-    enterrar: 'diptonga: entierro' };
+    enterrar: 'diptonga: entierro',
+    // verbos de las lecciones del modo maestro
+    haber: 'he, hube, habré', tener: 'tengo, tuve, tendré', ser: 'soy, fui', ir: 'voy, fui', saber: 'sé, supe, sabré',
+    querer: 'quiero, quise, querré', estar: 'estoy, estuve', traducir: 'traduzco, traduje', salir: 'salgo, saldré',
+    decir: 'digo, dije, dicho', hacer: 'hago, hice, hecho', ver: 'veo, vi, visto', descubrir: 'participio irregular: descubierto' };
   const NOTAS_VER = { releer: 'Los cambios de letra de leer (leyó) son ortográficos, no irregularidades.', enfriar: 'El acento de enfrío no cuenta como irregularidad.' };
-  const TIEMPO_DE = { pres: 'pres', impf: 'impf', fut: 'fut', cond: 'cond', spres: 'pres', sra: 'impf', sse: 'impf', indef: 'indef' };
-  const MODO_DE = { pres: 'ind', impf: 'ind', fut: 'ind', cond: 'ind', indef: 'ind', spres: 'sub', sra: 'sub', sse: 'sub' };
+  const TIEMPO_DE = { pres: 'pres', impf: 'impf', fut: 'fut', cond: 'cond', spres: 'pres', sra: 'impf', sse: 'impf', indef: 'indef', sfut: 'fut' };
+  const MODO_DE = { pres: 'ind', impf: 'ind', fut: 'ind', cond: 'ind', indef: 'ind', spres: 'sub', sra: 'sub', sse: 'sub', sfut: 'sub' };
   const NOM_T = { pres: 'presente', impf: 'pretérito imperfecto', indef: 'pretérito perfecto simple', fut: 'futuro simple', cond: 'condicional simple' };
   const NOM_M = { ind: 'indicativo', sub: 'subjuntivo' };
   const NO_PERS = { inf: 'infinitivo', ger: 'gerundio', par: 'participio' };
-  const IGUALES_V = ['impf', 'cond', 'spres', 'sra', 'sse'];
+  const IGUALES_V = ['impf', 'cond', 'spres', 'sra', 'sse', 'sfut'];
   function verbo(it) {
-    const t = it.tiempo || 'inf', inf = it.verbo || it.palabra;
+    const t = it.tiempo || 'inf', infs = (it.verbo || it.palabra).split('/').map(x => x.trim()), inf = infs[0]; // fuéramos: ser / ir
     const conj = { ar: '1', er: '2', ir: '3' }[inf.slice(-2)];
     const reg = IRREG[inf] ? 'irr' : 'reg';
     const personal = !NO_PERS[t];
@@ -227,6 +231,7 @@ medianoche CIKffs|sinvergüenza CIKxcs|centrocampista CIKxcs|mileurista CIKxcs
     const pers = personal ? `${persona}.ª persona del ${numero === 's' ? 'singular' : 'plural'}` : '';
     const nota = [personas.length > 1 ? `En este tiempo la 1.ª y la 3.ª persona del singular coinciden: se acepta cualquiera de las dos.` : '',
       tiempos.length > 1 ? `En los verbos en ‑ar e ‑ir, la 1.ª persona del plural del presente coincide con la del pretérito perfecto simple (${it.palabra}): el contexto decide.` : '',
+      infs.length > 1 ? `Puede ser de ${infs.map(v => `«${v}» (${{ ar: '1.ª', er: '2.ª', ir: '3.ª' }[v.slice(-2)]} conjugación)`).join(' o de ')}: comparten esta forma.` : '',
       NOTAS_VER[inf] || ''].filter(Boolean).join(' ');
     const descr = personal ? `${pers} del ${NOM_T[tiempo]} de ${NOM_M[modo]}` : `forma no personal: ${NO_PERS[t]}${t === 'par' ? `, ${it.segs.some(s => s[0] === 'a' && s[1] === 'G') ? 'femenino' : 'masculino'} ${numero === 'p' ? 'plural' : 'singular'}` : ''}`;
     const rasgos = [
@@ -238,7 +243,8 @@ medianoche CIKffs|sinvergüenza CIKxcs|centrocampista CIKxcs|mileurista CIKxcs
       { k: 'reg', txt: reg === 'irr' ? `Irregular: ${IRREG[inf]}.` : 'Regular: conserva el lexema y las desinencias de su modelo en toda la conjugación.' },
       { k: 'voz', txt: 'Voz activa (es una forma simple; la pasiva se forma con ser + participio).' }
     ];
-    return { persona, personas, numero, tiempo, tiempos, modo, aspecto, conj, reg, rasgos, nota,
+    const conjs = [...new Set(infs.map(v => ({ ar: '1', er: '2', ir: '3' }[v.slice(-2)])))];
+    return { persona, personas, numero, tiempo, tiempos, modo, aspecto, conj, conjs, reg, rasgos, nota,
       resumen: `Forma verbal del verbo «${inf}» (${conj}.ª conjugación, ${reg === 'irr' ? 'irregular' : 'regular'}): ${descr}; aspecto ${aspecto === 'perf' ? 'perfectivo' : 'imperfectivo'}, voz activa.` };
   }
   const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
@@ -249,6 +255,40 @@ medianoche CIKffs|sinvergüenza CIKxcs|centrocampista CIKxcs|mileurista CIKxcs
     if (it.cat === 'adv') return adverbio(it);
     if (it.cat === 'ver') return verbo(it);
     return null;
+  }
+
+  // ───────── Separación completa, con las ausencias (ø) ─────────
+  // Cada morfema con su nombre y su valor, y los morfemas flexivos que faltan marcados con ø:
+  //   cam‑a‑ø (ausencia de afijo flexivo de número: singular), trabajador‑ø‑ø, cant‑a‑ø‑s, cant‑a‑ba‑ø.
+  const NOMBRE_AF = { L: 'lexema', P: 'prefijo', S: 'sufijo', A: 'sufijo apreciativo', I: 'interfijo', G: 'afijo flexivo de género',
+    N: 'afijo flexivo de número', V: 'vocal temática', T: 'afijo flexivo de tiempo, aspecto y modo', X: 'afijo flexivo de número y persona',
+    R: 'afijo flexivo de infinitivo', E: 'afijo flexivo de gerundio', D: 'afijo flexivo de participio' };
+  const TIEMPO_TXT = { pres: 'presente de indicativo', impf: 'pretérito imperfecto de indicativo', indef: 'pretérito perfecto simple de indicativo',
+    fut: 'futuro simple de indicativo', cond: 'condicional simple', spres: 'presente de subjuntivo', sra: 'pretérito imperfecto de subjuntivo',
+    sse: 'pretérito imperfecto de subjuntivo', sfut: 'futuro simple de subjuntivo' };
+  const PERS_TXT = ['1.ª persona del singular', '2.ª persona del singular', '3.ª persona del singular', '1.ª persona del plural', '2.ª persona del plural', '3.ª persona del plural'];
+  function separacion(it) {
+    const c = clasificar(it), t = it.tiempo, personal = t && TIEMPO_TXT[t];
+    const persTxt = n => IGUALES_V.includes(t) && (n === 0 || n === 2) ? '1.ª o 3.ª persona del singular' : PERS_TXT[n];
+    const valor = (s, tipo) => tipo === 'G' ? (s === 'a' ? 'femenino' : 'masculino') : tipo === 'N' ? 'plural'
+      : tipo === 'X' && personal ? persTxt(it.persona) : tipo === 'T' && personal ? TIEMPO_TXT[t] : '';
+    const out = it.segs.map(([s, tipo]) => ({ s, tipo, nombre: NOMBRE_AF[tipo], valor: valor(s, tipo), ausente: false }));
+    const ø = (tipo, v) => ({ s: 'ø', tipo, nombre: 'ausencia de ' + NOMBRE_AF[tipo], valor: v, ausente: true });
+    const tiene = tipo => it.segs.some(x => x[1] === tipo);
+    const idxN = out.findIndex(x => x.tipo === 'N');
+    if (it.cat === 'sus' || it.cat === 'adj' || t === 'par') {
+      // género: solo si la palabra tiene forma para el otro género y esta no lo marca (trabajador/trabajador‑a, franc‑és/franc‑es‑a)
+      const variable = it.cat === 'sus' ? c && c.tg === 'v' : it.cat === 'adj' ? c && c.term === '2' : false;
+      if (variable && !tiene('G')) out.splice(idxN >= 0 ? idxN : out.length, 0, ø('G', 'masculino'));
+      // número: singular sin marca (cam‑a‑ø); no en los invariables (el sacacorchos)
+      if (!tiene('N') && !(c && c.n === 'i')) out.push(ø('N', 'singular'));
+    } else if (personal) {
+      const amalgama = t === 'pres' && it.persona === 0; // cant‑o: la ‑o lo reúne todo
+      if (t === 'spres' && !tiene('V')) out.splice(1, 0, ø('V', 'el presente de subjuntivo no la lleva'));
+      if (!tiene('T') && !amalgama) { const i = out.findIndex(x => x.tipo === 'X'); out.splice(i >= 0 ? i : out.length, 0, ø('T', TIEMPO_TXT[t])); }
+      if (!tiene('X') && !amalgama) out.push(ø('X', persTxt(it.persona)));
+    }
+    return { partes: out, texto: out.map(x => x.s).join('-'), ausencias: out.filter(x => x.ausente) };
   }
 
   // ───────── Dificultad (1–5) y tiempo del desafío ─────────
@@ -291,7 +331,7 @@ medianoche CIKffs|sinvergüenza CIKxcs|centrocampista CIKxcs|mileurista CIKxcs
       { k: 'tiempo', titulo: 'Tiempo', opciones: [['pres', 'Presente'], ['impf', 'Pret. imperfecto'], ['indef', 'Pret. perfecto simple'], ['fut', 'Futuro'], ['cond', 'Condicional'], ['0', 'Ninguno (no personal)']], buenas: c => c.tiempos },
       { k: 'modo', titulo: 'Modo', opciones: [['ind', 'Indicativo'], ['sub', 'Subjuntivo'], ['imp', 'Imperativo'], ['np', 'Forma no personal']], buenas: c => [c.modo] },
       { k: 'asp', titulo: 'Aspecto', opciones: [['imp', 'Imperfectivo'], ['perf', 'Perfectivo']], buenas: c => [c.aspecto] },
-      { k: 'conj', titulo: 'Conjugación', opciones: [['1', '1.ª (‑ar)'], ['2', '2.ª (‑er)'], ['3', '3.ª (‑ir)']], buenas: c => [c.conj] },
+      { k: 'conj', titulo: 'Conjugación', opciones: [['1', '1.ª (‑ar)'], ['2', '2.ª (‑er)'], ['3', '3.ª (‑ir)']], buenas: c => c.conjs },
       { k: 'reg', titulo: 'Regular o irregular', opciones: [['reg', 'Regular'], ['irr', 'Irregular']], buenas: c => [c.reg] }
     ],
     adv: [
@@ -300,7 +340,7 @@ medianoche CIKffs|sinvergüenza CIKxcs|centrocampista CIKxcs|mileurista CIKxcs
     ]
   };
 
-  const API = { clasificar, sustantivo, adjetivo, adverbio, verbo, CLAS, NOMBRES, TIPO_GEN, dificultad, MINUTOS, NIVELES, PREGUNTAS };
+  const API = { clasificar, separacion, sustantivo, adjetivo, adverbio, verbo, CLAS, NOMBRES, TIPO_GEN, dificultad, MINUTOS, NIVELES, PREGUNTAS };
   if (typeof module !== 'undefined' && module.exports) module.exports = API;
   else global.Clasificacion = API;
 })(typeof window !== 'undefined' ? window : globalThis);

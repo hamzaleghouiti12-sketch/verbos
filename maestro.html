@@ -166,7 +166,7 @@
 <script>
 const { ITEMS, TIPOS, CATS, TIEMPOS_V, PERS, sinTilde, explicarMorfema, porQueFormacion, redaccionModelo } = Morfemas;
 const { LECCIONES, palabrasDe } = Lecciones;
-const { clasificar } = Clasificacion;
+const { clasificar, separacion } = Clasificacion;
 const POR_PALABRA = new Map();
 for (const it of ITEMS) if (!POR_PALABRA.has(sinTilde(it.palabra))) POR_PALABRA.set(sinTilde(it.palabra), it);
 const nombreDe = l => palabrasDe(l).map(p => p.palabra).join(' ');
@@ -199,6 +199,12 @@ function explicacion(it, i) {
   return explicarMorfema(it, i);
 }
 
+// las ausencias (ø): los morfemas flexivos que esta forma no lleva (cam‑a‑ø, cant‑a‑ba‑ø)
+function textoAusencias(it) {
+  const s = separacion(it);
+  return s.ausencias.length ? `Con las ausencias se escribe ${s.texto}: ${s.ausencias.map(a => `ø = ${a.nombre} (${a.valor})`).join('; ')}.` : '';
+}
+
 // ───────── Los pasos de la lección ─────────
 // Cada morfema se nombra «palabra.morfema»; cada paso guarda qué se resalta (on), qué palabras
 // están ya separadas (sep) y qué morfemas se han explicado antes (visto).
@@ -228,8 +234,7 @@ function construirPasos() {
     vistos.push(...L.map(k)); sep.push(w);
     paso({ titulo: pre + 'Separa los morfemas',
       txt: `Se corta entre piezas que tienen forma y función propias: ${it.segs.map(s => s[0]).join(' ‑ ')}.`,
-      sec: it.tiempo && it.persona !== undefined && !it.segs.some(x => x[1] === 'X') ? 'En esta persona el morfema de número y persona es cero: no tiene forma visible.'
-        : 'Nunca se deja el lexema pegado a una terminación ni se parte un morfema por la mitad.' });
+      sec: textoAusencias(it) || 'Nunca se deja el lexema pegado a una terminación ni se parte un morfema por la mitad.' });
     it.segs.forEach(([, t], i) => {
       if (t === 'L') return;
       paso({ titulo: `${pre}${g(it, i)} · ${TIPOS[t]}`, on: [k(i)], txt: explicacion(it, i) });
@@ -242,7 +247,7 @@ function construirPasos() {
   const cla = !varias && clasificar(pals[0]);
   if (cla) paso({ titulo: `Clasifícala como ${CATS[pals[0].cat]}`, todo: true, lista: cla.rasgos.map(r => r.txt), sec: cla.nota });
   paso({ titulo: 'Así se escribe en el examen', todo: true,
-    modelo: varias ? `«${lec.palabra}» es el ${lec.tt} de «${pals.at(-1).verbo}»: forma verbal compuesta (auxiliar haber + participio). Se analiza cada palabra por separado.\n\n${pals.map(redaccionModelo).join('\n\n')}` : redaccionModelo(pals[0]) + (cla ? '\n\n' + cla.resumen : '') });
+    modelo: varias ? `«${lec.palabra}» es el ${lec.tt} de «${pals.at(-1).verbo}»: forma verbal compuesta (auxiliar haber + participio). Se analiza cada palabra por separado.\n\n${pals.map(p => redaccionModelo(p) + (textoAusencias(p) ? ' ' + textoAusencias(p) : '')).join('\n\n')}` : redaccionModelo(pals[0]) + (textoAusencias(pals[0]) ? ' ' + textoAusencias(pals[0]) : '') + (cla ? '\n\n' + cla.resumen : '') });
   return pasos;
 }
 

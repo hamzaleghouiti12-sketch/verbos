@@ -925,7 +925,8 @@ hispanoamericano|adj|compuesta|hispan/L o/I americ/L an/S o/G
     if (!n && form === 'parasintética') n = NOTA_PARA;
     if (!n && segs.some(s => s[0] === 'ísim')) n = NOTA_ISIM;
     if (!n && cat === 'adv' && segs.some(s => s[0] === 'mente')) n = NOTA_MENTE;
-    if (!n && segs.some(s => s[1] === 'V') && cat !== 'ver' && form !== 'compuesta') n = NOTA_V;
+    const ultimo = segs.filter(s => s[1] !== 'N').at(-1); // la nota es sobre la vocal final (cas-a-s), no sobre la de trabaj-a-dor
+    if (!n && ultimo[1] === 'V' && cat !== 'ver' && form !== 'compuesta') n = NOTA_V;
     ITEMS.push({ palabra, cat, form, segs, alts: altTxt ? altTxt.split(';').map(a => a.trim()).filter(Boolean) : [], nota: n });
   }
   const ver = Object.values(VERBOS_SIMPLES).join(' ').split(' ');
