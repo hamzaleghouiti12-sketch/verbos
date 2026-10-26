@@ -65,6 +65,15 @@
 .corr-nota small{display:block;font-size:13px;color:var(--label2);margin-top:4px}
 .todo-bien{flex:none;font-size:14px;font-weight:600;padding:9px 14px;border-radius:11px;background:var(--fill);color:var(--blue)}
 .res-fila .row-title b{font-weight:600}
+.modelo-cla{font-size:16px;line-height:1.5;padding:12px 14px;border-radius:13px;border:1px dashed var(--sep);margin-top:4px}
+.chips-cla{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.linea.chip{width:auto;margin:0;padding:7px 11px 7px 8px;align-items:center;gap:7px}
+.linea.chip .marca{width:20px;height:20px;margin:0}
+.linea.chip .txt{font-size:14px;font-weight:600}
+.porque-cla{margin-top:10px;font-size:14px;color:var(--label2)}
+.porque-cla summary{cursor:pointer;font-weight:600;color:var(--blue)}
+.porque-cla ul{margin:6px 0 0;padding-left:18px;line-height:1.45}
+.porque-cla li{margin-top:4px}
 </style>
 </head>
 <body>
@@ -289,11 +298,11 @@ function corregir(agotado) {
   const sepLineas = sep.partes.map((p, i) => ({ grupo: 'sep', ausente: p.ausente,
     html: `<b class="t-${p.tipo}" style="color:${p.ausente ? 'var(--label2)' : 'var(--c)'}">${esc(pieza(sep.partes, i))}</b> — ${esc(p.nombre)}${p.valor ? ` (${esc(p.valor)})` : ''}` }));
   const formLinea = { grupo: 'form', html: `<b>Palabra ${esc(w.form)}</b><small>${esc(porQueFormacion(w))}</small>` };
-  const claLineas = cla.rasgos.filter(r => r.k !== 'pos').map(r => ({ grupo: 'cla', html: esc(r.txt) }));
+  const claLineas = cla.etiquetas.map(e => ({ grupo: 'cla', chip: true, html: esc(e) }));
   const lineas = [...sepLineas, formLinea, ...claLineas];
   marcas = lineas.map(() => null);
   let k = 0;
-  const fila = l => `<button class="linea${l.ausente ? ' ausente' : ''}" data-k="${k++}"><span class="marca">${svg('check', 14, 3.4)}</span><span class="txt">${l.html}</span></button>`;
+  const fila = l => `<button class="linea${l.ausente ? ' ausente' : ''}${l.chip ? ' chip' : ''}" data-k="${k++}"><span class="marca">${svg('check', 14, 3.4)}</span><span class="txt">${l.html}</span></button>`;
   $('#zonaPapel').hidden = true;
   $('#corr').hidden = false;
   $('#corr').innerHTML = `${agotado ? '<p class="tiempo-fin">Se acabó el tiempo.</p>' : ''}
@@ -301,7 +310,10 @@ function corregir(agotado) {
     <div class="sep-grande">${sep.partes.map(p => p.ausente ? '<span class="cero">ø</span>' : `<span class="t-${p.tipo}">${esc(p.s)}</span>`).join('-')}</div>
     ${sepLineas.map(fila).join('')}
     <div class="corr-tit">Formación</div>${fila(formLinea)}
-    <div class="corr-tit">Clasificación ${esc(singular(ronda.cat)).replace(/^el /, "del ").replace(/^la /, "de la ")}</div>${claLineas.map(fila).join('')}
+    <div class="corr-tit">Clasificación ${esc(singular(ronda.cat)).replace(/^el /, "del ").replace(/^la /, "de la ")}</div>
+    <div class="modelo-cla">${esc(cla.redaccion)}</div>
+    <div class="chips-cla">${claLineas.map(fila).join('')}</div>
+    <details class="porque-cla"><summary>Por qué cada rasgo</summary><ul>${cla.rasgos.map(r => `<li>${esc(r.txt)}</li>`).join('')}</ul></details>
     ${cla.nota ? `<p class="nota-aviso">${esc(cla.nota)}</p>` : ''}${w.nota ? `<p class="nota-aviso">${esc(w.nota)}</p>` : ''}
     <div class="corr-nota"><div><div class="grande num" id="notaPalabra">–</div><small id="notaDetalle"></small></div>
       <button class="todo-bien" id="todoBien">Marcar el resto bien</button></div>

@@ -245,7 +245,7 @@ function construirPasos() {
     txt: varias ? pals.map(it => `${it.palabra}: ${porQueFormacion(it)}`).join(' ') : porQueFormacion(pals[0]), sec: lec.nota });
   // clasificación gramatical de la palabra (sustantivo: común, concreto…, género y número)
   const cla = !varias && clasificar(pals[0]);
-  if (cla) paso({ titulo: `Clasifícala como ${CATS[pals[0].cat]}`, todo: true, lista: cla.rasgos.map(r => r.txt), sec: cla.nota });
+  if (cla) paso({ titulo: `Clasifícala como ${CATS[pals[0].cat]}`, todo: true, txt: cla.redaccion, lista: cla.rasgos.map(r => r.txt), sec: cla.nota });
   paso({ titulo: 'Así se escribe en el examen', todo: true,
     modelo: varias ? `«${lec.palabra}» es el ${lec.tt} de «${pals.at(-1).verbo}»: forma verbal compuesta (auxiliar haber + participio). Se analiza cada palabra por separado.\n\n${pals.map(p => redaccionModelo(p) + (textoAusencias(p) ? ' ' + textoAusencias(p) : '')).join('\n\n')}` : redaccionModelo(pals[0]) + (textoAusencias(pals[0]) ? ' ' + textoAusencias(pals[0]) : '') + (cla ? '\n\n' + cla.resumen : '') });
   return pasos;

@@ -124,17 +124,24 @@ medianoche CIKffs|sinvergüenza CIKxcs|centrocampista CIKxcs|mileurista CIKxcs
       f: 'inherente: no tiene forma para el otro género', c: 'común en cuanto al género: una sola forma, el artículo marca el sexo (el/la)',
       e: 'epiceno: una sola forma y un solo género para los dos sexos', a: 'ambiguo: admite los dos géneros sin cambiar de significado',
       h: `heterónimo: el otro sexo se nombra con otra palabra (${otro})` }[tg];
+    // orden de la clasificación: común, concreto/abstracto, contable, individual/colectivo, número y género
     const rasgos = [
-      { k: 'comun', valor: 'común', txt: 'Común: nombra cualquier ser de su clase, no a uno en particular (no es nombre propio).' },
-      { k: 'ca', valor: NOMBRES[ca], txt: ca === 'C' ? 'Concreto: nombra algo que se puede percibir con los sentidos.' : 'Abstracto: nombra una cualidad, acción, sentimiento o idea que no se percibe con los sentidos.' },
-      { k: 'il', valor: NOMBRES[il], txt: il === 'L' ? 'Colectivo: en singular nombra un conjunto de seres de la misma clase.' : 'Individual: en singular nombra un solo ser.' },
-      { k: 'cont', valor: NOMBRES[k], txt: k === 'K' ? 'Contable: se puede contar por unidades (admite numerales: dos, tres…).' : k === 'N' ? 'No contable: no se cuenta por unidades (mucha, poca…; no admite numerales en este sentido).' : 'Contable o no contable según el sentido en que se use.' },
-      { k: 'gen', valor: tg === 'c' ? 'común en cuanto al género' : tg === 'a' ? 'ambiguo' : NOMBRES[g],
-        txt: tg === 'c' || tg === 'a' ? `Género ${genTxt}.` : `Género ${NOMBRES[g]}, ${genTxt}.` },
-      { k: 'num', valor: NOMBRES[n], txt: n === 'i' ? 'Número invariable: la misma forma en singular y en plural (el/los).' : n === 'p' ? 'Número plural.' : 'Número singular.' }
+      { k: 'comun', txt: 'Común: nombra cualquier ser de su clase, no a uno en particular (no es nombre propio).' },
+      { k: 'ca', txt: ca === 'C' ? 'Concreto: nombra algo que se puede percibir con los sentidos.' : 'Abstracto: nombra una cualidad, acción, sentimiento o idea que no se percibe con los sentidos.' },
+      { k: 'cont', txt: k === 'K' ? 'Contable: se puede contar por unidades (admite numerales: dos, tres…).' : k === 'N' ? 'No contable: no se cuenta por unidades (mucha, poca…; no admite numerales en este sentido).' : 'Contable o no contable según el sentido en que se use.' },
+      { k: 'il', txt: il === 'L' ? 'Colectivo: en singular nombra un conjunto de seres de la misma clase.' : 'Individual: en singular nombra un solo ser.' },
+      { k: 'num', txt: n === 'i' ? 'Número invariable: la misma forma en singular y en plural (el/los).' : n === 'p' ? 'Número plural.' : 'Número singular.' },
+      { k: 'gen', txt: tg === 'c' || tg === 'a' ? `Género ${genTxt}.` : `Género ${NOMBRES[g]}, ${genTxt}.` }
     ];
-    return { codigo: c, ca, il, k, g, tg, n, tipoGenero: TIPO_GEN[tg], rasgos, nota: NOTAS_SUS[it.palabra] || '',
-      resumen: `Sustantivo común, ${NOMBRES[ca]}, ${NOMBRES[il]}, ${NOMBRES[k]}; género ${tg === 'c' ? 'común (el/la)' : tg === 'a' ? 'ambiguo' : NOMBRES[g] + ` (${TIPO_GEN[tg]})`}; número ${n === 'i' ? 'invariable' : NOMBRES[n]}.` };
+    const p = it.palabra, contTxt = k === 'B' ? 'contable o no contable (según el sentido)' : NOMBRES[k];
+    const numTxt = n === 'i' ? `invariable en número (el/los ${p})` : `en número ${NOMBRES[n]}`;
+    const genFrase = { v: `de género ${NOMBRES[g]} variable (${g === 'm' ? 'femenino' : 'masculino'}: ${otro})`, f: `de género ${NOMBRES[g]} inherente`,
+      c: `de género común (el/la ${p})`, e: `de género ${NOMBRES[g]} epiceno (${p} macho / ${p} hembra)`, a: 'de género ambiguo (admite el masculino y el femenino)',
+      h: `de género ${NOMBRES[g]} heterónimo (el otro sexo se nombra con otra palabra: ${otro})` }[tg];
+    const etiquetas = ['común', NOMBRES[ca], k === 'B' ? 'contable o no contable' : NOMBRES[k], NOMBRES[il], n === 'i' ? 'invariable en número' : NOMBRES[n],
+      { v: `${NOMBRES[g]} variable`, f: `${NOMBRES[g]} inherente`, c: 'género común', e: `${NOMBRES[g]} epiceno`, a: 'género ambiguo', h: `${NOMBRES[g]} heterónimo` }[tg]];
+    const redaccion = `«${p}» es un sustantivo ${unir(['común', NOMBRES[ca], contTxt, NOMBRES[il]])}, ${numTxt} y ${genFrase}.`;
+    return { codigo: c, ca, il, k, g, tg, n, tipoGenero: TIPO_GEN[tg], rasgos, etiquetas, redaccion, resumen: redaccion, nota: NOTAS_SUS[it.palabra] || '' };
   }
 
   // ───────── Adjetivos ─────────
@@ -162,12 +169,14 @@ medianoche CIKffs|sinvergüenza CIKxcs|centrocampista CIKxcs|mileurista CIKxcs
       { k: 'tipo', txt: tipoTxt },
       { k: 'term', txt: dos ? `De dos terminaciones: tiene forma de masculino y de femenino (${G && G[0] === 'a' ? fem + ' / ' + p : p + ' / ' + fem}).` : 'De una terminación: la misma forma vale para el masculino y el femenino.' },
       { k: 'grado', txt: grado === 'S' ? 'Grado superlativo absoluto: ‑ísimo expresa la cualidad en su grado máximo.' : `Grado positivo: expresa la cualidad sin compararla ni intensificarla${aprec ? ' (el sufijo apreciativo añade un matiz afectivo, no grado)' : ''}.` },
-      { k: 'gen', txt: g === 'x' ? 'Género: invariable (sirve para masculino y femenino; concuerda con el sustantivo).' : `Género ${NOMBRES[g]}.` },
       { k: 'num', txt: n === 'p' ? 'Número plural.' : 'Número singular.' },
+      { k: 'gen', txt: g === 'x' ? 'Género: invariable (sirve para masculino y femenino; concuerda con el sustantivo).' : `Género ${NOMBRES[g]}.` },
       { k: 'pos', txt: 'Especificativo o explicativo no se decide con la palabra suelta: depende de su posición y sentido en la frase.' }
     ];
-    return { tipo, term: dos ? '2' : '1', grado, g, n, rasgos, nota: GENTILES.has(p) ? 'Los gentilicios son adjetivos relacionales: indican origen.' : '',
-      resumen: `Adjetivo ${tipo === 'R' ? 'relacional' + (GENTILES.has(p) ? ' (gentilicio)' : '') : tipo === 'B' ? 'calificativo o relacional según el uso' : 'calificativo'}, de ${dos ? 'dos terminaciones' : 'una terminación'}, en grado ${grado === 'S' ? 'superlativo' : 'positivo'}; ${g === 'x' ? 'invariable en género' : NOMBRES[g]}, ${NOMBRES[n]}.` };
+    const tipoCorto = tipo === 'R' ? 'relacional' + (GENTILES.has(p) ? ' (gentilicio)' : '') : tipo === 'B' ? 'calificativo o relacional según el uso' : 'calificativo';
+    const redaccion = `«${p}» es un adjetivo ${tipoCorto}, de ${dos ? 'dos terminaciones' : 'una terminación'}, en grado ${grado === 'S' ? 'superlativo' : 'positivo'}, en número ${NOMBRES[n]} y ${g === 'x' ? 'invariable en género' : 'de género ' + NOMBRES[g]}.`;
+    const etiquetas = [tipoCorto, dos ? 'dos terminaciones' : 'una terminación', `grado ${grado === 'S' ? 'superlativo' : 'positivo'}`, NOMBRES[n], g === 'x' ? 'invariable en género' : NOMBRES[g]];
+    return { tipo, term: dos ? '2' : '1', grado, g, n, rasgos, etiquetas, redaccion, resumen: redaccion, nota: GENTILES.has(p) ? 'Los gentilicios son adjetivos relacionales: indican origen.' : '' };
   }
 
   // ───────── Adverbios ─────────
@@ -196,7 +205,9 @@ medianoche CIKffs|sinvergüenza CIKxcs|centrocampista CIKxcs|mileurista CIKxcs
         { k: 'inv', txt: 'Invariable: el adverbio no tiene género ni número.' },
         { k: 'aprec', txt: aprec ? 'Lleva un sufijo apreciativo (diminutivo), propio del habla coloquial: no cambia la categoría.' : 'No lleva sufijo apreciativo.' }
       ],
-      resumen: `Adverbio de ${tipos.join(' o de ')}, invariable${aprec ? ', con sufijo apreciativo' : ''}.` };
+      etiquetas: [`de ${tipos.join(' o de ')}`, 'invariable', aprec ? 'con sufijo apreciativo' : 'sin sufijo apreciativo'],
+      redaccion: `«${it.palabra}» es un adverbio de ${tipos.join(' o de ')}, invariable (no tiene género ni número)${aprec ? ', con sufijo apreciativo diminutivo' : ''}.`,
+      get resumen() { return this.redaccion; } };
   }
 
   // ───────── Verbos ─────────
@@ -233,6 +244,7 @@ medianoche CIKffs|sinvergüenza CIKxcs|centrocampista CIKxcs|mileurista CIKxcs
       tiempos.length > 1 ? `En los verbos en ‑ar e ‑ir, la 1.ª persona del plural del presente coincide con la del pretérito perfecto simple (${it.palabra}): el contexto decide.` : '',
       infs.length > 1 ? `Puede ser de ${infs.map(v => `«${v}» (${{ ar: '1.ª', er: '2.ª', ir: '3.ª' }[v.slice(-2)]} conjugación)`).join(' o de ')}: comparten esta forma.` : '',
       NOTAS_VER[inf] || ''].filter(Boolean).join(' ');
+    const conjs = [...new Set(infs.map(v => ({ ar: '1', er: '2', ir: '3' }[v.slice(-2)])))];
     const descr = personal ? `${pers} del ${NOM_T[tiempo]} de ${NOM_M[modo]}` : `forma no personal: ${NO_PERS[t]}${t === 'par' ? `, ${it.segs.some(s => s[0] === 'a' && s[1] === 'G') ? 'femenino' : 'masculino'} ${numero === 'p' ? 'plural' : 'singular'}` : ''}`;
     const rasgos = [
       { k: 'pers', txt: personal ? `${cap(pers)}: el morfema de número y persona indica quién realiza la acción.` : 'Forma no personal: no indica persona ni número gramatical de sujeto.' },
@@ -243,11 +255,21 @@ medianoche CIKffs|sinvergüenza CIKxcs|centrocampista CIKxcs|mileurista CIKxcs
       { k: 'reg', txt: reg === 'irr' ? `Irregular: ${IRREG[inf]}.` : 'Regular: conserva el lexema y las desinencias de su modelo en toda la conjugación.' },
       { k: 'voz', txt: 'Voz activa (es una forma simple; la pasiva se forma con ser + participio).' }
     ];
-    const conjs = [...new Set(infs.map(v => ({ ar: '1', er: '2', ir: '3' }[v.slice(-2)])))];
-    return { persona, personas, numero, tiempo, tiempos, modo, aspecto, conj, conjs, reg, rasgos, nota,
-      resumen: `Forma verbal del verbo «${inf}» (${conj}.ª conjugación, ${reg === 'irr' ? 'irregular' : 'regular'}): ${descr}; aspecto ${aspecto === 'perf' ? 'perfectivo' : 'imperfectivo'}, voz activa.` };
+    const regTxt = reg === 'irr' ? 'irregular' : 'regular', aspTxt = aspecto === 'perf' ? 'perfectivo' : 'imperfectivo';
+    const deVerbo = `del verbo ${inf}${infs.length > 1 ? ' o ' + infs.slice(1).join(' o ') : ''}, de la ${conjs.map(x => x + '.ª').join(' o ')} conjugación y ${regTxt}`;
+    const persFrase = personas.length > 1 ? '1.ª o 3.ª persona del singular' : pers;
+    const redaccion = personal
+      ? `«${it.palabra}» es una forma verbal ${deVerbo}: ${persFrase} del ${NOM_T[tiempo]} de ${NOM_M[modo]}, de aspecto ${aspTxt} y en voz activa.`
+      : t === 'par' ? `«${it.palabra}» es una forma no personal (participio) ${deVerbo}, en ${descr.split(', ')[1]}, de aspecto perfectivo.`
+      : `«${it.palabra}» es una forma no personal (${NO_PERS[t]}) ${deVerbo}, de aspecto imperfectivo.`;
+    const etiquetas = personal
+      ? [persFrase.replace(' persona del', ''), NOM_T[tiempo], NOM_M[modo], `aspecto ${aspTxt}`, `${conjs.map(x => x + '.ª').join(' o ')} conjugación`, regTxt, 'voz activa']
+      : [NO_PERS[t] + (t === 'par' ? ' ' + descr.split(', ')[1] : ''), `aspecto ${aspTxt}`, `${conjs.map(x => x + '.ª').join(' o ')} conjugación`, regTxt];
+    return { persona, personas, numero, tiempo, tiempos, modo, aspecto, conj, conjs, reg, rasgos, etiquetas, redaccion, resumen: redaccion, nota };
   }
   const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
+  // une una lista como en una frase: «común, abstracto, no contable e individual» (y → e ante i‑/hi‑)
+  function unir(l) { if (l.length < 2) return l.join(''); const u = l.at(-1); return l.slice(0, -1).join(', ') + (/^h?i(?![aeoáéó])/i.test(u) ? ' e ' : ' y ') + u; }
 
   function clasificar(it) {
     if (it.cat === 'sus') return sustantivo(it);
