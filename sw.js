@@ -1,6 +1,6 @@
 // Funciona sin conexión: la app se guarda al instalarse y se actualiza cuando hay red.
 // Al cambiar cualquier archivo, sube VERSION para que los móviles descarguen la nueva.
-const VERSION = 'lengua-v27';
+const VERSION = 'lengua-v28';
 const APP = ['./', 'index.html', 'morfemas.html', 'maestro.html', 'desafio.html', 'sintaxis.html', 'estilo.css', 'motor.js', 'morfemas-datos.js', 'lecciones.js', 'clasificacion.js', 'sintaxis-datos.js', 'comun.js',
   'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png'];
 

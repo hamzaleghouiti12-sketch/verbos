@@ -15,7 +15,16 @@
 <meta name="apple-mobile-web-app-title" content="Lengua">
 <style>
 .vista-seg{max-width:720px;margin:18px auto 0;padding:0 20px}
-.vista-seg .seg{margin:0;--n:3}
+.vista-seg .seg{margin:0;--n:4}
+/* Soy un tonto: lo que aportan otros, aparte del análisis */
+.aporte{padding:16px 16px 14px}
+.aporte + .aporte{margin-top:12px}
+.aporte h3{font-size:17px;font-weight:700;letter-spacing:-.01em}
+.aporte .dice{font-size:15px;line-height:1.5;margin-top:6px}
+.aporte .ej{font-size:15px;margin-top:8px;color:var(--label2)}
+.aporte .ej i{color:var(--label)}
+.aporte .ojo{font-size:14px;line-height:1.45;margin-top:12px;padding:10px 12px;border-radius:12px;background:color-mix(in srgb,var(--orange) 12%,transparent)}
+.aporte .ojo b{color:var(--orange-ink)}
 @media (max-width:600px){.vista-seg{padding:0 16px}}
 
 /* ───────── Orden de análisis ───────── */
@@ -135,7 +144,7 @@
 <div id="vInicio">
   <header class="large"><p class="date">Oración simple y compuesta</p><h1>Sintaxis</h1></header>
   <nav class="games" aria-label="Juego"><div class="seg" style="--i:2;--n:3"><span class="seg-thumb"></span><a href="index.html" aria-current="false">Verbos</a><a href="morfemas.html" aria-current="false">Morfemas</a><a href="sintaxis.html" aria-current="page">Sintaxis</a></div></nav>
-  <div class="vista-seg"><div class="seg" id="vistaSeg"><span class="seg-thumb"></span><button role="radio" data-v="esquema">Esquema</button><button role="radio" data-v="identificar">Identificar</button><button role="radio" data-v="practica">En papel</button></div></div>
+  <div class="vista-seg"><div class="seg" id="vistaSeg"><span class="seg-thumb"></span><button role="radio" data-v="esquema">Esquema</button><button role="radio" data-v="identificar">Identificar</button><button role="radio" data-v="practica">En papel</button><button role="radio" data-v="tonto">Soy un tonto</button></div></div>
 
   <!-- Esquema -->
   <main class="layout" id="zEsquema">
@@ -206,6 +215,13 @@
     <div class="section-head"><h2>Historial</h2></div>
     <div class="list" id="iHist"></div>
     <p class="foot">Rondas de 10 oraciones. Cada vez se pregunta solo por una cosa: escribes la respuesta (o la eliges, si activas las opciones) y se comprueba al momento, con la explicación. Las respuestas salen repartidas para que practiques también los casos raros. En las compuestas se pregunta por la proposición subrayada.</p>
+  </main>
+
+  <!-- Soy un tonto: aportaciones de otros, fuera del esquema y de la práctica -->
+  <main class="layout" id="zTonto" hidden>
+    <div class="section-head"><h2>Modo soy un tonto</h2></div>
+    <div id="aportes"></div>
+    <p class="foot">Aquí se recoge lo que aportan otros. No entra en el esquema, ni en Identificar, ni en la práctica en papel.</p>
   </main>
 </div>
 
@@ -362,6 +378,14 @@ const TRAMPAS = [
 ];
 $('#pasos').innerHTML = PASOS.map(([c, t, p, pr], i) => `<div class="paso" style="--c:${c}"><span class="n">${i + 1}</span><div><h3>${t}</h3><p>${p}</p><span class="prueba">${pr}</span></div></div>`).join('');
 $('#arbol').innerHTML = `<span class="raiz">Oración</span><ul>${ARBOL.map(([c, nombre, hijos], i) => `<li style="--c:${c}"><span class="rama" style="--c:${c}"><span class="num">${i + 1}</span>${nombre}</span>${pintarRamas(hijos)}</li>`).join('')}</ul>`;
+// ───────── Soy un tonto: lo que aportan otros (con lo que dice la gramática) ─────────
+const APORTES = [
+  { titulo: 'Oración coordinada comparativa',
+    dice: 'Relaciona dos ideas para comparar sus características, indicando igualdad, superioridad o inferioridad. Utiliza expresiones como tan… como, más… que o menos… que.',
+    ejemplo: 'Juan es más alto que Pedro.',
+    gramatica: 'La gramática (RAE y manuales de Bachillerato) no recoge una «coordinada comparativa». Las comparativas (tan… como, más… que, menos… que) se estudian como construcciones comparativas; tradicionalmente, subordinadas adverbiales comparativas. En «Juan es más alto que Pedro», el segundo término lleva el verbo sobreentendido: «… que Pedro [es alto]».' }
+];
+$('#aportes').innerHTML = APORTES.map(a => `<div class="card aporte"><h3>${esc(a.titulo)}</h3><p class="dice">${esc(a.dice)}</p><p class="ej">Ejemplo: <i>${esc(a.ejemplo)}</i></p><p class="ojo"><b>Ojo:</b> ${esc(a.gramatica)}</p></div>`).join('');
 $('#trampas').innerHTML = TRAMPAS.map(([t, d]) => `<div class="trampa"><b>${t}.</b> ${d}</div>`).join('');
 
 // ───────── Vistas ─────────
@@ -377,12 +401,12 @@ function ver(id, titulo) {
   if (id !== 'vInicio' && !(history.state && history.state.juego)) history.pushState({ juego: 1 }, '');
 }
 let vista = LS.get('vista', 'esquema');
-const VISTAS = ['esquema', 'identificar', 'practica'];
+const VISTAS = ['esquema', 'identificar', 'practica', 'tonto'];
 if (!VISTAS.includes(vista)) vista = 'esquema';
 function pintarVista() {
   $('#vistaSeg').style.setProperty('--i', VISTAS.indexOf(vista));
   $('#vistaSeg').querySelectorAll('[data-v]').forEach(b => b.setAttribute('aria-checked', b.dataset.v === vista));
-  $('#zEsquema').hidden = vista !== 'esquema'; $('#zPractica').hidden = vista !== 'practica'; $('#zIdent').hidden = vista !== 'identificar';
+  $('#zEsquema').hidden = vista !== 'esquema'; $('#zPractica').hidden = vista !== 'practica'; $('#zIdent').hidden = vista !== 'identificar'; $('#zTonto').hidden = vista !== 'tonto';
 }
 $('#vistaSeg').onclick = e => { const b = e.target.closest('[data-v]'); if (b) { vista = b.dataset.v; LS.set('vista', vista); pintarVista(); } };
 
