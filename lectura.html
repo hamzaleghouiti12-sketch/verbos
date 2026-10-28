@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#F2F2F7">
+<meta name="color-scheme" content="light only">
+<title>Lectura</title>
+<link rel="stylesheet" href="estilo.css">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Lengua">
+<style>
+.vista-seg{max-width:720px;margin:18px auto 0;padding:0 20px}
+.vista-seg .seg{margin:0;--n:2}
+@media (max-width:600px){.vista-seg{padding:0 16px}}
+.libro-card{display:flex;gap:14px;align-items:center;padding:16px;margin-top:6px}
+.portada{flex:none;width:58px;height:80px;border-radius:8px;background:linear-gradient(160deg,#7a1f2b,#c2414f);color:#fff;font-weight:800;font-size:26px;display:grid;place-items:center;box-shadow:0 4px 12px rgba(122,31,43,.3)}
+.libro-card h2{font-size:20px;font-weight:700;letter-spacing:-.02em}
+.libro-card p{font-size:14px;color:var(--label2);margin-top:2px}
+.indice{padding:6px 0}
+.indice a{display:block;padding:9px 16px;font-size:15px;color:var(--blue);text-decoration:none;border-top:1px solid var(--sep)}
+.indice a:first-child{border-top:0}
+.indice details summary{list-style:none;cursor:pointer;padding:12px 16px;font-weight:600;display:flex;justify-content:space-between}
+.indice details summary::-webkit-details-marker{display:none}
+.prosa{padding:6px 20px 22px;font-size:17px;line-height:1.6}
+.prosa h1{font-size:24px;letter-spacing:-.02em;line-height:1.2;margin:18px 0 6px}
+.prosa h2{font-size:19px;letter-spacing:-.01em;line-height:1.25;margin:26px 0 6px;scroll-margin-top:70px}
+.prosa p{margin:0 0 10px}
+.prosa ul,.prosa ol{margin:0 0 10px;padding-left:22px}
+.prosa li{margin:3px 0}
+.prosa blockquote{margin:10px 0;padding:10px 14px;border-left:3px solid var(--blue);background:var(--fill);border-radius:0 10px 10px 0;font-style:italic}
+.prosa .tabla{overflow-x:auto;margin:8px 0 12px}
+.prosa table{border-collapse:collapse;font-size:14px;min-width:520px}
+.prosa th,.prosa td{border:1px solid var(--sep);padding:6px 8px;text-align:left;vertical-align:top}
+.prosa th{background:var(--fill)}
+.arriba{position:fixed;right:16px;bottom:calc(18px + env(safe-area-inset-bottom));width:44px;height:44px;border-radius:50%;background:var(--card);box-shadow:var(--shadow),0 2px 8px rgba(0,0,0,.12);color:var(--blue);display:grid;place-items:center;opacity:0;pointer-events:none;transition:opacity .2s}
+.arriba.ver{opacity:1;pointer-events:auto}
+</style>
+</head>
+<body>
+<div class="topbar" id="topbar">
+  <div class="topbar-inner">
+    <span></span>
+    <span class="topbar-title" id="topTitle">Lectura</span>
+    <span></span>
+  </div>
+</div>
+<div id="vInicio">
+  <header class="large"><p class="date">Lectura de clase</p><h1>Lectura</h1></header>
+  <nav class="games" aria-label="Juego"><div class="seg" style="--i:3;--n:4"><span class="seg-thumb"></span><a href="index.html" aria-current="false">Verbos</a><a href="morfemas.html" aria-current="false">Morfemas</a><a href="sintaxis.html" aria-current="false">Sintaxis</a><a href="lectura.html" aria-current="page">Lectura</a></div></nav>
+  <main class="layout">
+    <div class="card libro-card"><div class="portada">Él</div><div><h2>Él</h2><p>Mercedes Pinto · 1926</p><p>Narración completa y argumentos para el texto argumentativo</p></div></div>
+  </main>
+  <div class="vista-seg"><div class="seg" id="vistaSeg"><span class="seg-thumb"></span></div></div>
+  <main class="layout">
+    <div class="list indice" style="margin-top:16px"><details id="indice"><summary>Índice <span style="color:var(--label3)">›</span></summary><div id="indiceLista"></div></details></div>
+    <div class="card prosa" id="prosa" style="margin-top:14px"></div>
+    <p class="foot">Las páginas entre paréntesis son las de la 1.ª edición (Montevideo, 1926): úsalas para buscar en tu PDF la cita exacta.</p>
+  </main>
+</div>
+<button class="arriba" id="arriba" aria-label="Volver arriba"><i data-i="up" data-s="20" data-w="2.4"></i></button>
+<div class="toast" id="toast" role="status"><span class="ic"></span><span class="tx"></span></div>
+<script src="lectura-datos.js"></script>
+<script src="comun.js"></script>
+<script>
+const LS = crearAlmacen('lectura.');
+const libro = Lectura.LIBROS[0];
+let texto = LS.get('texto', 'narracion');
+if (!libro.textos.some(t => t.id === texto)) texto = 'narracion';
+$('#vistaSeg').insertAdjacentHTML('beforeend', libro.textos.map(t => `<button role="radio" data-t="${t.id}">${t.nombre}</button>`).join(''));
+function pintar() {
+  const t = libro.textos.find(x => x.id === texto), i = libro.textos.indexOf(t);
+  $('#vistaSeg').style.setProperty('--i', i);
+  $('#vistaSeg').querySelectorAll('[data-t]').forEach(b => b.setAttribute('aria-checked', b.dataset.t === texto));
+  $('#prosa').innerHTML = t.html;
+  // índice: un enlace por apartado (h2)
+  const hs = [...$('#prosa').querySelectorAll('h2')];
+  hs.forEach((h, k) => h.id = `s${k}`);
+  $('#indiceLista').innerHTML = hs.map((h, k) => `<a href="#s${k}">${esc(h.textContent)}</a>`).join('');
+  $('#indice').open = false;
+}
+$('#vistaSeg').onclick = e => { const b = e.target.closest('[data-t]'); if (b) { texto = b.dataset.t; LS.set('texto', texto); pintar(); window.scrollTo(0, $('#vistaSeg').offsetTop - 60); } };
+$('#indiceLista').onclick = e => { if (e.target.closest('a')) $('#indice').open = false; };
+// recuerda por dónde ibas leyendo en cada texto
+let guardarT = 0;
+addEventListener('scroll', () => {
+  $('#arriba').classList.toggle('ver', scrollY > 600);
+  clearTimeout(guardarT); guardarT = setTimeout(() => LS.set('pos.' + texto, scrollY), 300);
+}, { passive: true });
+$('#arriba').onclick = () => window.scrollTo(0, 0);
+function pintarInicio() {}
+pintarIconos();
+pintarInicio();
+pintar();
+const pos = LS.get('pos.' + texto, 0); if (pos) requestAnimationFrame(() => window.scrollTo(0, pos));
+if ('serviceWorker' in navigator && location.protocol !== 'file:') navigator.serviceWorker.register('sw.js').catch(() => {});
+</script>
+</body>
+</html>
